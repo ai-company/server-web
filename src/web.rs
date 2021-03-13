@@ -4,7 +4,6 @@ use crate::{route::SharedContext, urldecode};
 use chrono::prelude::*;
 use std::{
     collections::HashMap,
-    convert::TryInto,
     fs::{canonicalize, metadata, File},
     io::Read,
     path::Path,

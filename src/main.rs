@@ -17,7 +17,7 @@ mod web;
 use ai_client::AIClient;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::Server;
-use std::{convert::TryFrom, sync::Arc};
+use std::{convert::TryFrom, str::FromStr, sync::Arc};
 use std::{env, net::SocketAddr};
 use urldecode::decode as urldecode;
 use web::StaticAssetStore;
@@ -40,25 +40,18 @@ async fn main() {
     )
     .unwrap();
 
-    let port_server = env::var("PORT_SERVER")
-        .unwrap_or("8000".into())
-        .parse()
-        .unwrap();
-    let addr_server = SocketAddr::from(([127, 0, 0, 1], port_server));
+    let host = env::var("HOST").unwrap_or("127.0.0.1".into());
+
+    let port_server = env::var("PORT_SERVER").unwrap_or("8000".into());
+    let port_model_danish = env::var("PORT_MODEL_DANISH").unwrap_or("9000".into());
+    let port_model_english = env::var("PORT_MODEL_ENGLISH").unwrap_or("9001".into());
+
+    let addr_server = SocketAddr::from_str(&format!("{}:{}", host, port_server)).unwrap();
+    let addr_danish = SocketAddr::from_str(&format!("{}:{}", host, port_model_danish)).unwrap();
+    let addr_english = SocketAddr::from_str(&format!("{}:{}", host, port_model_english)).unwrap();
+
     let server = Server::bind(&addr_server);
-
-    let port_model_danish = env::var("PORT_MODEL_DANISH")
-        .unwrap_or("9000".into())
-        .parse()
-        .unwrap();
-    let addr_danish = SocketAddr::from(([127, 0, 0, 1], port_model_danish));
     let model_danish = AIClient::new(addr_danish);
-
-    let port_model_english = env::var("PORT_MODEL_ENGLISH")
-        .unwrap_or("9001".into())
-        .parse()
-        .unwrap();
-    let addr_english = SocketAddr::from(([127, 0, 0, 1], port_model_english));
     let model_english = AIClient::new(addr_english);
 
     let shared_context = Arc::new(route::SharedContext {
