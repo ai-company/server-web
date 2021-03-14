@@ -40,15 +40,19 @@ async fn main() {
     )
     .unwrap();
 
-    let host = env::var("HOST").unwrap_or("127.0.0.1".into());
+    let host_server = env::var("HOST_SERVER").unwrap_or("127.0.0.1".into());
+    let host_danish = env::var("HOST_DANISH").unwrap_or("127.0.0.1".into());
+    let host_english = env::var("HOST_ENGLISH").unwrap_or("127.0.0.1".into());
 
     let port_server = env::var("PORT_SERVER").unwrap_or("8000".into());
     let port_model_danish = env::var("PORT_MODEL_DANISH").unwrap_or("9000".into());
     let port_model_english = env::var("PORT_MODEL_ENGLISH").unwrap_or("9001".into());
 
-    let addr_server = SocketAddr::from_str(&format!("{}:{}", host, port_server)).unwrap();
-    let addr_danish = SocketAddr::from_str(&format!("{}:{}", host, port_model_danish)).unwrap();
-    let addr_english = SocketAddr::from_str(&format!("{}:{}", host, port_model_english)).unwrap();
+    let addr_server = SocketAddr::from_str(&format!("{}:{}", host_server, port_server)).unwrap();
+    let addr_danish =
+        SocketAddr::from_str(&format!("{}:{}", host_danish, port_model_danish)).unwrap();
+    let addr_english =
+        SocketAddr::from_str(&format!("{}:{}", host_english, port_model_english)).unwrap();
 
     let server = Server::bind(&addr_server);
     let model_danish = AIClient::new(addr_danish);
