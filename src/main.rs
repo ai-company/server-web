@@ -18,7 +18,10 @@ use ai_client::AIClient;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::Server;
 use std::{convert::TryFrom, str::FromStr, sync::Arc};
-use std::{env, net::SocketAddr};
+use std::{
+    env,
+    net::{SocketAddr, ToSocketAddrs},
+};
 use urldecode::decode as urldecode;
 use web::StaticAssetStore;
 
@@ -48,11 +51,21 @@ async fn main() {
     let port_model_danish = env::var("PORT_MODEL_DANISH").unwrap_or("9000".into());
     let port_model_english = env::var("PORT_MODEL_ENGLISH").unwrap_or("9001".into());
 
-    let addr_server = SocketAddr::from_str(&format!("{}:{}", host_server, port_server)).unwrap();
-    let addr_danish =
-        SocketAddr::from_str(&format!("{}:{}", host_danish, port_model_danish)).unwrap();
-    let addr_english =
-        SocketAddr::from_str(&format!("{}:{}", host_english, port_model_english)).unwrap();
+    let addr_server = format!("{}:{}", host_server, port_server)
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap();
+    let addr_danish = format!("{}:{}", host_danish, port_model_danish)
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap();
+    let addr_english = format!("{}:{}", host_english, port_model_english)
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap();
 
     let server = Server::bind(&addr_server);
     let model_danish = AIClient::new(addr_danish);
