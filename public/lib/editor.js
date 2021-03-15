@@ -218,6 +218,15 @@ function ignore_all_corrections() {
     document.getElementById("correction-list").innerHTML = "";
 }
 
+/**
+ * @callback correctionsCallback
+ * @param {[[number, string, string]]} diff
+ * @param {string[]} explanations
+ */
+
+/**
+ * @param {correctionsCallback} callback
+ */
 function fetch_corrections(callback) {
     document.getElementById("corrections-submit").classList.add("loading");
 
@@ -229,11 +238,12 @@ function fetch_corrections(callback) {
 
     request.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            let diffResult = diff.main(userText, this.response);
+            let { result, explanations } = JSON.parse(this.response);
+            let diffResult = diff.main(userText, result);
             diff.cleanupSemantic(diffResult);
 
             diffResult = regroup_replacements(diffResult);
-            callback(diffResult);
+            callback(diffResult, explanations);
             document.getElementById("corrections-submit").classList.remove("loading");
         } else if (this.readyState == 4) {
             console.log("failure");
@@ -241,7 +251,7 @@ function fetch_corrections(callback) {
     };
 }
 
-function show_corrections_editor(corrections) {
+function show_corrections_editor(corrections, explanations) {
     document.getElementById("data").innerHTML = diff_into_html(corrections);
 }
 
@@ -253,7 +263,7 @@ function card_mouse_leave(e) {
     document.getElementById(this.dataset.linkTo).classList.remove("active");
 }
 
-function show_corrections_panel(corrections) {
+function show_corrections_panel(corrections, explanations) {
     const correctionList = document.getElementById("correction-list");
     const newCorrections = [];
 
@@ -296,32 +306,48 @@ function show_corrections_panel(corrections) {
         card.addEventListener("mouseleave", card_mouse_leave);
         card.innerHTML = change;
 
-        let actions = document.createElement("div");
-        actions.classList.add("actions");
+        {
+            let actions = document.createElement("div");
+            actions.classList.add("actions");
 
-        let actionAccept = document.createElement("button");
-        actionAccept.innerHTML = icon("tick-circle");
-        actionAccept.classList.add("accept");
-        actionAccept.title = "Accepter";
-        actionAccept.dataset.linkTo = `diff-${i}`;
-        actionAccept.addEventListener("click", accept_correction);
+            {
+                let actionAccept = document.createElement("button");
+                actionAccept.innerHTML = `${icon("tick-circle")} Accepter`;
+                actionAccept.classList.add("accept");
+                actionAccept.title = "Accepter";
+                actionAccept.dataset.linkTo = `diff-${i}`;
+                actionAccept.addEventListener("click", accept_correction);
 
-        let actionReport = document.createElement("button");
-        actionReport.innerHTML = icon("flag");
-        actionReport.classList.add("report");
-        actionReport.title = "Rapporter";
-        actionReport.dataset.linkTo = `diff-${i}`;
-        actionReport.addEventListener("click", report_correction);
+                let actionReport = document.createElement("button");
+                actionReport.innerHTML = icon("flag");
+                actionReport.classList.add("report");
+                actionReport.title = "Rapporter";
+                actionReport.dataset.linkTo = `diff-${i}`;
+                actionReport.addEventListener("click", report_correction);
 
-        let actionIgnore = document.createElement("button");
-        actionIgnore.innerHTML = icon("bin");
-        actionIgnore.classList.add("ignore");
-        actionIgnore.title = "Ignorer";
-        actionIgnore.dataset.linkTo = `diff-${i}`;
-        actionIgnore.addEventListener("click", ignore_correction);
+                let actionIgnore = document.createElement("button");
+                actionIgnore.innerHTML = icon("bin");
+                actionIgnore.classList.add("ignore");
+                actionIgnore.title = "Ignorer";
+                actionIgnore.dataset.linkTo = `diff-${i}`;
+                actionIgnore.addEventListener("click", ignore_correction);
 
-        actions.append(actionAccept, actionIgnore, actionReport);
-        card.append(actions);
+                actions.append(actionAccept, actionIgnore, actionReport);
+            }
+
+            if (diff[1][0] == ",") {
+                let explanation = explanations.shift();
+
+                let eexplanation = document.createElement("div");
+                eexplanation.classList.add("explanation");
+                eexplanation.innerText = explanation.text;
+
+                card.append(eexplanation);
+            }
+
+            card.append(actions);
+        }
+
         newCorrections.push(card);
     }
 
@@ -330,10 +356,10 @@ function show_corrections_panel(corrections) {
 }
 
 function get_and_show_corrections() {
-    fetch_corrections((corrections) => {
+    fetch_corrections((corrections, explanations) => {
         current_diff_list = corrections;
-        show_corrections_editor(corrections);
-        show_corrections_panel(corrections);
+        show_corrections_editor(corrections, explanations);
+        show_corrections_panel(corrections, explanations);
     });
 }
 

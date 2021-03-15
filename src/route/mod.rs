@@ -63,18 +63,24 @@ pub async fn route(req: Request<Body>, context: Arc<SharedContext>) -> Response 
     };
 
     match &result {
-        Ok(response) => println!(
-            "\x1b[30;1m{} {}{:>7} {} {:.128}\x1b[0m",
-            time,
-            if response.status().as_u16() >= 400 {
+        Ok(response) => {
+            let color = if response.status().as_u16() >= 400 {
                 "\x1b[31m"
+            } else if response.status().as_u16() == 304 {
+                ""
             } else {
                 "\x1b[32m"
-            },
-            method,
-            response.status().as_u16(),
-            path
-        ),
+            };
+
+            println!(
+                "\x1b[30;1m{} {}{:>7} {} {:.128}\x1b[0m",
+                time,
+                color,
+                method,
+                response.status().as_u16(),
+                path
+            );
+        }
         Err(_) => println!("{} \x1b[41m{:7} --- {}\x1b[0m", time, method, path),
     }
 
