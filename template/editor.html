@@ -67,15 +67,8 @@
                     <a class="modal-close" onclick="qmodal('modal-result')"></a>
                     <div class="modal-content panel">
                         <a class="modal-x" onclick="qmodal('modal-result')">
-                            <svg
-                                class="icon"
-                                viewBox="0 0 15 15"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="21"
-                                height="21"
-                            >
-                                <path d="M1.5 1.5l12 12m-12 0l12-12" stroke="currentColor"></path>
+                            <svg class="icon">
+                                <use xlink:href="/static/icons/teenyicons/outline.svg#outline--x" />
                             </svg>
                         </a>
                         <div class="feedback-result">
@@ -106,34 +99,14 @@
                 <div class="corrections-massactions">
                     <div class="header-actions">
                         <button onclick="accept_all_corrections()" class="accept-all accept">
-                            <svg
-                                class="icon"
-                                viewBox="0 0 15 15"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="30"
-                                height="30"
-                            >
-                                <path
-                                    d="M4 7.5L7 10l4-5m-3.5 9.5a7 7 0 110-14 7 7 0 010 14z"
-                                    stroke="currentColor"
-                                ></path>
+                            <svg class="icon">
+                                <use xlink:href="/static/icons/teenyicons/outline.svg#outline--tick-circle" />
                             </svg>
                             <span>Accepter alt</span>
                         </button>
                         <button onclick="ignore_all_corrections()" class="ignore-all ignore">
-                            <svg
-                                class="icon"
-                                viewBox="0 0 15 15"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="21"
-                                height="21"
-                            >
-                                <path
-                                    d="M4.5 3V1.5a1 1 0 011-1h4a1 1 0 011 1V3M0 3.5h15m-13.5 0v10a1 1 0 001 1h10a1 1 0 001-1v-10M7.5 7v5m-3-3v3m6-3v3"
-                                    stroke="currentColor"
-                                ></path>
+                            <svg class="icon">
+                                <use xlink:href="/static/icons/teenyicons/outline.svg#outline--bin" />
                             </svg>
                             <span>Ignorer alt</span>
                         </button>
