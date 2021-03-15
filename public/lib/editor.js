@@ -25,6 +25,14 @@ function filter_user_text(id) {
     return domNode.innerText;
 }
 
+function icon(name) {
+    const klass = "icon";
+    const variant = "outline";
+    const svgpath = `/static/icons/teenyicons/${variant}.svg#${variant}`;
+
+    return `<svg class="${klass}"><use xlink:href="${svgpath}--${name}" /></svg>`;
+}
+
 /**
  * Regroup diffs of replacements like spellcheck fixes into individual word replacement groups,
  * as the current diff algorithm doesn't do it on a word by word basis
@@ -266,12 +274,12 @@ function show_corrections_panel(corrections) {
         ctxLeft = ctxLeft || (corrections[i - 1] ? corrections[i - 1][1] : "") + get_context_left(2);
         ctxRight = ctxRight || (corrections[i + 1] ? corrections[i + 1][1] : "") + get_context_right(2);
 
-        console.log(ctxLeft, diff, ctxRight);
-
         let change;
 
         if (diff[0] == DIFF_REPLACE) {
-            change = `<div class="context">${ctxLeft} <span class="rep">${diff[1]} <svg class="icon" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" width="21" height="21"><path d="M13.5 7.5l-4-4m4 4l-4 4m4-4H1" stroke="currentColor"></path></svg> ${diff[2]}</span> ${ctxRight}</div>`;
+            change = `<div class="context">
+                ${ctxLeft} <span class="rep">${diff[1]} ${icon("arrow-right")} ${diff[2]}</span> ${ctxRight}
+            </div>`;
         } else {
             let changeType = diff[0] == DIFF_INSERT ? "ins" : "del";
             change = `<div class="context">${ctxLeft} <${changeType}>${diff[1]}</${changeType}> ${ctxRight}</div>`;
@@ -292,21 +300,21 @@ function show_corrections_panel(corrections) {
         actions.classList.add("actions");
 
         let actionAccept = document.createElement("button");
-        actionAccept.innerHTML = `<svg class="icon" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30"><path d="M4 7.5L7 10l4-5m-3.5 9.5a7 7 0 110-14 7 7 0 010 14z" stroke="currentColor"></path></svg>`;
+        actionAccept.innerHTML = icon("tick-circle");
         actionAccept.classList.add("accept");
         actionAccept.title = "Accepter";
         actionAccept.dataset.linkTo = `diff-${i}`;
         actionAccept.addEventListener("click", accept_correction);
 
         let actionReport = document.createElement("button");
-        actionReport.innerHTML = `<svg class="icon" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" width="21" height="21"><path d="M14.5.5l.457.203A.5.5 0 0014.5 0v.5zM.5.5V0a.5.5 0 00-.5.5h.5zm14 9v.5a.5.5 0 00.457-.703L14.5 9.5zm-2-4.5l-.457-.203a.5.5 0 000 .406L12.5 5zm2-5H.5v1h14V0zM0 .5v9h1v-9H0zM.5 10h14V9H.5v1zm14.457-.703l-2-4.5-.914.406 2 4.5.914-.406zm-2-4.094l2-4.5-.914-.406-2 4.5.914.406zM1 15V9.5H0V15h1z" fill="currentColor"></path></svg>`;
+        actionReport.innerHTML = icon("flag");
         actionReport.classList.add("report");
         actionReport.title = "Rapporter";
         actionReport.dataset.linkTo = `diff-${i}`;
         actionReport.addEventListener("click", report_correction);
 
         let actionIgnore = document.createElement("button");
-        actionIgnore.innerHTML = `<svg class="icon" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" width="21" height="21"><path d="M4.5 3V1.5a1 1 0 011-1h4a1 1 0 011 1V3M0 3.5h15m-13.5 0v10a1 1 0 001 1h10a1 1 0 001-1v-10M7.5 7v5m-3-3v3m6-3v3" stroke="currentColor"></path></svg>`;
+        actionIgnore.innerHTML = icon("bin");
         actionIgnore.classList.add("ignore");
         actionIgnore.title = "Ignorer";
         actionIgnore.dataset.linkTo = `diff-${i}`;
