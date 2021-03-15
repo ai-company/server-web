@@ -335,15 +335,15 @@ function show_corrections_panel(corrections, explanations) {
                 actions.append(actionAccept, actionIgnore, actionReport);
             }
 
-            if (diff[1][0] == ",") {
-                let explanation = explanations.shift();
+            // if (diff[1][0] == ",") {
+            //     let explanation = explanations.shift();
 
-                let eexplanation = document.createElement("div");
-                eexplanation.classList.add("explanation");
-                eexplanation.innerText = explanation.text;
+            //     let eexplanation = document.createElement("div");
+            //     eexplanation.classList.add("explanation");
+            //     eexplanation.innerText = explanation.text;
 
-                card.append(eexplanation);
-            }
+            //     card.append(eexplanation);
+            // }
 
             card.append(actions);
         }
