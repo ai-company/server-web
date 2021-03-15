@@ -107,7 +107,7 @@ nav a {
     display: flex;
     flex-direction: column;
     max-width: 380px;
-    margin-left: 32px;
+    margin-left: 42px;
     width: 360px;
     border-radius: 4px;
 }
@@ -143,20 +143,25 @@ nav a {
 
 .corrections .accept-all {
     border-radius: 4px;
-    /* width: 100%; */
+    width: 100%;
+    background-color: #28b361;
+    color: white;
+    height: 32px;
 }
 
 .corrections .ignore-all {
     margin-left: 8px;
     border-radius: 4px;
-    /* width: 100%; */
+    width: 100%;
+    background-color: #e53935;
+    color: white;
 }
 
 .corrections #correction-list {
     overflow: auto;
     margin-bottom: 8px;
-    border-bottom: 1px dashed #0003;
-    border-top: 1px dashed #0003;
+    /* border-bottom: 1px dashed #0003; */
+    /* border-top: 1px dashed #0003; */
     scrollbar-width: thin;
 }
 
@@ -236,17 +241,17 @@ nav a {
 
 .card {
     word-break: break-all;
-    padding: 16px;
+    padding: 12px;
+    padding-bottom: 4px;
     background-color: #fff;
     font-size: 0.9rem;
     display: flex;
-    margin: 12px 0;
+    margin: 18px 0;
     border-radius: 4px;
     flex-direction: column;
     /* box-shadow: none; */
     transition: border-color ease-in 0.1s;
     border: 2px solid transparent;
-    padding-bottom: 8px;
 }
 
 .card:hover,
@@ -276,6 +281,15 @@ nav a {
     margin-left: auto;
     margin-bottom: auto;
     white-space: nowrap;
+    border-top: 1px solid #0001;
+    width: 100%;
+    padding-top: 5px;
+}
+
+.explanation {
+    font-size: small;
+    color: grey;
+    padding-bottom: 8px;
 }
 
 button.accept,
@@ -297,7 +311,7 @@ button.report {
 
 button.accept {
     /* background-image: url(/static/img/material-icons/accept.svg); */
-    /* margin-right: 6px; */
+    margin-right: auto;
     /* background-color: #ccff90; */
     color: #388e3c;
 }
@@ -356,6 +370,7 @@ button.ignore:active {
 
 .context {
     margin: auto 0;
+    padding-bottom: 8px;
 }
 
 [data-placeholder]:empty::before {
