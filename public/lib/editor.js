@@ -1,418 +1,463 @@
-var diff = new diff({ Timeout: 0 });
-var current_diff_list = [];
+// Copyright 2021, ai-company
+// https://github.com/ai-company
 
-const TOKEN_PUNCT = -1;
-const TOKEN_SPACE = 0;
-const TOKEN_WORD = 1;
-const DIFF_REPLACE = 2;
+"use strict";
 
-function htmlEntities(str) {
-    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function iconSet(klass, path, pattern) {
+    return icon_ => {
+        return `<svg class="${klass}"><use href="${path}#${pattern.replace("{}", icon_)}"/></svg>`;
+    };
 }
 
-function filter_user_text(id) {
-    const domNode = document.getElementById(id);
-    let changeset = Array.from(domNode.getElementsByClassName("change"));
-
-    for (let change of changeset) {
-        if (change.childNodes[0].nodeName == "DEL") {
-            change.replaceWith(change.childNodes[0].innerText);
-        } else {
-            change.remove();
-        }
-    }
-
-    return domNode.innerText;
-}
-
-function icon(name) {
-    const klass = "icon";
-    const variant = "outline";
-    const svgpath = `/static/icons/teenyicons/${variant}.svg#${variant}`;
-
-    return `<svg class="${klass}"><use xlink:href="${svgpath}--${name}" /></svg>`;
-}
-
-/**
- * Regroup diffs of replacements like spellcheck fixes into individual word replacement groups,
- * as the current diff algorithm doesn't do it on a word by word basis
- *
- * e.g. the default behaviour:
- * diff("abc def ghj", "abc ijk lmn") == [[0, "abc "], [-1, "def ghj"], [1, "ijk lmn"]]
- *
- * the regrouped output:
- * diff("abc def ghj", "abc ijk lmn") == [[0, "abc "], [2, "def", "ijk"], [0, " "], [2, "ghj", "lmn"]]
- */
-function regroup_replacements(difflist) {
-    let result = [];
-
-    for (let i = 0; i < difflist.length; i++) {
-        const curr = difflist[i];
-        const next = difflist[i + 1];
-
-        // replacements
-        if (curr[0] == DIFF_DELETE && next && next[0] == DIFF_INSERT) {
-            // generate new more fine grained diff
-            let pdiff = diff.main(curr[1], next[1]);
-
-            for (let j = 0; j < pdiff.length; j++) {
-                const pcurr = pdiff[j];
-                const pnext = pdiff[j + 1];
-
-                if (pnext && pcurr[0] == DIFF_DELETE && pnext[0] == DIFF_INSERT) {
-                    result.push([DIFF_REPLACE, pcurr[1], pnext[1]]);
-                    j++;
-                } else {
-                    result.push(pcurr);
-                }
-            }
-
-            i++;
-        } else {
-            result.push(curr);
-        }
-    }
-
-    return result;
-}
-
-function diff_into_html(difflist) {
-    let result = [];
-
-    for (let i = 0; i < difflist.length; i++) {
-        let diff = difflist[i];
-        const change = htmlEntities(diff[1]).replaceAll("\n", "<br>");
-        const replace = diff[2] ? htmlEntities(diff[2]).replaceAll("\n", "<br>") : null;
-
-        switch (diff[0]) {
-            case DIFF_INSERT:
-                result.push(`<span
-                        id="diff-${i}"
-                        onclick="scroll_card_into_view(${i})"
-                        onmouseover="activate_card(${i})"
-                        onmouseleave="deactivate_card(${i})"
-                        class="change"
-                    ><ins>${change}</ins></span>`);
-                break;
-            case DIFF_DELETE:
-                result.push(`<span
-                        id="diff-${i}"
-                        onclick="scroll_card_into_view(${i})"
-                        onmouseover="activate_card(${i})"
-                        onmouseleave="deactivate_card(${i})"
-                        class="change"
-                    ><del>${change}</del></span>`);
-                break;
-            case DIFF_REPLACE:
-                result.push(`<span
-                        id="diff-${i}"
-                        onclick="scroll_card_into_view(${i})"
-                        onmouseover="activate_card(${i})"
-                        onmouseleave="deactivate_card(${i})"
-                        class="change rep"
-                    ><del>${change}</del><ins>${replace}</ins></span>`);
-                break;
-            case DIFF_EQUAL:
-                result.push(`<span id="diff-${i}">${change}</span>`);
-                break;
-        }
-    }
-
-    return result.join("");
-}
+const icon = iconSet("icon", "/static/icons/teenyicons/outline.svg", "outline--{}");
 
 function scroll_diff_into_view(id) {
     document.getElementById(`diff-${id}`).scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
 }
 
 function scroll_card_into_view(id) {
-    document
-        .getElementById(`action-card-${id}`)
-        .scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+    document.getElementById(`card-${id}`).scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
 }
 
-function activate_card(id) {
-    document.getElementById(`action-card-${id}`).classList.add("active");
-}
+const EditorModel = {
+    // data
+    corrections: [],
+    loading: false,
+    editing: true,
+    currentStep: 0,
+    activeItem: null,
+    canProceed: false,
+    error: null,
 
-function deactivate_card(id) {
-    document.getElementById(`action-card-${id}`).classList.remove("active");
-}
+    // actions
+    getCorrections: function (e, after) {
+        const text = document.getElementById("editor-textarea").value;
+        const self = this;
 
-function accept_correction(e) {
-    console.log("accept", this);
-    let change = document.getElementById(this.dataset.linkTo);
+        this.loading = true;
 
-    this.closest(".card").remove();
-
-    if (change.childNodes[0].nodeName == "DEL" && !change.childNodes[1]) {
-        // deletion
-        change.remove();
-    } else if (change.childNodes[1]) {
-        // replacement insertion
-        change.replaceWith(change.childNodes[1].innerText);
-    } else {
-        // insertion
-        change.replaceWith(change.childNodes[0].innerText);
-    }
-}
-
-function report_correction(e) {
-    console.log("report", this);
-    let id = this.dataset.linkTo.split("-")[1];
-
-    const data = `diff=${encodeURIComponent(JSON.stringify(current_diff_list))}&ident=${encodeURIComponent(id)}`;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/report");
-    xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-    xhr.send(data);
-
-    let change = document.getElementById(this.dataset.linkTo);
-    this.closest(".card").remove();
-
-    if (change.childNodes[0].nodeName == "DEL") {
-        change.replaceWith(change.childNodes[0].innerText);
-    } else {
-        change.remove();
-    }
-}
-
-function ignore_correction(e) {
-    console.log("ignore", this);
-    let change = document.getElementById(this.dataset.linkTo);
-
-    this.closest(".card").remove();
-
-    if (change.childNodes[0].nodeName == "DEL") {
-        change.replaceWith(change.childNodes[0].innerText);
-    } else {
-        change.remove();
-    }
-}
-
-function accept_all_corrections() {
-    Array.from(document.getElementsByClassName("change")).map((change) => {
-        if (change.childNodes[0].nodeName == "DEL" && !change.childNodes[1]) {
-            // deletion
-            change.remove();
-        } else if (change.childNodes[1]) {
-            // replacement insertion
-            change.replaceWith(change.childNodes[1].innerText);
-        } else {
-            // insertion
-            change.replaceWith(change.childNodes[0].innerText);
-        }
-    });
-    document.getElementById("correction-list").innerHTML = "";
-}
-
-function ignore_all_corrections() {
-    Array.from(document.getElementsByClassName("change")).map((change) => {
-        if (change.childNodes[0].nodeName == "DEL") {
-            change.replaceWith(change.childNodes[0].innerText);
-        } else {
-            change.remove();
-        }
-    });
-    document.getElementById("correction-list").innerHTML = "";
-}
-
-/**
- * @callback correctionsCallback
- * @param {[[number, string, string]]} diff
- * @param {string[]} explanations
- */
-
-/**
- * @param {correctionsCallback} callback
- */
-function fetch_corrections(callback) {
-    document.getElementById("corrections-submit").classList.add("loading");
-
-    let userText = filter_user_text("data");
-
-    let request = new XMLHttpRequest();
-    request.open("POST", "/editor");
-    request.send(userText);
-
-    request.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            let { result, explanations } = JSON.parse(this.response);
-            let diffResult = diff.main(userText, result);
-            diff.cleanupSemantic(diffResult);
-
-            diffResult = regroup_replacements(diffResult);
-            callback(diffResult, explanations);
-            document.getElementById("corrections-submit").classList.remove("loading");
-        } else if (this.readyState == 4) {
-            console.log("failure");
-        }
-    };
-}
-
-function show_corrections_editor(corrections, explanations) {
-    document.getElementById("data").innerHTML = diff_into_html(corrections);
-}
-
-function card_mouse_hover(e) {
-    document.getElementById(this.dataset.linkTo).classList.add("active");
-}
-
-function card_mouse_leave(e) {
-    document.getElementById(this.dataset.linkTo).classList.remove("active");
-}
-
-function show_corrections_panel(corrections, explanations) {
-    const correctionList = document.getElementById("correction-list");
-    const newCorrections = [];
-
-    for (let i = 0; i < corrections.length; i++) {
-        let diff = corrections[i];
-
-        if (diff[0] == DIFF_EQUAL) {
-            continue;
-        }
-
-        const prune_context = (j) => corrections[j][1].split(/\s/).filter((e) => e != "");
-        const get_context_left = (offset) => (corrections[i - offset] && prune_context(i - offset).pop()) || "";
-        const get_context_right = (offset) => (corrections[i + offset] && prune_context(i + offset).shift()) || "";
-
-        let ctxLeft = get_context_left(1);
-        let ctxRight = get_context_right(1);
-
-        ctxLeft = ctxLeft || (corrections[i - 1] ? corrections[i - 1][1] : "") + get_context_left(2);
-        ctxRight = ctxRight || (corrections[i + 1] ? corrections[i + 1][1] : "") + get_context_right(2);
-
-        let change;
-
-        if (diff[0] == DIFF_REPLACE) {
-            change = `<div class="context">
-                ${ctxLeft} <span class="rep">${diff[1]} ${icon("arrow-right")} ${diff[2]}</span> ${ctxRight}
-            </div>`;
-        } else {
-            let changeType = diff[0] == DIFF_INSERT ? "ins" : "del";
-            change = `<div class="context">${ctxLeft} <${changeType}>${diff[1]}</${changeType}> ${ctxRight}</div>`;
-        }
-
-        let card = document.createElement("div");
-        card.classList.add("card");
-        card.id = `action-card-${i}`;
-        card.dataset.linkTo = `diff-${i}`;
-        card.addEventListener("mouseover", card_mouse_hover);
-        card.addEventListener("mouseover", function () {
-            scroll_diff_into_view(i);
-        });
-        card.addEventListener("mouseleave", card_mouse_leave);
-        card.innerHTML = change;
-
-        {
-            let actions = document.createElement("div");
-            actions.classList.add("actions");
-
-            {
-                let actionAccept = document.createElement("button");
-                actionAccept.innerHTML = `${icon("tick-circle")} Accepter`;
-                actionAccept.classList.add("accept");
-                actionAccept.title = "Accepter";
-                actionAccept.dataset.linkTo = `diff-${i}`;
-                actionAccept.addEventListener("click", accept_correction);
-
-                let actionReport = document.createElement("button");
-                actionReport.innerHTML = icon("flag");
-                actionReport.classList.add("report");
-                actionReport.title = "Rapporter";
-                actionReport.dataset.linkTo = `diff-${i}`;
-                actionReport.addEventListener("click", report_correction);
-
-                let actionIgnore = document.createElement("button");
-                actionIgnore.innerHTML = icon("bin");
-                actionIgnore.classList.add("ignore");
-                actionIgnore.title = "Ignorer";
-                actionIgnore.dataset.linkTo = `diff-${i}`;
-                actionIgnore.addEventListener("click", ignore_correction);
-
-                actions.append(actionAccept, actionIgnore, actionReport);
+        m.request({
+            method: "POST",
+            url: "/api/v1/correct",
+            body: text,
+        }).then(
+            function (corrections) {
+                self.corrections = corrections;
+                self.loading = false;
+                self.error = null;
+                after();
+            },
+            function (error) {
+                console.log("correction request failed", error);
+                self.loading = false;
+                self.error = "Orto har nogle midlertidige tekniske problemer.\nPrøv igen om lidt!";
             }
+        );
+    },
 
-            // if (diff[1][0] == ",") {
-            //     let explanation = explanations.shift();
+    _getChangeText: function (id) {
+        const index = this.corrections.findIndex(i => i.index == id);
+        const item = this.corrections[index];
+        const origin = Array.isArray(item.origin) ? item.origin.join(" ") : item.origin;
+        const change = Array.isArray(item.change)
+            ? item.change.map(i => i.change || i.origin).join(" ")
+            : item.change || item.origin;
 
-            //     let eexplanation = document.createElement("div");
-            //     eexplanation.classList.add("explanation");
-            //     eexplanation.innerText = explanation.text;
+        return [index, item, origin, change];
+    },
 
-            //     card.append(eexplanation);
-            // }
+    doAccept: function (id) {
+        const [index, item, origin, change] = this._getChangeText(id);
+        console.log("doAccept", id, index);
 
-            card.append(actions);
+        if (item.type == "remove") {
+            this.corrections.splice(index, 1);
+        } else {
+            this.corrections.splice(index, 1, { type: "none", origin: change });
         }
+    },
+    doIgnore: function (id) {
+        const [index, item, origin, change] = this._getChangeText(id);
+        console.log("doIgnore", id, index);
 
-        newCorrections.push(card);
-    }
-
-    correctionList.innerHTML = "";
-    newCorrections.map((n) => correctionList.appendChild(n));
-}
-
-function get_and_show_corrections() {
-    fetch_corrections((corrections, explanations) => {
-        current_diff_list = corrections;
-        show_corrections_editor(corrections, explanations);
-        show_corrections_panel(corrections, explanations);
-    });
-}
-
-function editor_paste_as_plaintext(e) {
-    e.preventDefault();
-
-    const text = (e.originalEvent || e).clipboardData.getData("text/plain");
-
-    if (document.queryCommandSupported("insertText")) {
-        document.execCommand("insertText", false, text);
-    } else {
-        document.execCommand("paste", false, text);
-    }
-}
-
-document.addEventListener("readystatechange", () => {
-    const editor = document.getElementById("data");
-
-    editor.addEventListener("focusout", function (e) {
-        if (!this.textContent.trim().length) {
-            this.textContent = "";
+        if (item.type == "add") {
+            this.corrections.splice(index, 1);
+        } else {
+            this.corrections.splice(index, 1, { type: "none", origin: origin });
         }
-    });
+    },
+    doReport: function (id) {
+        const data = `diff=${encodeURIComponent(JSON.stringify(EditorModel.corrections))}&ident=${id}`;
 
-    editor.addEventListener("paste", editor_paste_as_plaintext);
-});
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/report");
+        xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+        xhr.send(data);
 
-function qmodal(id) {
-    let el = document.getElementById(id);
-    el.classList.toggle("active");
+        this.doIgnore(id);
+    },
 
-    let firstInput = el.getElementsByTagName("input")[0];
-    if (firstInput) {
-        firstInput.focus();
-    }
-}
+    doAcceptAll: function (e) {
+        this.corrections.map(item => this.doAccept(item.index));
+    },
 
-function submit_feedback(e) {
-    e.preventDefault();
+    doIgnoreAll: function (e) {
+        this.corrections.map(item => this.doIgnore(item.index));
+    },
+};
 
-    const form = document.forms["feedback-form"];
-    const data = [
-        `comma_quality=${encodeURIComponent(form.comma_quality.value)}`,
-        `wait_time=${encodeURIComponent(form.wait_time.value)}`,
-        `problems=${encodeURIComponent(form.problems.value)}`,
-        `thoughts=${encodeURIComponent(form.thoughts.value)}`,
-    ].join("&");
+const Orto = {
+    view: function (self) {
+        return [m(Editor), m(CorrectionPanel)];
+    },
+};
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/feedback");
-    xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-    xhr.send(data);
+const Editor = {
+    view: function (self) {
+        return m(
+            "main#editor",
+            EditorModel.editing
+                ? m("textarea#editor-textarea", {
+                      placeholder: "Skriv eller indsæt din tekst her…",
+                      oninput: e => {
+                          EditorModel.canProceed = Steps[EditorModel.currentStep].canProceed() === true;
+                      },
+                  })
+                : m(
+                      "#editor-textarea",
+                      EditorModel.corrections.map(i =>
+                          i.type == "none" || i.type == "space"
+                              ? i.origin
+                              : m(
+                                    "span.change",
+                                    {
+                                        id: `diff-${i.index}`,
+                                        class: EditorModel.activeItem == i.index ? "active" : "",
+                                        onmousedown: () => {
+                                            EditorModel.activeItem = i.index;
+                                            scroll_card_into_view(i.index);
+                                        },
+                                    },
+                                    m(DiffTypeMap[i.type], { key: i.index, item: i })
+                                )
+                      )
+                  )
+        );
+    },
+};
 
-    qmodal("modal-feedback");
-    qmodal("modal-result");
-}
+// { "index": int, "type": "add", "change": str, "explain": str? }
+const DiffAdd = {
+    view: function (self) {
+        return m("ins", self.attrs.item.change);
+    },
+};
+
+// { "index": int, "type": "remove", "origin": str, "explain": str? }
+const DiffRemove = {
+    view: function (self) {
+        return m("del", self.attrs.item.origin);
+    },
+};
+
+// { "index": int, "type": "replace", "origin": str, "change": str, "explain": str? }
+const DiffReplace = {
+    view: function (self) {
+        return m("span.rep", self.attrs.item.change);
+    },
+};
+
+// { "index": int, "type": "split", "origin": str, "change": Change<Type>[], "explain": str? }
+const DiffSplit = {
+    view: function (self) {
+        let left = self.attrs.item.change[0];
+        left = left.change || left.origin;
+        let right = self.attrs.item.change[1];
+        right = right.change || right.origin;
+
+        return m("ins", `${left} ${right}`);
+    },
+};
+
+// { "index": int, "type": "merge", "origin": str[], "change": str, "explain": str? }
+const DiffMerge = {
+    view: function (self) {
+        const origin = self.attrs.item.change;
+        return m("ins", origin);
+    },
+};
+
+const DiffTypeMap = {
+    add: DiffAdd,
+    remove: DiffRemove,
+    replace: DiffReplace,
+    split: DiffSplit,
+    merge: DiffMerge,
+};
+
+const CorrectionPanel = {
+    view: function (self) {
+        const currentStep = Steps[EditorModel.currentStep];
+        EditorModel.canProceed = currentStep.canProceed() === true;
+
+        return m("aside#corrections", [
+            m(".corrections-header.step-title", [
+                m(".corrections-title", currentStep.title),
+                m(
+                    "ol.step-progress.progress",
+                    Steps.map((_, i) =>
+                        i < EditorModel.currentStep
+                            ? m("li.progress-complete")
+                            : i == EditorModel.currentStep
+                            ? m("li.progress-active")
+                            : m("li")
+                    )
+                ),
+            ]),
+            m("#step", m(currentStep)),
+            m(".corrections-header.step-next", [
+                EditorModel.error ? m(".error", EditorModel.error) : null,
+                m(
+                    "button#corrections-submit.submit",
+                    EditorModel.loading
+                        ? {
+                              disabled: true,
+                          }
+                        : EditorModel.canProceed
+                        ? {
+                              onclick: e => {
+                                  currentStep.proceed(
+                                      e,
+                                      () => (EditorModel.currentStep = (EditorModel.currentStep + 1) % Steps.length)
+                                  );
+                              },
+                          }
+                        : {
+                              disabled: true,
+                              "aria-label": currentStep.canProceed(),
+                              "data-microtip-position": "top",
+                              role: "tooltip",
+                          },
+                    [
+                        EditorModel.loading
+                            ? m("span.load-spinner")
+                            : m(
+                                  "span.load-label",
+                                  EditorModel.currentStep < Steps.length - 1 ? "Tjek tekst" : "Færdiggør"
+                              ),
+                    ]
+                ),
+            ]),
+        ]);
+    },
+};
+
+const StepStart = {
+    title: "Indsæt tekst",
+    view: function (self) {
+        return [
+            m(".note-header", "Der er intet at tjekke endnu."),
+            m(".note", "Skriv eller indsæt den tekst, du vil have tjekket igennem."),
+        ];
+    },
+    proceed: function (e, nextStep) {
+        EditorModel.getCorrections(e, () => {
+            EditorModel.editing = false;
+            nextStep();
+        });
+        document.activeElement.blur();
+    },
+    canProceed: function () {
+        const textarea = document.getElementById("editor-textarea");
+        return (textarea && textarea.value.trim().length > 0) || "Skriv eller indsæt tekst, inden du kan fortsætte.";
+    },
+};
+
+const StepGrammar = {
+    title: "Forslag til rettelser",
+    view: function (self) {
+        return EditorModel.corrections.filter(i => i.type != "none" && i.type != "space").length == 0
+            ? [
+                  m(".note-header", "Alt er i orden."),
+                  m(".note", "Din teksts stavning, grammatik og tegnsætning er som den skal være."),
+              ]
+            : [
+                  m(
+                      "#correction-list",
+                      EditorModel.corrections
+                          .filter(i => i.type != "none" && i.type != "space")
+                          .map(i => m(CorrectionItem, { key: i.index, item: i }))
+                  ),
+                  m(
+                      "#corrections-massactions",
+                      m(".header-actions", [
+                          m(
+                              "button.accept-all.accept",
+                              { onclick: e => EditorModel.doAcceptAll(e) },
+                              m.trust(`${icon("tick-circle")} <span>Accepter alt</span>`)
+                          ),
+                          m(
+                              "button.ignore-all.ignore",
+                              { onclick: e => EditorModel.doIgnoreAll(e) },
+                              m.trust(`${icon("bin")} <span>Ignorer alt</span>`)
+                          ),
+                      ])
+                  ),
+              ];
+    },
+    proceed: function (e, nextStep) {
+        EditorModel.editing = true;
+        m.redraw.sync();
+        document.getElementById("editor-textarea").value = EditorModel.corrections.map(i => i.origin).join("");
+        nextStep();
+    },
+    canProceed: function () {
+        return (
+            EditorModel.corrections.filter(i => i.type != "none" && i.type != "space").length == 0 ||
+            "Acceptér eller ignorér alle forslag, inden du kan fortsætte."
+        );
+    },
+};
+
+const Steps = [StepStart, StepGrammar];
+
+const CorrectionItem = {
+    view: function (self) {
+        const noSpaceItems = EditorModel.corrections.filter(i => i.type != "space");
+        const index = noSpaceItems.findIndex(i => i.index == self.attrs.item.index);
+
+        const left = noSpaceItems.slice(0, index);
+        let ctxLeft = left[left.length - 1];
+        ctxLeft = ctxLeft
+            ? Array.isArray(ctxLeft.change)
+                ? ctxLeft.change.map(i => i.change || i.origin).join(" ")
+                : ctxLeft.change || ctxLeft.origin
+            : "";
+
+        const right = noSpaceItems.slice(index + 1);
+        let ctxRight = right[0];
+        ctxRight = ctxRight
+            ? Array.isArray(ctxRight.change)
+                ? ctxRight.change.map(i => i.change || i.origin).join(" ")
+                : ctxRight.change || ctxRight.origin
+            : "";
+
+        const explanation = [
+            self.attrs.item.explain,
+            ...(Array.isArray(self.attrs.item.change) ? self.attrs.item.change.map(i => i.explain || null) : []),
+        ].filter(i => i);
+
+        return m(
+            ".card",
+            {
+                id: `card-${self.attrs.item.index}`,
+                class: EditorModel.activeItem == self.attrs.item.index ? "active" : "",
+                onmouseenter: () => {
+                    EditorModel.activeItem = self.attrs.item.index;
+                    scroll_diff_into_view(self.attrs.item.index);
+                },
+                onmouseleave: () => {
+                    EditorModel.activeItem = null;
+                },
+            },
+            [
+                m(".context", [
+                    m("span.dim", `${ctxLeft} `),
+                    m(ChangeTypeMap[self.attrs.item.type], { item: self.attrs.item }),
+                    m("span.dim", ` ${ctxRight}`),
+                ]),
+                m(
+                    "ul.explanation",
+                    explanation.map(i => m("li", i))
+                ),
+                m(CorrectionActions, { itemId: self.attrs.item.index }),
+            ]
+        );
+    },
+};
+
+const CorrectionActions = {
+    view: function (self) {
+        return m(".actions", [
+            m(
+                "button.accept",
+                { onclick: e => EditorModel.doAccept(self.attrs.itemId), title: "Acceptér" },
+                m.trust(`${icon("tick-circle")} Acceptér`)
+            ),
+            m(
+                "button.ignore",
+                { onclick: e => EditorModel.doIgnore(self.attrs.itemId), title: "Ignorér" },
+                m.trust(icon("bin"))
+            ),
+            m(
+                "button.report",
+                { onclick: e => EditorModel.doReport(self.attrs.itemId), title: "Reportér" },
+                m.trust(icon("flag"))
+            ),
+        ]);
+    },
+};
+
+// { "index": int, "type": "add", "change": str, "explain": str? }
+const ChangeAdd = {
+    view: function (self) {
+        return m("ins", self.attrs.item.change);
+    },
+};
+
+// { "index": int, "type": "remove", "origin": str, "explain": str? }
+const ChangeRemove = {
+    view: function (self) {
+        return m("del", self.attrs.item.origin);
+    },
+};
+
+// { "index": int, "type": "replace", "origin": str, "change": str, "explain": str? }
+const ChangeReplace = {
+    view: function (self) {
+        return m("span.rep", m.trust(`${self.attrs.item.origin} ${icon("arrow-right")} ${self.attrs.item.change}`));
+    },
+};
+
+// { "index": int, "type": "split", "origin": str, "change": Change<Type>[], "explain": str? }
+const ChangeSplit = {
+    view: function (self) {
+        let left = self.attrs.item.change[0];
+        left = left.change || left.origin;
+        let right = self.attrs.item.change[1];
+        right = right.change || right.origin;
+
+        const origin = self.attrs.item.origin;
+
+        return [m("span.rep", origin), " ", m.trust(icon("arrow-right")), " ", m("ins", left), " ", m("ins", right)];
+    },
+};
+
+// { "index": int, "type": "merge", "origin": str[], "change": str, "explain": str? }
+const ChangeMerge = {
+    view: function (self) {
+        const left = self.attrs.item.origin[0];
+        // left = left.change || left.origin;
+        const right = self.attrs.item.origin[1];
+        // right = right.change || right.origin;
+
+        const origin = self.attrs.item.change;
+        return [
+            m("span.rep", left),
+            " ",
+            m("span.rep", right),
+            " ",
+            m.trust(icon("arrow-right")),
+            " ",
+            m("ins", origin),
+        ];
+    },
+};
+
+const ChangeTypeMap = {
+    add: ChangeAdd,
+    remove: ChangeRemove,
+    replace: ChangeReplace,
+    split: ChangeSplit,
+    merge: ChangeMerge,
+};

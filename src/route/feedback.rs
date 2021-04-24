@@ -1,6 +1,6 @@
 use crate::middleware;
 
-use super::{Response, SharedContext};
+use crate::route::{Response, SharedContext};
 
 use hyper::{body::HttpBody, header, Body, Client, Request};
 

@@ -2,7 +2,7 @@ use crate::middleware::is_authorized;
 use crate::tokens;
 use crate::web;
 
-use super::{Response, SharedContext};
+use crate::route::{Response, SharedContext};
 
 use crate::urldecode;
 use hyper::{body::HttpBody, header, Body, Request, StatusCode};

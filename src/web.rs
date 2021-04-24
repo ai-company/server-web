@@ -10,6 +10,7 @@ use std::{
     time::UNIX_EPOCH,
 };
 
+#[allow(dead_code)]
 pub fn parse_form(body: &str) -> HashMap<String, String> {
     let mut form_data = HashMap::new();
 
@@ -25,6 +26,7 @@ pub fn parse_form(body: &str) -> HashMap<String, String> {
     form_data
 }
 
+#[allow(dead_code)]
 pub fn parse_query(query: &str) -> HashMap<String, String> {
     let mut form_data = HashMap::new();
 
@@ -36,6 +38,7 @@ pub fn parse_query(query: &str) -> HashMap<String, String> {
     form_data
 }
 
+#[allow(dead_code)]
 pub fn get_template(context: &SharedContext, path: &str) -> Option<String> {
     let path = format!("{}/template/{}.html", context.root_path, path);
     let path = Path::new(&path);
@@ -45,6 +48,7 @@ pub fn get_template(context: &SharedContext, path: &str) -> Option<String> {
     Some(String::from_utf8(buf).unwrap())
 }
 
+#[allow(dead_code)]
 pub fn template_exists(context: &SharedContext, path: &str) -> bool {
     Path::new(&format!("{}/template/{}.html", context.root_path, path)).is_file()
 }
