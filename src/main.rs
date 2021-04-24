@@ -17,11 +17,8 @@ mod web;
 use ai_client::AIClient;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::Server;
-use std::{convert::TryFrom, str::FromStr, sync::Arc};
-use std::{
-    env,
-    net::{SocketAddr, ToSocketAddrs},
-};
+use std::sync::Arc;
+use std::{env, net::ToSocketAddrs};
 use urldecode::decode as urldecode;
 use web::StaticAssetStore;
 
@@ -87,21 +84,7 @@ async fn main() {
         let shared_context = shared_context.clone();
 
         async move {
-            Ok::<_, hyper::http::Error>(service_fn(move |mut req| {
-                // extract and normalise path then reconstitute uri
-                {
-                    let path_and_query = req.uri().path_and_query().unwrap();
-                    let mut path = uriparse::Path::try_from(path_and_query.path()).unwrap();
-                    path.normalize(true);
-
-                    let path = path.to_string().replace("//", "/");
-                    if let Some(query) = path_and_query.query() {
-                        *req.uri_mut() = format!("{}?{}", path.to_string(), query).parse().unwrap();
-                    } else {
-                        *req.uri_mut() = format!("{}", path.to_string()).parse().unwrap();
-                    }
-                }
-
+            Ok::<_, hyper::http::Error>(service_fn(move |req| {
                 route::route(req, shared_context.clone())
             }))
         }

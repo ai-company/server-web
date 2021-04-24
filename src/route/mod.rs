@@ -1,3 +1,4 @@
+mod api;
 mod asset;
 mod editor;
 mod feedback;
@@ -9,6 +10,7 @@ use crate::{ai_client::AIClient, web::StaticAssetStore};
 use chrono::prelude::*;
 
 use hyper::{Body, Method, Request};
+use std::convert::TryFrom;
 use std::sync::Arc;
 
 pub struct SharedContext {
@@ -20,12 +22,31 @@ pub struct SharedContext {
 
 pub type Response = Result<hyper::Response<Body>, hyper::http::Error>;
 
-pub async fn route(req: Request<Body>, context: Arc<SharedContext>) -> Response {
+pub async fn route(mut req: Request<Body>, context: Arc<SharedContext>) -> Response {
+    let start_time = Utc::now().time();
+    let date = Utc::now().format("%d/%m/%y %T").to_string();
+
+    // extract and normalise path then reconstitute uri
+    {
+        let path_and_query = req.uri().path_and_query().unwrap();
+        let mut path = uriparse::Path::try_from(path_and_query.path()).unwrap();
+        path.normalize(true);
+
+        let path = path.to_string().replace("//", "/");
+        if let Some(query) = path_and_query.query() {
+            *req.uri_mut() = format!("{}?{}", path.to_string(), query).parse().unwrap();
+        } else {
+            *req.uri_mut() = format!("{}", path.to_string()).parse().unwrap();
+        }
+    }
+
     let method = req.method().as_str().to_owned();
     let path = req.uri().path().to_owned();
-    let time = Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true);
 
     let result = match (req.method(), req.uri().path()) {
+        // static assets
+        (&Method::GET, path) if context.asset_store.has(path) => asset::get(req, &context).await,
+
         // home landing
         // if not authorized: serve form
         // else: serve button to editor
@@ -45,7 +66,7 @@ pub async fn route(req: Request<Body>, context: Arc<SharedContext>) -> Response 
 
         // correction api endpoint
         // requires authorization
-        (&Method::POST, "/editor") => editor::post(req, &context).await,
+        (&Method::POST, "/api/v1/correct") => api::v1::correct::post(req, &context).await,
 
         // editor feedback api endpoint
         // requires authorization
@@ -55,15 +76,15 @@ pub async fn route(req: Request<Body>, context: Arc<SharedContext>) -> Response 
         // requires authentication
         (&Method::POST, "/report") => report::post(req, &context).await,
 
-        // static assets
-        (&Method::GET, path) if context.asset_store.has(path) => asset::get(req, &context).await,
-
         // 404 not found
         _ => not_found::get(req, &context).await,
     };
 
     match &result {
         Ok(response) => {
+            let end_time = Utc::now().time();
+            let time = end_time - start_time;
+
             let color = if response.status().as_u16() >= 400 {
                 "\x1b[31m"
             } else if response.status().as_u16() == 304 {
@@ -73,15 +94,16 @@ pub async fn route(req: Request<Body>, context: Arc<SharedContext>) -> Response 
             };
 
             println!(
-                "\x1b[30;1m{} {}{:>7} {} {:.128}\x1b[0m",
-                time,
+                "{}{} {:>6}µs {:>7} {} {:.128}\x1b[0m",
                 color,
+                date,
+                time.num_microseconds().unwrap(),
                 method,
                 response.status().as_u16(),
                 path
             );
         }
-        Err(_) => println!("{} \x1b[41m{:7} --- {}\x1b[0m", time, method, path),
+        Err(_) => println!("{} \x1b[41m{:7} --- {}\x1b[0m", date, method, path),
     }
 
     result
