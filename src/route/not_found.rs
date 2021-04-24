@@ -1,6 +1,6 @@
 use crate::web;
 
-use super::{Response, SharedContext};
+use crate::route::{Response, SharedContext};
 
 use hyper::{Body, Request, StatusCode};
 
