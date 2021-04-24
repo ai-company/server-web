@@ -1,0 +1,2 @@
+ALL:
+	cargo run --release
