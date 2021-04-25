@@ -61,7 +61,7 @@ const EditorModel = {
         const item = this.corrections[index];
         const origin = Array.isArray(item.origin) ? item.origin.join(" ") : item.origin;
         const change = Array.isArray(item.change)
-            ? item.change.map(i => i.change || i.origin).join(" ")
+            ? item.change.map(i => i.change || i.origin).join("")
             : item.change || item.origin;
 
         return [index, item, origin, change];
@@ -171,12 +171,7 @@ const DiffReplace = {
 // { "index": int, "type": "split", "origin": str, "change": Change<Type>[], "explain": str? }
 const DiffSplit = {
     view: function (self) {
-        let left = self.attrs.item.change[0];
-        left = left.change || left.origin;
-        let right = self.attrs.item.change[1];
-        right = right.change || right.origin;
-
-        return m("ins", `${left} ${right}`);
+        return m("ins", `${self.attrs.item.change.map(item => item.change || item.origin).join("")}`);
     },
 };
 
@@ -424,14 +419,17 @@ const ChangeReplace = {
 // { "index": int, "type": "split", "origin": str, "change": Change<Type>[], "explain": str? }
 const ChangeSplit = {
     view: function (self) {
+        const origin = self.attrs.item.origin;
+
         let left = self.attrs.item.change[0];
         left = left.change || left.origin;
         let right = self.attrs.item.change[1];
         right = right.change || right.origin;
 
-        const origin = self.attrs.item.origin;
-
-        return [m("span.rep", origin), " ", m.trust(icon("arrow-right")), " ", m("ins", left), " ", m("ins", right)];
+        return [
+            m("span.nowrap", [m("span.rep", origin), " ", m.trust(icon("arrow-right"))]),
+            m("span.nowrap", [" ", self.attrs.item.change.map(item => m("ins", `${item.change || item.origin}`))]),
+        ];
     },
 };
 
@@ -445,13 +443,12 @@ const ChangeMerge = {
 
         const origin = self.attrs.item.change;
         return [
-            m("span.rep", left),
-            " ",
-            m("span.rep", right),
-            " ",
-            m.trust(icon("arrow-right")),
-            " ",
-            m("ins", origin),
+            m("span.nowrap", [
+                self.attrs.item.origin.map(item => [m("span.rep", `${item}`), " "]),
+                " ",
+                m.trust(icon("arrow-right")),
+            ]),
+            m("span.nowrap", [" ", m("ins", origin)]),
         ];
     },
 };
