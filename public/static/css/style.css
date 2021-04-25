@@ -565,8 +565,9 @@ button.ignore:active {
 
 .context {
     margin: auto 0;
-    padding: 8px;
-    padding-bottom: 12px;
+    padding: 6px 8px;
+    padding-bottom: 10px;
+    line-height: 1.6;
 }
 
 [data-placeholder-header]:empty::before {
@@ -807,4 +808,8 @@ strong {
 
 .feedback-result img {
     border-radius: 4px;
+}
+
+.nowrap {
+    white-space: nowrap;
 }
