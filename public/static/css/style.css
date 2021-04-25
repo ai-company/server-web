@@ -147,7 +147,7 @@ nav a {
     border: 2px solid transparent;
     transition: border-color ease-in 0.1s;
     resize: none;
-    white-space: pre;
+    white-space: pre-wrap;
     overflow: auto;
     background: #fff;
 }
