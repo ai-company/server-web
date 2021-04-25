@@ -40,6 +40,7 @@ const EditorModel = {
             method: "POST",
             url: "/api/v1/correct",
             body: text,
+            serialize: v => v,
         }).then(
             function (corrections) {
                 self.corrections = corrections;
