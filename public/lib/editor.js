@@ -264,6 +264,7 @@ const StepStart = {
     proceed: function (e, nextStep) {
         EditorModel.getCorrections(e, () => {
             EditorModel.editing = false;
+            EditorModel.activeItem = 0;
             nextStep();
         });
         document.activeElement.blur();
