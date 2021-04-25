@@ -99,11 +99,11 @@ const EditorModel = {
     },
 
     doAcceptAll: function (e) {
-        this.corrections.map(item => this.doAccept(item.index));
+        this.corrections.filter(i => i.type != "none" && i.type != "space").map(item => this.doAccept(item.index));
     },
 
     doIgnoreAll: function (e) {
-        this.corrections.map(item => this.doIgnore(item.index));
+        this.corrections.filter(i => i.type != "none" && i.type != "space").map(item => this.doIgnore(item.index));
     },
 };
 
