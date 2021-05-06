@@ -5,14 +5,15 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <script src="/lib/modal.js"></script>
-        <script src="/lib/mithril/mithril.min.js"></script>
-
-        <script src="/lib/editor.js?v=0.9.2"></script>
-
-        <link rel="stylesheet" href="/static/css/style.css?v=0.9.2" />
+        <link rel="stylesheet" href="/static/css/normalize/normalize.css" />
         <link rel="stylesheet" href="/static/css/microtip/microtip.min.css" />
-        <link rel="stylesheet" href="/static/font/Roboto/Roboto.css" />
+
+        <link rel="stylesheet" href="/static/css/modal.css" />
+        <script src="/static/js/modal.js"></script>
+
+        <script src="/static/js/mithril/mithril.min.js"></script>
+        <link rel="stylesheet" href="/static/css/editor.css?v=beta.0" />
+        <script src="/static/js/editor.js?v=beta.0"></script>
 
         <script>
             function submit_feedback(e) {
@@ -39,13 +40,13 @@
     <body>
         <div class="page">
             <header>
-                <a class="title" href="/"> Orto </a>
+                <a class="header-title hh" href="/"> Orto </a>
                 <!-- <nav>
-                    <button class="submit" onclick="modal('modal-feedback')">Feedback</button>
+                    <button class="primary" onclick="modal('modal-feedback')">Feedback</button>
 
                     <div id="modal-feedback" class="modal">
                         <a class="modal-close" onclick="modal('modal-feedback')"></a>
-                        <div class="modal-content panel">
+                        <div class="modal-content">
                             <a class="modal-x" onclick="modal('modal-feedback')">
                                 <svg class="icon">
                                     <use href="/static/icons/teenyicons/outline.svg#outline--x"></use>
@@ -94,6 +95,8 @@
                                 <h1>Tak for din feedback! Vi kigger på den det vons.</h1>
                                 <h2>Send endelig feedback, så ofte du vil.</h2>
                                 <img
+                                    alt="thank you!"
+                                    loading="lazy"
                                     src="https://media1.tenor.com/images/c1573b4b45dc7dd0faf89eb5064f53f9/tenor.gif?itemid=17045602"
                                 />
                             </div>

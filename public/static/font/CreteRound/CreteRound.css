@@ -1,0 +1,13 @@
+@font-face {
+    font-family: "CreteRound";
+    font-style: normal;
+    font-weight: 400;
+    src: local(""), url("/static/font/CreteRound/CreteRound-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "CreteRound";
+    font-style: italic;
+    font-weight: 400;
+    src: local(""), url("/static/font/CreteRound/CreteRound-Italic.ttf") format("truetype");
+}
