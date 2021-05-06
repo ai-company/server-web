@@ -5,9 +5,9 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <script src="/lib/particles/particles.min.js"></script>
+        <script src="/static/js/particles/particles.min.js"></script>
         <script defer="true">
-            particlesJS.load("particles", "/lib/particles/config.json");
+            particlesJS.load("particles", "/static/js/particles/config.json");
 
             function onboarding(e) {
                 e.preventDefault();
@@ -28,18 +28,22 @@
                     if (this.readyState == 4 && this.status == 200) {
                         submit.classList.remove("loading");
                         let msg = document.createElement("div");
-                        msg.id = "success";
+                        msg.classList.add("success");
                         msg.innerText = "Vi har sendt dig en email med et invitationslink!";
 
                         form.classList.add("fade");
-                        setTimeout(() => form.replaceWith(msg), 250);
+                        setTimeout(() => form.replaceWith(msg), 500);
                     } else if (this.readyState == 4) {
                         submit.classList.remove("loading");
                         let msg = document.createElement("div");
-                        msg.id = "error";
+                        msg.classList.add("error");
                         msg.innerText = "Der gik noget galt, da vi skulle sende din invitation. Prøv igen.";
 
                         document.getElementById("onboarding-form").appendChild(msg);
+                        setTimeout(() => {
+                            msg.classList.add("fade");
+                            setTimeout(() => msg.remove(), 500);
+                        }, 3000);
                     }
                 };
 
@@ -48,39 +52,47 @@
             }
         </script>
 
-        <link rel="stylesheet" href="/static/css/landing-style.css?v=0.9" />
-        <link rel="stylesheet" href="/static/font/Roboto/Roboto.css" />
+        <link rel="stylesheet" href="/static/css/normalize/normalize.css" />
+        <link rel="stylesheet" href="/static/css/landing.css?v=0.10" />
     </head>
     <body>
         <div id="particles"></div>
-        <main>
-            <div id="onboarding">
-                <div class="welcome">
-                    <div class="title">
-                        <h2>Orto</h2>
+        <div class="page">
+            <main>
+                <div id="onboarding">
+                    <div class="welcome">
+                        <h1 class="title">Orto</h1>
+                        <p>
+                            <strong
+                                >Velkommen til Orto, et nyt, AI-baseret værktøj til kommatering og grammatik!</strong
+                            >
+                        </p>
+                        <p>
+                            Hvis du er blevet inviteret til den lukkede alfa, kan du indtaste din e-mail nedenfor. Så
+                            får du en mail med et adgangslink til værktøjet.
+                        </p>
                     </div>
-                    <p><strong>Velkommen til Orto, et nyt, AI-baseret værktøj til kommatering og grammatik!</strong></p>
-                    <p>
-                        Hvis du er blevet inviteret til den lukkede alfa, kan du indtaste din e-mail nedenfor. Så får du
-                        en mail med et adgangslink til værktøjet.
-                    </p>
+                    <form id="onboarding-form" onsubmit="onboarding(event)">
+                        <input id="email" name="email" type="email" placeholder="john.doe@example.com" />
+                        <button id="onboarding-submit" class="primary" type="submit">
+                            <span class="load-label">Send email</span>
+                            <span class="spinner"></span>
+                        </button>
+                    </form>
                 </div>
-                <form id="onboarding-form" onsubmit="onboarding(event)">
-                    <input id="email" name="email" type="email" placeholder="john.doe@example.com" />
-                    <button id="onboarding-submit" class="submit" type="submit">
-                        <span class="load-label">Send email</span>
-                        <span class="load-spinner"></span>
-                    </button>
-                </form>
-            </div>
-            <div id="preview">
-                <figure>
-                    <img class="preview-desktop" src="/static/img/preview.png" />
-                    <img class="preview-mobile" src="/static/img/preview-mobile.png" />
-                    <figcaption>Orto preview</figcaption>
-                </figure>
-            </div>
-        </main>
-        <footer>© 2021, ai-company. All rights reserved.</footer>
+                <div id="preview">
+                    <figure>
+                        <img alt="Orto preview for desktop" class="preview-desktop" src="/static/img/preview.png" />
+                        <img
+                            alt="Orto preview for mobile"
+                            class="preview-mobile"
+                            src="/static/img/preview-mobile.png"
+                        />
+                        <figcaption>Orto preview</figcaption>
+                    </figure>
+                </div>
+            </main>
+            <footer>© 2021, ai-company. All rights reserved.</footer>
+        </div>
     </body>
 </html>
