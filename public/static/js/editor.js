@@ -114,36 +114,36 @@ const Orto = {
 };
 
 const Editor = {
+    oncreate: function (self) {
+        self.dom.focus();
+    },
     view: function (self) {
-        return m(
-            "main#editor",
-            EditorModel.editing
-                ? m("textarea#editor-textarea", {
-                      placeholder: "Skriv eller indsæt din tekst her…",
-                      oninput: e => {
-                          EditorModel.canProceed = Steps[EditorModel.currentStep].canProceed() === true;
-                      },
-                  })
-                : m(
-                      "#editor-textarea",
-                      EditorModel.corrections.map(i =>
-                          i.type == "none" || i.type == "space"
-                              ? i.origin
-                              : m(
-                                    "span.change",
-                                    {
-                                        id: `diff-${i.index}`,
-                                        class: EditorModel.activeItem == i.index ? "active" : "",
-                                        onmousedown: () => {
-                                            EditorModel.activeItem = i.index;
-                                            scroll_card_into_view(i.index);
-                                        },
+        return EditorModel.editing
+            ? m("textarea#editor-textarea", {
+                  placeholder: "Skriv eller indsæt din tekst her…",
+                  oninput: e => {
+                      EditorModel.canProceed = Steps[EditorModel.currentStep].canProceed() === true;
+                  },
+              })
+            : m(
+                  "#editor-textarea",
+                  EditorModel.corrections.map(i =>
+                      i.type == "none" || i.type == "space"
+                          ? i.origin
+                          : m(
+                                "span.change",
+                                {
+                                    id: `diff-${i.index}`,
+                                    class: EditorModel.activeItem == i.index ? "active" : "",
+                                    onmousedown: () => {
+                                        EditorModel.activeItem = i.index;
+                                        scroll_card_into_view(i.index);
                                     },
-                                    m(DiffTypeMap[i.type], { key: i.index, item: i })
-                                )
-                      )
+                                },
+                                m(DiffTypeMap[i.type], { key: i.index, item: i })
+                            )
                   )
-        );
+              );
     },
 };
 
@@ -198,9 +198,9 @@ const CorrectionPanel = {
 
         return m("aside#corrections", [
             m(".corrections-header.step-title", [
-                m(".corrections-title", currentStep.title),
+                m("h2.corrections-title", currentStep.title),
                 m(
-                    "ol.step-progress.progress",
+                    "ol.corrections-progress.progress",
                     Steps.map((_, i) =>
                         i < EditorModel.currentStep
                             ? m("li.progress-complete")
@@ -210,17 +210,18 @@ const CorrectionPanel = {
                     )
                 ),
             ]),
-            m("#step", m(currentStep)),
-            m(".corrections-header.step-next", [
-                EditorModel.error ? m(".error", EditorModel.error) : null,
+            m(".corrections-step", m(currentStep)),
+            m(".corrections-header.corrections-step-next", [
+                EditorModel.error ? m(".error.small", EditorModel.error) : null,
                 m(
-                    "button#corrections-submit.submit",
+                    "button.corrections-submit",
                     EditorModel.loading
                         ? {
                               disabled: true,
                           }
                         : EditorModel.canProceed
                         ? {
+                              type: "submit",
                               onclick: e => {
                                   currentStep.proceed(
                                       e,
@@ -236,7 +237,7 @@ const CorrectionPanel = {
                           },
                     [
                         EditorModel.loading
-                            ? m("span.load-spinner")
+                            ? m("span.spinner")
                             : m(
                                   "span.load-label",
                                   EditorModel.currentStep < Steps.length - 1 ? "Tjek tekst" : "Færdiggør"
@@ -280,26 +281,25 @@ const StepGrammar = {
               ]
             : [
                   m(
-                      "#correction-list",
+                      ".corrections-list",
                       EditorModel.corrections
                           .filter(i => i.type != "none" && i.type != "space")
-                          .map(i => m(CorrectionItem, { key: i.index, item: i }))
+                          .map(i => m(CorrectionCard, { key: i.index, item: i }))
                   ),
-                  m(
-                      "#corrections-massactions",
-                      m(".header-actions", [
-                          m(
-                              "button.accept-all.accept",
-                              { onclick: e => EditorModel.doAcceptAll(e) },
-                              m.trust(`${icon("tick-circle")} <span>Accepter alt</span>`)
-                          ),
-                          m(
-                              "button.ignore-all.ignore",
-                              { onclick: e => EditorModel.doIgnoreAll(e) },
-                              m.trust(`${icon("bin")} <span>Ignorer alt</span>`)
-                          ),
-                      ])
-                  ),
+                  m(".corrections-massactions", [
+                      m(
+                          "button.massactions-action.accept-all.accept",
+                          { onclick: e => EditorModel.doAcceptAll(e) },
+                          m.trust(icon("tick-circle")),
+                          " Acceptér alt"
+                      ),
+                      m(
+                          "button.massactions-action.ignore-all.ignore",
+                          { onclick: e => EditorModel.doIgnoreAll(e) },
+                          m.trust(icon("bin")),
+                          " Ignorér alt"
+                      ),
+                  ]),
               ];
     },
     proceed: function (e, nextStep) {
@@ -318,7 +318,7 @@ const StepGrammar = {
 
 const Steps = [StepStart, StepGrammar];
 
-const CorrectionItem = {
+const CorrectionCard = {
     view: function (self) {
         const noSpaceItems = EditorModel.corrections.filter(i => i.type != "space");
         const index = noSpaceItems.findIndex(i => i.index == self.attrs.item.index);
@@ -345,7 +345,7 @@ const CorrectionItem = {
         ].filter(i => i);
 
         return m(
-            ".card",
+            ".corrections-card",
             {
                 id: `card-${self.attrs.item.index}`,
                 class: EditorModel.activeItem == self.attrs.item.index ? "active" : "",
@@ -358,36 +358,37 @@ const CorrectionItem = {
                 },
             },
             [
-                m(".context", [
+                m(".corrections-context", [
                     m("span.dim", `${ctxLeft} `),
                     m(ChangeTypeMap[self.attrs.item.type], { item: self.attrs.item }),
                     m("span.dim", ` ${ctxRight}`),
                 ]),
                 m(
-                    "ul.explanation",
+                    "ul.corrections-explanation",
                     explanation.map(i => m("li", i))
                 ),
-                m(CorrectionActions, { itemId: self.attrs.item.index }),
+                m(CorrectionCardActions, { itemId: self.attrs.item.index }),
             ]
         );
     },
 };
 
-const CorrectionActions = {
+const CorrectionCardActions = {
     view: function (self) {
-        return m(".actions", [
+        return m(".corrections-actions", [
             m(
-                "button.accept",
+                "button.corrections-action.accept",
                 { onclick: e => EditorModel.doAccept(self.attrs.itemId), title: "Acceptér" },
-                m.trust(`${icon("tick-circle")} Acceptér`)
+                m.trust(icon("tick-circle")),
+                " Acceptér"
             ),
             m(
-                "button.ignore",
+                "button.corrections-action.ignore",
                 { onclick: e => EditorModel.doIgnore(self.attrs.itemId), title: "Ignorér" },
                 m.trust(icon("bin"))
             ),
             m(
-                "button.report",
+                "button.corrections-action.report",
                 { onclick: e => EditorModel.doReport(self.attrs.itemId), title: "Reportér" },
                 m.trust(icon("flag"))
             ),
