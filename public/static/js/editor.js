@@ -214,7 +214,9 @@ const CorrectionPanel = {
             m(".corrections-header.corrections-step-next", [
                 EditorModel.error ? m(".error.small", EditorModel.error) : null,
                 m(
-                    "button.corrections-submit",
+                    // mobile keeps the hover state in the last tap position, which makes the tooltip pop up
+                    // replacing button with div while loading, is an ugly workaround that gets rid of focus and hover
+                    EditorModel.loading ? ".corrections-submit.button" : "button.corrections-submit",
                     EditorModel.loading
                         ? {
                               disabled: true,
@@ -263,7 +265,6 @@ const StepStart = {
             EditorModel.activeItem = 0;
             nextStep();
         });
-        document.activeElement.blur();
     },
     canProceed: function () {
         const textarea = document.getElementById("editor-textarea");
