@@ -1,6 +1,6 @@
 [package]
-name = "alpha"
-version = "0.9.0"
+name = "server"
+version = "0.10.0-beta"
 authors = ["nilq <i.am.niels.nielsen@gmail.com>"]
 edition = "2018"
 
@@ -14,7 +14,13 @@ opt-level = 3
 [dependencies]
 
 # async runtime
-tokio = { version = "=1.5.0", features = ["macros", "rt-multi-thread", "signal"] }
+# tokio = { version = "=1.5.0", features = ["macros", "rt-multi-thread", "signal"] }
+
+# allocator
+jemallocator = "=0.3.2"
+
+# serialization
+serde = "=1.0.125"
 
 # utils
 rand = "=0.8.3"
@@ -34,11 +40,8 @@ lettre = "=0.9.5"
 lettre_email = "=0.9.4"
 
 # web components
-hyper = { version = "=0.14.5", features = ["http1", "server", "client", "runtime"] }
-urldecode = "=0.1.1"
-cookie = { version="=0.15.0", features = ["percent-encode"] }
-mime = "=0.3.16"
-uriparse = "=0.6.3"
+actix-web = "=3.3.2"
+actix-files = "=0.5.0"
 
 # datetime
 chrono = "=0.4.19"
