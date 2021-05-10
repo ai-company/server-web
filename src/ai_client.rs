@@ -3,6 +3,7 @@ use std::{
     net::{SocketAddr, TcpStream},
 };
 
+#[derive(Debug, Clone)]
 pub struct AIClient {
     pub addr: SocketAddr,
 }

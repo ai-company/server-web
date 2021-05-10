@@ -1,14 +1,14 @@
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use serde::Deserialize;
+
 use crate::middleware::is_authorized;
 use crate::tokens;
-use crate::web;
+use crate::util;
 
-use crate::route::{Response, SharedContext};
+use crate::route::SharedContext;
 
-use crate::urldecode;
-use hyper::{body::HttpBody, header, Body, Request, StatusCode};
-
-pub async fn get(req: Request<Body>, context: &SharedContext) -> Response {
-    let template = web::get_template(
+pub async fn get(req: HttpRequest, context: web::Data<SharedContext>) -> impl Responder {
+    let template = util::get_template(
         &context,
         if is_authorized(&req) {
             "index-authorized"
@@ -18,23 +18,17 @@ pub async fn get(req: Request<Body>, context: &SharedContext) -> Response {
     )
     .unwrap();
 
-    hyper::Response::builder().body(Body::from(template))
+    HttpResponse::Ok().body(template)
 }
 
-pub async fn post(req: Request<Body>, _context: &SharedContext) -> Response {
-    if is_authorized(&req) {
-        hyper::Response::builder()
-            .status(StatusCode::SEE_OTHER)
-            .header(header::LOCATION, "/editor")
-            .body(Body::from(""))
-    } else {
-        let body_vector: Vec<u8> = req.into_body().data().await.unwrap().unwrap().to_vec();
-        let body_string = String::from_utf8(body_vector).unwrap();
-        let form_data = web::parse_form(&body_string);
+#[derive(Deserialize)]
+pub struct AlphaEmail {
+    email: String,
+}
 
-        match tokens::try_send_token_to(&urldecode(form_data.get("email").unwrap().clone())) {
-            Ok(_) => hyper::Response::builder().body(Body::from("")),
-            Err(_) => hyper::Response::builder().status(401).body(Body::from("")),
-        }
+pub async fn post(req: web::Form<AlphaEmail>) -> impl Responder {
+    match tokens::try_send_token_to(&req.email) {
+        Ok(_) => HttpResponse::Ok(),
+        Err(_) => HttpResponse::Unauthorized(),
     }
 }

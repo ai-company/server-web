@@ -1,35 +1,21 @@
-extern crate chrono;
-extern crate cookie;
-extern crate lettre;
-extern crate lettre_email;
-extern crate mime;
-extern crate nanoid;
-extern crate time;
-extern crate uriparse;
-extern crate urldecode;
-
 mod ai_client;
 mod middleware;
 mod route;
 mod tokens;
-mod web;
+mod util;
+
+use std::{env, net::ToSocketAddrs};
+
+use actix_web::{App, HttpServer};
+use jemallocator::Jemalloc;
 
 use ai_client::AIClient;
-use hyper::service::{make_service_fn, service_fn};
-use hyper::Server;
-use std::sync::Arc;
-use std::{env, net::ToSocketAddrs};
-use urldecode::decode as urldecode;
-use web::StaticAssetStore;
 
-async fn shutdown_signal() {
-    tokio::signal::ctrl_c()
-        .await
-        .expect("failed to install CTRL+C signal handler");
-}
+#[global_allocator]
+static ALLOCATOR: Jemalloc = Jemalloc;
 
-#[tokio::main]
-async fn main() {
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
     let root_path = String::from_utf8(
         env::current_dir()
             .unwrap()
@@ -64,37 +50,29 @@ async fn main() {
         .next()
         .unwrap();
 
-    let server = Server::bind(&addr_server);
     let model_danish = AIClient::new(addr_danish);
     let model_english = AIClient::new(addr_english);
 
-    let shared_context = Arc::new(route::SharedContext {
+    let shared_context = route::SharedContext {
         root_path: root_path.clone(),
-        asset_store: StaticAssetStore::new(&format!("{}/public/", root_path)),
         model_danish,
         model_english,
-    });
+    };
 
     println!(
         "PATH: {}\nADDR-SRV: {}\nADDR-mEN: {}\nADDR-mDK: {}\n",
-        &shared_context.root_path, addr_server, addr_english, addr_danish
+        &shared_context.root_path,
+        addr_server.clone(),
+        addr_english,
+        addr_danish
     );
 
-    let make_service = make_service_fn(move |_conn| {
-        let shared_context = shared_context.clone();
-
-        async move {
-            Ok::<_, hyper::http::Error>(service_fn(move |req| {
-                route::route(req, shared_context.clone())
-            }))
-        }
-    });
-
-    let executor = server
-        .serve(make_service)
-        .with_graceful_shutdown(shutdown_signal());
-
-    if let Err(e) = executor.await {
-        eprintln!("server error: {}", e);
-    }
+    HttpServer::new(move || {
+        App::new()
+            .data(shared_context.clone())
+            .service(route::router())
+    })
+    .bind(addr_server)?
+    .run()
+    .await
 }

@@ -1,29 +1,25 @@
+use actix_web::{client::Client, http::header, web::Data, HttpRequest, HttpResponse, Responder};
+
 use crate::middleware;
 
-use crate::route::{Response, SharedContext};
+use crate::route::SharedContext;
 
-use hyper::{body::HttpBody, header, Body, Client, Request};
-
-pub async fn post(req: Request<Body>, _context: &SharedContext) -> Response {
+pub async fn post(
+    req: HttpRequest,
+    body_string: String,
+    _context: Data<SharedContext>,
+) -> impl Responder {
     if middleware::is_authorized(&req) {
         let client = Client::new();
 
-        let body_vector: Vec<u8> = req.into_body().data().await.unwrap().unwrap().to_vec();
-        let body_string = String::from_utf8(body_vector).unwrap();
-
         client
-            .request(
-                hyper::Request::builder()
-                    .method("POST")
-                    .uri("http://127.0.0.1:6969/api/feedback/")
-                    .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
-                    .body(Body::from(body_string))
-                    .expect("Builder(Bob) not building right."),
-            )
+            .post("http://127.0.0.1:6969/api/feedback")
+            .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
+            .send_body(body_string)
             .await;
 
-        hyper::Response::builder().body(Body::from("Give me back my feet."))
+        HttpResponse::Ok().body("Give me back my feet.")
     } else {
-        hyper::Response::builder().body(Body::from(""))
+        HttpResponse::Ok().body("")
     }
 }

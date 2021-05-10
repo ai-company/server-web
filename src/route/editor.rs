@@ -1,43 +1,45 @@
-use crate::web;
+use crate::util;
 use crate::{middleware, tokens::sell_token};
 
-use crate::route::{Response, SharedContext};
+use crate::route::SharedContext;
 
-use cookie::Cookie;
-use hyper::{header, Body, Request, StatusCode};
+use actix_web::{
+    cookie::Cookie,
+    web::{self, Query},
+    HttpRequest, HttpResponse, Responder,
+};
+use serde::Deserialize;
 use time::Duration;
 
-pub async fn get(req: Request<Body>, context: &SharedContext) -> Response {
-    if middleware::is_authorized(&req) {
-        let template = web::get_template(&context, "editor").unwrap();
-        hyper::Response::builder().body(Body::from(template))
-    } else {
-        let query = req.uri().query().unwrap_or_default();
-        let parameters = web::parse_query(query);
+#[derive(Deserialize)]
+pub struct TokenQuery {
+    token: Option<String>,
+}
 
-        if let Some(access_token) = parameters.get("token") {
-            if let Some(auth_token) = sell_token(access_token) {
-                let template = web::get_template(&context, "editor");
-                hyper::Response::builder()
-                    .header(
-                        header::SET_COOKIE,
-                        Cookie::build("auth", auth_token)
-                            .http_only(true)
-                            .max_age(Duration::days(30))
-                            .finish()
-                            .encoded()
-                            .to_string(),
-                    )
-                    .body(Body::from(template.unwrap()))
-            } else {
-                hyper::Response::builder()
-                    .status(StatusCode::UNAUTHORIZED)
-                    .body(Body::from("No such token ID."))
-            }
+pub async fn get(
+    req: HttpRequest,
+    query: Query<TokenQuery>,
+    context: web::Data<SharedContext>,
+) -> impl Responder {
+    if middleware::is_authorized(&req) {
+        let template = util::get_template(&context, "editor").unwrap();
+        HttpResponse::Ok().body(template)
+    } else if let Some(access_token) = &query.token {
+        if let Some(auth_token) = sell_token(&access_token) {
+            let template = util::get_template(&context, "editor");
+
+            HttpResponse::Ok()
+                .cookie(
+                    Cookie::build("auth", auth_token)
+                        .http_only(true)
+                        .max_age(Duration::days(30))
+                        .finish(),
+                )
+                .body(template.unwrap())
         } else {
-            hyper::Response::builder()
-                .status(StatusCode::UNAUTHORIZED)
-                .body(Body::from("Could not get token."))
+            HttpResponse::Unauthorized().body("No such token ID.")
         }
+    } else {
+        HttpResponse::Unauthorized().body("Could not get token.")
     }
 }

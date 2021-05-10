@@ -1,13 +1,12 @@
-use crate::web;
+use actix_web::Responder;
+use actix_web::{web, HttpResponse};
 
-use crate::route::{Response, SharedContext};
+use crate::util;
 
-use hyper::{Body, Request, StatusCode};
+use crate::route::SharedContext;
 
-pub async fn get(_req: Request<Body>, context: &SharedContext) -> Response {
-    let template = web::get_template(&context, "404").unwrap();
+pub async fn get(context: web::Data<SharedContext>) -> impl Responder {
+    let template = util::get_template(&context, "404").unwrap();
 
-    hyper::Response::builder()
-        .status(StatusCode::NOT_FOUND)
-        .body(Body::from(template))
+    HttpResponse::NotFound().body(template)
 }
