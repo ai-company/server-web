@@ -38,6 +38,10 @@ pub fn token_id_for_mail() -> String {
 }
 
 pub fn sell_token(id: &str) -> Option<String> {
+    if id.trim().is_empty() {
+        return None;
+    }
+
     if let Ok(lines) = read_lines("db/tokenids.txt") {
         let lines = lines.map(|x| x.unwrap()).collect::<Vec<String>>();
 

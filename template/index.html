@@ -48,12 +48,13 @@
                 };
 
                 xhr.open("POST", "/");
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 xhr.send("email=" + encodeURIComponent(email));
             }
         </script>
 
         <link rel="stylesheet" href="/static/css/normalize/normalize.css" />
-        <link rel="stylesheet" href="/static/css/landing.css?v=0.10" />
+        <link rel="stylesheet" href="/static/css/landing.css?v=0.10.0-beta" />
     </head>
     <body>
         <div id="particles"></div>
