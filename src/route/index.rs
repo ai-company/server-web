@@ -1,24 +1,26 @@
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
-use serde::Deserialize;
+use handlebars::{to_json, Handlebars};
+use serde::{Deserialize, Serialize};
 
 use crate::middleware::is_authorized;
 use crate::tokens;
-use crate::util;
 
-use crate::route::SharedContext;
+#[derive(Serialize)]
+struct OnboardingData {
+    pub authorized: bool,
+}
 
-pub async fn get(req: HttpRequest, context: web::Data<SharedContext>) -> impl Responder {
-    let template = util::get_template(
-        &context,
-        if is_authorized(&req) {
-            "index-authorized"
-        } else {
-            "index"
-        },
+pub async fn get(req: HttpRequest, template: web::Data<Handlebars<'_>>) -> impl Responder {
+    HttpResponse::Ok().body(
+        template
+            .render(
+                "page/index",
+                &to_json(OnboardingData {
+                    authorized: is_authorized(&req),
+                }),
+            )
+            .unwrap(),
     )
-    .unwrap();
-
-    HttpResponse::Ok().body(template)
 }
 
 #[derive(Deserialize)]

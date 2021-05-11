@@ -1,18 +1,15 @@
-<!DOCTYPE html>
-<html lang="en-gb">
-    <head>
-        <title>Orto</title>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+{{#> base/page}}
+
+    {{#*inline "head"}}
+        <title>Page not found</title>
+
+        <link rel="stylesheet" href="/static/css/base.css?v=0.10.1-beta" />
 
         <script src="/static/js/particles/particles.min.js"></script>
         <script defer="true">
             particlesJS.load("particles", "/static/js/particles/config.json");
         </script>
         <style>
-            body {
-                margin: 0;
-            }
             #particles {
                 position: fixed;
                 z-index: -1;
@@ -21,20 +18,22 @@
                 left: 0;
                 right: 0;
             }
+
             .center {
                 display: grid;
-                height: 100vh;
-                width: 100vw;
-                align-content: center;
                 justify-content: center;
             }
+
         </style>
-    </head>
-    <body>
+    {{/inline}}
+
+    {{#*inline "body"}}
         <div id="particles"></div>
         <div class="center">
             <h1>Page not found...</h1>
-            <a href="/"><h2>Go home</h2></a>
+            <a href="/">
+                <h2>Go home</h2>
+            </a>
         </div>
-    </body>
-</html>
+    {{/inline}}
+{{/base/page}}

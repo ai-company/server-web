@@ -7,6 +7,7 @@ mod util;
 use std::{env, net::ToSocketAddrs};
 
 use actix_web::{App, HttpServer};
+use handlebars::Handlebars;
 use jemallocator::Jemalloc;
 
 use ai_client::AIClient;
@@ -53,23 +54,26 @@ async fn main() -> std::io::Result<()> {
     let model_danish = AIClient::new(addr_danish);
     let model_english = AIClient::new(addr_english);
 
-    let shared_context = route::SharedContext {
-        root_path: root_path.clone(),
-        model_danish,
-        model_english,
-    };
-
     println!(
         "PATH: {}\nADDR-SRV: {}\nADDR-mEN: {}\nADDR-mDK: {}\n",
-        &shared_context.root_path,
-        addr_server.clone(),
-        addr_english,
-        addr_danish
+        &root_path, &addr_server, &addr_english, &addr_danish
     );
 
     HttpServer::new(move || {
+        let shared_context = route::SharedContext {
+            root_path: root_path.clone(),
+            model_danish: model_danish.clone(),
+            model_english: model_english.clone(),
+        };
+
+        let mut templater = Handlebars::new();
+        templater
+            .register_templates_directory(".html", "template/")
+            .unwrap();
+
         App::new()
-            .data(shared_context.clone())
+            .data(shared_context)
+            .data(templater)
             .service(route::router())
     })
     .bind(addr_server)?
