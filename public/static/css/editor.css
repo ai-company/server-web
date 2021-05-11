@@ -1,6 +1,6 @@
 @import "base.css?v=beta.0";
 
-#orto {
+main {
     display: flex;
     padding: 0 8px;
     min-height: 0;
@@ -9,7 +9,7 @@
 }
 
 @media (max-width: 768px) {
-    #orto {
+    main {
         flex-direction: column;
         font-size: 0.9rem;
     }
@@ -325,7 +325,6 @@ button.massactions-action.ignore-all {
         padding: 8px 12px;
     }
     .corrections-header {
-        flex-direction: row;
         font-size: 1.4rem;
     }
     .corrections-submit {

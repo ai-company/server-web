@@ -1,0 +1,23 @@
+{{#> base/page}}
+    {{#*inline "head"}}
+        <title>Editor</title>
+
+        <link rel="stylesheet" href="/static/css/microtip/microtip.min.css" />
+
+        <link rel="stylesheet" href="/static/css/modal.css" />
+        <script src="/static/js/modal.js"></script>
+
+        <script src="/static/js/mithril/mithril.min.js"></script>
+        <link rel="stylesheet" href="/static/css/editor.css?v=0.10.1-beta" />
+        <script src="/static/js/editor.js?v=0.10.1-beta"></script>
+    {{/inline}}
+
+    {{#*inline "body"}}
+        <script>
+            m.mount(document.querySelector("main"), Orto);
+        </script>
+        <noscript>
+            <h2>Orto only works with JavaScript enabled, due to dynamic behaviour used in the editor.</h2>
+        </noscript>
+    {{/inline}}
+{{/base/page}}
