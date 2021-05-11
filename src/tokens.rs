@@ -6,11 +6,9 @@ use std::path::Path;
 
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
-
 use lettre::smtp::authentication::IntoCredentials;
 use lettre::{SmtpClient, Transport};
 use lettre_email::EmailBuilder;
-
 use nanoid;
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>

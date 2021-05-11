@@ -1,0 +1,31 @@
+{{#> base/page}}
+    {{#*inline "head"}}
+        <title>Orto</title>
+
+        <link rel="stylesheet" href="/static/css/landing.css?v=0.10.1-beta" />
+
+        <script src="/static/js/particles/particles.min.js"></script>
+        <script defer="true">
+            particlesJS.load("particles", "/static/js/particles/config.json");
+        </script>
+    {{/inline}}
+
+
+    {{#*inline "body"}}
+        <div id="particles"></div>
+
+        {{#if authorized}}
+            {{> partial/onboarding/authorized}}
+        {{else}}
+            {{> partial/onboarding/unauthorized}}
+        {{/if}}
+
+        <div id="preview">
+            <figure>
+                <img alt="Orto preview for desktop" class="preview-desktop" src="/static/img/preview.png" />
+                <img alt="Orto preview for mobile" class="preview-mobile" src="/static/img/preview-mobile.png" />
+                <figcaption>Orto preview</figcaption>
+            </figure>
+        </div>
+    {{/inline}}
+{{/base/page}}
