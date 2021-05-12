@@ -43,10 +43,15 @@ const EditorModel = {
             serialize: v => v,
         }).then(
             function (corrections) {
-                self.corrections = corrections;
                 self.loading = false;
-                self.error = null;
-                after();
+
+                if (corrections === null || corrections === "" || corrections === undefined || corrections === false) {
+                    self.error = "Orto har nogle midlertidige tekniske problemer.\nPrøv igen om lidt!";
+                } else {
+                    self.corrections = corrections;
+                    self.error = null;
+                    after();
+                }
             },
             function (error) {
                 console.log("correction request failed", error);
