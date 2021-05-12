@@ -8,6 +8,10 @@ main {
     font-size: 1rem;
 }
 
+.page {
+    min-height: 0;
+}
+
 @media (max-width: 768px) {
     main {
         flex-direction: column;
