@@ -1,4 +1,4 @@
-@import "base.css?v=beta.0";
+@import "base.css?v=0.10.2-beta";
 
 #particles {
     position: fixed;
@@ -111,6 +111,9 @@ figcaption {
         align-content: center;
         grid-template-columns: 1fr;
         padding: 8px;
+    }
+    figure {
+        margin: 0;
     }
     .preview-desktop {
         display: none;
