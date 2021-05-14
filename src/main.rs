@@ -6,7 +6,7 @@ mod util;
 
 use std::{env, net::ToSocketAddrs};
 
-use actix_web::{App, HttpServer};
+use actix_web::{middleware::Compress, App, HttpServer};
 use handlebars::Handlebars;
 use jemallocator::Jemalloc;
 
@@ -72,6 +72,7 @@ async fn main() -> std::io::Result<()> {
             .unwrap();
 
         App::new()
+            .wrap(Compress::default())
             .data(shared_context)
             .data(templater)
             .service(route::router())
