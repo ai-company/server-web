@@ -428,14 +428,14 @@ const ChangeSplit = {
     view: function (self) {
         const origin = self.attrs.item.origin;
 
-        let left = self.attrs.item.change[0];
-        left = left.change || left.origin;
-        let right = self.attrs.item.change[1];
-        right = right.change || right.origin;
-
         return [
-            m("span.nowrap", [m("span.rep", origin), " ", m.trust(icon("arrow-right"))]),
-            m("span.nowrap", [" ", self.attrs.item.change.map(item => m("ins", `${item.change || item.origin}`))]),
+            m("span.nowrap", [m("span.rep", origin), " "]),
+            m.trust(icon("arrow-right")),
+            " ",
+            m(
+                "span.nowrap",
+                self.attrs.item.change.map(item => m("ins", `${item.change || item.origin}`))
+            ),
         ];
     },
 };
@@ -443,18 +443,14 @@ const ChangeSplit = {
 // { "index": int, "type": "merge", "origin": str[], "change": str, "explain": str? }
 const ChangeMerge = {
     view: function (self) {
-        const left = self.attrs.item.origin[0];
-        // left = left.change || left.origin;
-        const right = self.attrs.item.origin[1];
-        // right = right.change || right.origin;
-
         const origin = self.attrs.item.change;
+
         return [
-            m("span.nowrap", [
-                self.attrs.item.origin.map(item => [m("span.rep", `${item}`), " "]),
-                " ",
-                m.trust(icon("arrow-right")),
-            ]),
+            m(
+                "span.nowrap",
+                self.attrs.item.origin.map(item => [m("span.rep", `${item}`), " "])
+            ),
+            m.trust(icon("arrow-right")),
             m("span.nowrap", [" ", m("ins", origin)]),
         ];
     },
