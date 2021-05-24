@@ -96,7 +96,7 @@ const EditorModel = {
         const data = `diff=${encodeURIComponent(JSON.stringify(EditorModel.corrections))}&ident=${id}`;
 
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/report");
+        xhr.open("POST", "/api/v1/report");
         xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
         xhr.send(data);
 

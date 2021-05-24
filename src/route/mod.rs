@@ -1,9 +1,7 @@
 mod api;
 mod editor;
-// mod feedback;
 mod index;
 mod not_found;
-mod report;
 
 use std::future::Future;
 
@@ -51,26 +49,28 @@ pub fn router() -> impl HttpServiceFactory {
                 .route(web::get().to(editor::get)),
         )
         .service(
-            web::scope("/api").service(
-                web::scope("/v1").service(
-                    web::resource("/correct")
-                        // correction api endpoint
-                        // requires authorization
-                        .route(web::post().to(api::v1::correct::post)),
+            // api endpoints
+            // requires authorization, except demo
+            web::scope("/api")
+                .service(
+                    web::scope("/v1")
+                        .wrap_fn(authorized)
+                        .service(
+                            web::resource("/correct")
+                                // get orto corrections
+                                .route(web::post().to(api::v1::correct::post)),
+                        )
+                        .service(
+                            web::resource("/feedback")
+                                // editor feedback
+                                .route(web::post().to(api::v1::feedback::post)),
+                        )
+                        .service(
+                            web::resource("/report")
+                                // bad correction reports
+                                .route(web::post().to(api::v1::report::post)),
+                        ),
                 ),
-            ),
-        )
-        // .service(
-        //     web::resource("/feedback")
-        //         // editor feedback api endpoint
-        //         // requires authorization
-        //         .route(web::post().to(feedback::post)),
-        // )
-        .service(
-            web::resource("/report")
-                // bad correction api endpoint
-                // requires authentication
-                .route(web::post().to(report::post)),
         )
         .default_service(web::to(not_found::get))
 }
