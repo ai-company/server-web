@@ -15,6 +15,7 @@ opt-level = 3
 
 # async runtime
 # tokio = { version = "=1.5.0", features = ["macros", "rt-multi-thread", "signal"] }
+futures = "=0.3.15"
 
 # allocator
 jemallocator = "=0.3.2"
