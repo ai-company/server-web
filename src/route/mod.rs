@@ -41,7 +41,7 @@ pub fn router() -> impl HttpServiceFactory {
                 .route(web::post().to(index::post)),
         )
         .service(
-            web::resource("/editor")
+            web::resource("/editor/")
                 // editor
                 // if authorized: serve editor
                 // else if not authorized but has valid token param: consume token and authorize
@@ -51,22 +51,22 @@ pub fn router() -> impl HttpServiceFactory {
         .service(
             // api endpoints
             // requires authorization, except demo
-            web::scope("/api")
+            web::scope("/api/")
                 .service(
-                    web::scope("/v1")
+                    web::scope("/v1/")
                         .wrap_fn(authorized)
                         .service(
-                            web::resource("/correct")
+                            web::resource("/correct/")
                                 // get orto corrections
                                 .route(web::post().to(api::v1::correct::post)),
                         )
                         .service(
-                            web::resource("/feedback")
+                            web::resource("/feedback/")
                                 // editor feedback
                                 .route(web::post().to(api::v1::feedback::post)),
                         )
                         .service(
-                            web::resource("/report")
+                            web::resource("/report/")
                                 // bad correction reports
                                 .route(web::post().to(api::v1::report::post)),
                         ),
