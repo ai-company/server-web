@@ -384,18 +384,30 @@ const CorrectionCardActions = {
         return m(".corrections-actions", [
             m(
                 "button.corrections-action.accept",
-                { onclick: e => EditorModel.doAccept(self.attrs.itemId), title: "Acceptér" },
+                {
+                    onclick: e => EditorModel.doAccept(self.attrs.itemId),
+                },
                 m.trust(icon("tick-circle")),
                 " Acceptér"
             ),
             m(
                 "button.corrections-action.ignore",
-                { onclick: e => EditorModel.doIgnore(self.attrs.itemId), title: "Ignorér" },
+                {
+                    onclick: e => EditorModel.doIgnore(self.attrs.itemId),
+                    "aria-label": "Ignorér",
+                    "data-microtip-position": "left",
+                    role: "tooltip",
+                },
                 m.trust(icon("bin"))
             ),
             m(
                 "button.corrections-action.report",
-                { onclick: e => EditorModel.doReport(self.attrs.itemId), title: "Reportér" },
+                {
+                    onclick: e => EditorModel.doReport(self.attrs.itemId),
+                    "aria-label": "Reportér",
+                    "data-microtip-position": "left",
+                    role: "tooltip",
+                },
                 m.trust(icon("flag"))
             ),
         ]);
