@@ -1,17 +1,50 @@
-use actix_web::{cookie::Cookie, http::header, HttpRequest};
+use std::future::Future;
+
+use actix_web::{
+    dev::{Service, ServiceRequest, ServiceResponse},
+    HttpMessage, HttpRequest, HttpResponse,
+};
+use futures::future::Either;
 
 use crate::tokens::is_invited;
 
-pub fn is_authorized(req: &HttpRequest) -> bool {
-    if let Some(cookies) = req.headers().get(header::COOKIE) {
-        for cookie in cookies.to_str().unwrap().split(';') {
-            let cookie = Cookie::parse_encoded(cookie).unwrap();
+pub fn authorized(
+    req: ServiceRequest,
+    srv: &mut impl Service<
+        Request = ServiceRequest,
+        Response = ServiceResponse,
+        Error = actix_web::Error,
+    >,
+) -> impl Future<Output = Result<ServiceResponse, actix_web::Error>> {
+    let authorized = req
+        .cookies()
+        .map(|jar| {
+            jar.iter()
+                .find(|cookie| cookie.name() == "auth")
+                .map(|auth| is_invited(auth.value()))
+                .unwrap_or(false)
+        })
+        .unwrap_or(false);
 
-            if cookie.name() == "auth" && is_invited(cookie.value()) {
-                return true;
-            }
-        }
+    if authorized {
+        Either::Left(srv.call(req))
+    } else {
+        Either::Right(async move {
+            Ok(ServiceResponse::new(
+                req.into_parts().0,
+                HttpResponse::Unauthorized().finish(),
+            ))
+        })
     }
+}
 
-    return false;
+pub fn is_authorized(req: &HttpRequest) -> bool {
+    req.cookies()
+        .map(|jar| {
+            jar.iter()
+                .find(|cookie| cookie.name() == "auth")
+                .map(|auth| is_invited(auth.value()))
+                .unwrap_or(false)
+        })
+        .unwrap_or(false)
 }
