@@ -1,6 +1,6 @@
 @import "normalize/normalize.css";
-@import "/static/font/Lato/Lato.css";
-@import "/static/font/CreteRound/CreteRound.css";
+@import "grid.css";
+@import "/static/font/Poppins/Poppins.css";
 
 /*! PALLETTE  https://coolors.co/ffc43c-3c87cd-f05b56-62c370-242325-f5f8f9 */
 
@@ -55,6 +55,9 @@
 }
 
 :root {
+    --font-head: Poppins, sans;
+    --font-body: sans;
+
     --primary-lighter: var(--blue-lighter);
     --primary-light: var(--blue-light);
     --primary: var(--blue);
