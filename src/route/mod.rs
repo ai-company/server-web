@@ -30,12 +30,7 @@ pub fn router() -> impl HttpServiceFactory {
                 // home landing
                 // if not authorized: serve form
                 // else: serve button to editor
-                .route(web::get().to(index::get))
-                // closed-alpha email authorization
-                // if authorized: redirect to editor
-                // else if not authorized but email in alpha list: send email
-                // else: redirect home with sad message
-                .route(web::post().to(index::post)),
+                .route(web::get().to(index::get)),
         )
         .service(
             web::resource("/editor/")
@@ -58,15 +53,14 @@ pub fn router() -> impl HttpServiceFactory {
                                 .route(web::post().to(api::v1::correct::post)),
                         )
                         .service(
-                            web::resource("/feedback/")
-                                // editor feedback
-                                .route(web::post().to(api::v1::feedback::post)),
-                        )
-                        .service(
                             web::resource("/report/")
                                 // bad correction reports
                                 .route(web::post().to(api::v1::report::post)),
                         ),
+                )
+                .service(
+                    // demo api, ratelimited
+                    web::resource("/demo/correct/").route(web::post().to(api::demo::correct::post)),
                 ),
         )
         .default_service(web::to(not_found::get))

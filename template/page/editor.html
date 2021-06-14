@@ -2,14 +2,20 @@
     {{#*inline "head"}}
         <title>Editor</title>
 
-        <link rel="stylesheet" href="/static/css/microtip/microtip.min.css" />
+        <link rel="stylesheet" href="/static/lib/microtip/microtip.min.css" />
+        <script src="/static/lib/mithril/mithril.min.js"></script>
 
-        <link rel="stylesheet" href="/static/css/modal.css" />
-        <script src="/static/js/modal.js"></script>
 
-        <script src="/static/js/mithril/mithril.min.js"></script>
-        <link rel="stylesheet" href="/static/css/editor.css?v=0.10.2-beta.1" />
-        <script src="/static/js/editor.js?v=0.10.2-beta.1"></script>
+        <link rel="stylesheet" href="/static/component/modal/modal.css" />
+        <script src="/static/component/modal/modal.js"></script>
+
+        <link rel="stylesheet" href="/static/component/editor/editor.css" />
+        <script src="/static/component/editor/editor.js"></script>
+
+        <link rel="stylesheet" href="/static/component/overflow-hint/overflow-hint.css" />
+        <script src="/static/component/overflow-hint/overflow-hint.js"></script>
+
+        <link rel="stylesheet" href="/static/page/editor.css" />
     {{/inline}}
 
     {{#*inline "body"}}
@@ -17,7 +23,11 @@
             m.mount(document.querySelector("main"), Orto);
         </script>
         <noscript>
-            <h2>Orto only works with JavaScript enabled, due to dynamic behaviour used in the editor.</h2>
+            <div class='error'>
+                <h2>
+                    Orto only works with JavaScript enabled, due to dynamic editing behaviour
+                </h2>
+            </div>
         </noscript>
     {{/inline}}
 {{/base/page}}

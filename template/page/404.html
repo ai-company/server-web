@@ -1,39 +1,9 @@
 {{#> base/page}}
-
     {{#*inline "head"}}
         <title>Page not found</title>
-
-        <link rel="stylesheet" href="/static/css/base.css?v=0.10.2-beta" />
-
-        <script src="/static/js/particles/particles.min.js"></script>
-        <script defer="true">
-            particlesJS.load("particles", "/static/js/particles/config.json");
-        </script>
-        <style>
-            #particles {
-                position: fixed;
-                z-index: -1;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-            }
-
-            .center {
-                display: grid;
-                justify-content: center;
-            }
-
-        </style>
     {{/inline}}
 
     {{#*inline "body"}}
-        <div id="particles"></div>
-        <div class="center">
-            <h1>Page not found...</h1>
-            <a href="/">
-                <h2>Go home</h2>
-            </a>
-        </div>
+        <h1>Page not found...</h1>
     {{/inline}}
 {{/base/page}}

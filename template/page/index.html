@@ -1,31 +1,363 @@
-{{#> base/page}}
-    {{#*inline "head"}}
-        <title>Orto</title>
+<!DOCTYPE html>
+<html lang="da">
 
-        <link rel="stylesheet" href="/static/css/landing.css?v=0.10.2-beta" />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <script src="/static/js/particles/particles.min.js"></script>
-        <script defer="true">
-            particlesJS.load("particles", "/static/js/particles/config.json");
-        </script>
-    {{/inline}}
+    <link rel="stylesheet" href="/static/base/base.css" />
+
+    <title>Orto</title>
+
+    <link rel="stylesheet" href="/static/lib/microtip/microtip.min.css" />
+
+    <link rel="stylesheet" href="/static/lib/glider/glider.css" />
+    <script src="/static/lib/glider/glider.min.js"></script>
+
+    <script src="/static/lib/mithril/mithril.min.js"></script>
 
 
-    {{#*inline "body"}}
-        <div id="particles"></div>
+    <link rel="stylesheet" href="/static/component/modal/modal.css" />
+    <script src="/static/component/modal/modal.js"></script>
 
-        {{#if authorized}}
-            {{> partial/onboarding/authorized}}
-        {{else}}
-            {{> partial/onboarding/unauthorized}}
-        {{/if}}
+    <link rel="stylesheet" href="/static/component/editor/editor.css" />
+    <script src="/static/component/editor/editor.js"></script>
 
-        <div id="preview">
-            <figure>
-                <img alt="Orto preview for desktop" class="preview-desktop" src="/static/img/preview.png" />
-                <img alt="Orto preview for mobile" class="preview-mobile" src="/static/img/preview-mobile.png" />
-                <figcaption>Orto preview</figcaption>
-            </figure>
+    <link rel="stylesheet" href="/static/page/index.css" />
+</head>
+
+<body>
+    {{> base/header}}
+
+    <div id="Home" class="info-row">
+        <div class="container">
+            <div class="row">
+                <div id="onboarding" class="col-12 col-lg-4">
+                    <div class="welcome pr-lg-3">
+                        <h1 class="title">Orto</h1>
+                        <h2 class="subtitle">AI-kommatering</h2>
+                        <p>
+                            Automatisk kommatering ved et hurtigt tryk på en knap. <br>
+                            Orto hjælper dig til korrekt kommatering.
+                        </p>
+                        <a class="large-link" href="/#Pricing" onclick="smoothscroll(event)">
+                            Kom i gang
+                            <svg class="icon icon-auto">
+                                <use href='/static/icons/teenyicons/outline.svg#outline--double-caret-down-small'></use>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="col vertical-middle py-3">
+                    <div id="preview">
+                        <noscript>
+                            <div class='error'>JavaScript required for demo and editor functionality</div>
+                        </noscript>
+                        <script>
+                            // TODO: ratelimit
+                            // TODO: input size limit
+
+                            EditorModel.api = "/api/demo/correct";
+                            demoSentence = "der er nogen menneser der prøver at overbevise folk om at setninger skal være korte men det er dumt og ødelægger fuldstandig det generelle sprog og ens forståelse";
+
+                            function editor_submit(e) {
+                                EditorModel.getCorrections(e, () => {
+                                    EditorModel.editing = false;
+                                });
+                            }
+
+                            function editor_reset(e) {
+                                EditorModel.editing = true;
+                                m.redraw.sync();
+                                document.getElementById("editor-textarea").value = EditorModel.corrections
+                                    .map(i => i.origin)
+                                    .join("");
+                            }
+
+                            m.mount(document.querySelector("#preview"), {
+                                oncreate: () => (document.getElementById("editor-textarea").value = demoSentence),
+                                view: () => [
+                                    m('#preview-editor.row.demo-label', m(Editor)),
+                                    m('.row.dim', [
+                                        m(
+
+                                            "button#preview-submit",
+                                            EditorModel.loading
+                                                ? {
+                                                    disabled: true,
+                                                }
+                                                : EditorModel.editing ? {
+                                                    type: "submit",
+                                                    onclick: editor_submit
+                                                } : {
+                                                    onclick: editor_reset
+                                                },
+                                            [
+                                                EditorModel.loading
+                                                    ? m("span.spinner")
+                                                    : m(
+                                                        "span.load-label",
+                                                        EditorModel.editing ? "Try It!" : "Reset"
+                                                    ),
+                                            ]
+                                        ),
+                                        EditorModel.error ? m(".error.small", EditorModel.error) : ""
+                                    ])
+                                ]
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id='logo-row'>
+                <h6 class="col align-center mb-1">COMPANIES USING ORTO</h6>
+            </div>
+            <div class="row">
+                <h1 class="col align-center m-0">Microsoft</h1>
+                <h1 class="col align-center m-0">Apple</h1>
+                <h1 class="col align-center m-0">Amazon</h1>
+            </div>
         </div>
-    {{/inline}}
-{{/base/page}}
+    </div>
+
+    <div id="Features" class="info-row bg-dark">
+        <div class="container">
+            <h1 class="row-title">Smart Artificial Intelligence</h1>
+
+            <div class="row">
+                <div class="col">
+                    <div class="tab-head">
+                        <button class="tab-active" onclick="switchTab(event, 'grammar')">Grammar analysis</button>
+                        <button onclick="switchTab(event, 'spellchecking')">Spellchecking</button>
+                    </div>
+
+                    <div id="grammar" class="tab-body">
+                        <img src="/static/img/grammar.png" height="250px" />
+                    </div>
+
+                    <div id="spellchecking" class="tab-body" style="display:none">
+                        <img src="/static/img/spelling.png" height="250px" />
+                    </div>
+
+                    <script>
+                        function switchTab(e, cityName) {
+                            var i;
+                            var x = document.getElementsByClassName("tab-body");
+                            var currentactivetab = document.querySelector('.tab-active');
+                            currentactivetab.classList.toggle('tab-active');
+                            e.target.classList.toggle('tab-active');
+                            for (i = 0; i < x.length; i++) {
+                                x[i].style.display = "none";
+                            }
+                            document.getElementById(cityName).style.display = "block";
+                        }
+                    </script>
+                </div>
+                <div class="col-12 col-lg-4 ">
+                    <div class='row  pl-lg-3'>
+                        <div class='col-12 col-sm-4 col-lg-12 vertical-middle'>
+                            <span style="text-align: center;">
+                                <img src="/static/img/brain.webp" style="max-width: 80%; max-height: 240px;" />
+                            </span>
+                        </div>
+                        <div class='col'>
+                            <p class='description'>
+                                State-of-the-art text analysis, driven by the latest and greatest of what Machine
+                                Learning
+                                can
+                                offer. Faster and more accurate than the competition, continuously improving!
+                            </p>
+                            <strong>Features:</strong>
+                            <ul>
+                                <li>Complete grammatical structure analysis</li>
+                                <li>Context-aware spelling correction</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div id="Pricing" class="bg-primary info-row info-pricing">
+        <div class="container">
+            <h1 class="row-title">Abonnementer, der passer til dig.</h1>
+
+            <div class="row">
+                <div class="col-12 col-md-4 col-lg-3 pb-1 ml-auto">
+                    <div class="tier">
+                        <div class="tier-head">
+                            <h2 class="tier-name fg-primary">Studerende</h2>
+                            <h1 class="tier-price">29kr</h1>
+                            <p class="tier-billing dim">pr. måned</p>
+                        </div>
+                        <hr class="separator">
+                        <ul class="tier-details">
+                            <li>Spelling fixing</li>
+                            <li>Grammar fixing</li>
+                        </ul>
+                        <a href='/user/signup?tier=student' class="primary button tier-pick">
+                            Opret nu <svg class='icon'>
+                                <use href="/static/icons/teenyicons/outline.svg#outline--arrow-right"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-3 pb-1">
+                    <div class="tier">
+                        <div class="tier-head">
+                            <h2 class="tier-name fg-primary">Privat</h2>
+                            <h1 class="tier-price">39kr</h1>
+                            <p class="tier-billing dim">pr. måned</p>
+                        </div>
+                        <hr class="separator">
+                        <ul class="tier-details">
+                            <li>Spelling fixing</li>
+                            <li>Grammar fixing</li>
+                        </ul>
+                        <a href='/user/signup?tier=private' class="primary button tier-pick">
+                            Opret nu <svg class='icon'>
+                                <use href="/static/icons/teenyicons/outline.svg#outline--arrow-right"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-3 pb-1 mr-auto">
+                    <div class="tier">
+                        <div class="tier-head">
+                            <h2 class="tier-name fg-primary">Virksomhed</h2>
+                            <h1 class="tier-price">10kr</h1>
+                            <p class="tier-billing dim">pr. 800 ord</p>
+                        </div>
+                        <hr class="separator">
+                        <ul class="tier-details">
+                            <li>Spelling fixing</li>
+                            <li>Grammar fixing</li>
+                            <li>API access and documentation</li>
+                            <li>Business Support</li>
+                        </ul>
+                        <a href='/user/signup?tier=business' class="primary button tier-pick">
+                            Opret nu <svg class='icon'>
+                                <use href="/static/icons/teenyicons/outline.svg#outline--arrow-right"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="Reviews" class="info-row bg-primary-darker fg-inv-lighter">
+        <div class='container'>
+            <h1 class="row-title">Reviews</h1>
+
+            <div class='row'>
+                <div class='col-1'></div>
+                <div class="col-10">
+                    <div class="slider">
+                        <div class="glider">
+                            <div class='container glider-slide'>
+                                <div class="review-card row p-3 p-sm-2 p-md-0">
+                                    <div class="col-12 col-sm-4 col-md-3 col-lg-2 review-image">
+                                        <img src="/static/img/logo.png" class="">
+                                    </div>
+                                    <div class="col">
+                                        <div class="review-description">this is very good</div>
+                                        <div class="review-name">My Grandma</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='container glider-slide'>
+                                <div class="review-card row p-3 p-sm-2 p-md-0">
+                                    <div class="col-12 col-sm-4 col-md-3 col-lg-2 review-image">
+                                        <img src="/static/img/logo.png" class="">
+                                    </div>
+                                    <div class="col">
+                                        <div class="review-description">are you hungry?</div>
+                                        <div class="review-name">My Grandma</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button aria-label="Previous" class="glider-prev">
+                            <svg class='icon icon-md fg-inv'>
+                                <use href="/static/icons/teenyicons/outline.svg#outline--left"></use>
+                            </svg>
+                        </button>
+                        <button aria-label="Next" class="glider-next">
+                            <svg class='icon icon-md fg-inv'>
+                                <use href="/static/icons/teenyicons/outline.svg#outline--right"></use>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class='col-1'></div>
+            </div>
+
+            <script>
+                new Glider(document.querySelector('.glider'), {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                    scrollLock: true,
+                    arrows: {
+                        prev: '.glider-prev',
+                        next: '.glider-next'
+                    },
+                })
+            </script>
+        </div>
+
+    </div>
+    <footer id="About" class="info-row bg-inv fg-inv">
+        <div class='container'>
+            <div class='row pb-3'>
+                <div class='col-12 col-md-4 py-3'>
+                    <strong>About</strong>
+                    <p>
+                        ai-company is making machine learning services and tools.
+                    </p>
+                    <p>
+                        Orto is a text correction engine built with machine learning.
+                    </p>
+                    <div>
+                        <a href="#"><svg class='icon icon-md m-1'>
+                                <use href="/static/icons/teenyicons/outline.svg#outline--linkedin"></use>
+                            </svg></a>
+                        <a href="#"><svg class='icon icon-md m-1'>
+                                <use href="/static/icons/teenyicons/outline.svg#outline--twitter"></use>
+                            </svg></a>
+                    </div>
+                </div>
+                <div class='col-12 col-md-4 py-3'>
+                    <strong>Links</strong>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/editor">Editor</a></li>
+                        <li><a href="/user/signin">Sign-in</a></li>
+                        <li><a href="/user/signup">Sign-up</a></li>
+                        <li><a href="/terms">Terms and conditions</a></li>
+                        <li><a href="/privacy">Privacy policy</a></li>
+                    </ul>
+                </div>
+                <div class='col-12 col-md-4 py-3'>
+                    <strong>Contact</strong>
+                    <p>
+                        Email: ai-company@gmail.com
+                    </p>
+                </div>
+            </div>
+            <div class='row'>
+                <div class="col align-center">
+                    <small class='fg-lighter'>© 2021, ai-company. All rights reserved.</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
