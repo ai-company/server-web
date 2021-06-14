@@ -12,11 +12,13 @@ function iconSet(klass, path, pattern) {
 const icon = iconSet("icon", "/static/icons/teenyicons/outline.svg", "outline--{}");
 
 function scroll_diff_into_view(id) {
-    document.getElementById(`diff-${id}`).scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+    let diff = document.getElementById(`diff-${id}`);
+    diff.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
 }
 
 function scroll_card_into_view(id) {
-    document.getElementById(`card-${id}`).scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+    let card = document.getElementById(`card-${id}`);
+    if (card) card.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
 }
 
 const EditorModel = {
@@ -27,7 +29,9 @@ const EditorModel = {
     currentStep: 0,
     activeItem: null,
     canProceed: false,
+    annotate: false,
     error: null,
+    api: "/api/v1/correct",
 
     // actions
     getCorrections: function (e, after) {
@@ -38,7 +42,7 @@ const EditorModel = {
 
         m.request({
             method: "POST",
-            url: "/api/v1/correct",
+            url: this.api,
             body: text,
             serialize: v => v,
         }).then(
@@ -155,36 +159,93 @@ const Editor = {
 // { "index": int, "type": "add", "change": str, "explain": str? }
 const DiffAdd = {
     view: function (self) {
-        return m("ins", self.attrs.item.change);
+        const explanation = [
+            self.attrs.item.explain,
+            ...(Array.isArray(self.attrs.item.change) ? self.attrs.item.change.map(i => i.explain || null) : []),
+        ].filter(i => i);
+
+        return m(
+            "ins",
+            EditorModel.annotate
+                ? { "aria-label": explanation.join("\n"), "data-microtip-position": "bottom", role: "tooltip" }
+                : {},
+            self.attrs.item.change
+        );
     },
 };
 
 // { "index": int, "type": "remove", "origin": str, "explain": str? }
 const DiffRemove = {
     view: function (self) {
-        return m("del", self.attrs.item.origin);
+        const explanation = [
+            self.attrs.item.explain,
+            ...(Array.isArray(self.attrs.item.change) ? self.attrs.item.change.map(i => i.explain || null) : []),
+        ].filter(i => i);
+
+        return m(
+            "del",
+            EditorModel.annotate
+                ? { "aria-label": explanation.join("\n"), "data-microtip-position": "bottom", role: "tooltip" }
+                : {},
+            self.attrs.item.origin
+        );
     },
 };
 
 // { "index": int, "type": "replace", "origin": str, "change": str, "explain": str? }
 const DiffReplace = {
     view: function (self) {
-        return m("span.rep", self.attrs.item.change);
+        const explanation = [
+            self.attrs.item.explain,
+            ...(Array.isArray(self.attrs.item.change) ? self.attrs.item.change.map(i => i.explain || null) : []),
+        ].filter(i => i);
+
+        return m(
+            "span.rep",
+            EditorModel.annotate
+                ? { "aria-label": explanation.join("\n"), "data-microtip-position": "bottom", role: "tooltip" }
+                : {},
+            self.attrs.item.change
+        );
     },
 };
 
 // { "index": int, "type": "split", "origin": str, "change": Change<Type>[], "explain": str? }
 const DiffSplit = {
     view: function (self) {
-        return m("ins", `${self.attrs.item.change.map(item => item.change || item.origin).join("")}`);
+        const explanation = [
+            self.attrs.item.explain,
+            ...(Array.isArray(self.attrs.item.change) ? self.attrs.item.change.map(i => i.explain || null) : []),
+        ].filter(i => i);
+
+        return m(
+            "span",
+            EditorModel.annotate
+                ? { "aria-label": explanation.join("\n"), "data-microtip-position": "bottom", role: "tooltip" }
+                : {},
+            self.attrs.item.change.map(item =>
+                m(item.type == "add" ? "ins" : "span.rep", `${item.change || item.origin}`)
+            )
+        );
     },
 };
 
 // { "index": int, "type": "merge", "origin": str[], "change": str, "explain": str? }
 const DiffMerge = {
     view: function (self) {
+        const explanation = [
+            self.attrs.item.explain,
+            ...(Array.isArray(self.attrs.item.change) ? self.attrs.item.change.map(i => i.explain || null) : []),
+        ].filter(i => i);
+
         const origin = self.attrs.item.change;
-        return m("ins", origin);
+        return m(
+            "span.rep",
+            EditorModel.annotate
+                ? { "aria-label": explanation.join("\n"), "data-microtip-position": "bottom", role: "tooltip" }
+                : {},
+            origin
+        );
     },
 };
 
@@ -229,6 +290,7 @@ const CorrectionPanel = {
                         : EditorModel.canProceed
                         ? {
                               type: "submit",
+                              class: EditorModel.currentStep < Steps.length - 1 ? "" : "green",
                               onclick: e => {
                                   currentStep.proceed(
                                       e,
@@ -247,7 +309,11 @@ const CorrectionPanel = {
                             ? m("span.spinner")
                             : m(
                                   "span.load-label",
-                                  EditorModel.currentStep < Steps.length - 1 ? "Tjek tekst" : "Færdiggør"
+                                  m.trust(
+                                      EditorModel.currentStep < Steps.length - 1
+                                          ? `Tjek tekst ${icon("arrow-right")}`
+                                          : `Færdiggør ${icon("tick-circle")}`
+                                  )
                               ),
                     ]
                 ),
@@ -286,12 +352,13 @@ const StepGrammar = {
                   m(".note", "Din teksts stavning, grammatik og tegnsætning er som den skal være."),
               ]
             : [
-                  m(
-                      ".corrections-list",
+                  m(".corrections-list", [
+                      m(".overflow-hint-top"),
                       EditorModel.corrections
                           .filter(i => i.type != "none" && i.type != "space")
-                          .map(i => m(CorrectionCard, { key: i.index, item: i }))
-                  ),
+                          .map(i => m(CorrectionCard, { key: i.index, item: i })),
+                      m(".overflow-hint-bottom"),
+                  ]),
                   m(".corrections-massactions", [
                       m(
                           "button.massactions-action.accept-all.accept",
@@ -431,7 +498,13 @@ const ChangeRemove = {
 // { "index": int, "type": "replace", "origin": str, "change": str, "explain": str? }
 const ChangeReplace = {
     view: function (self) {
-        return m("span.rep", m.trust(`${self.attrs.item.origin} ${icon("arrow-right")} ${self.attrs.item.change}`));
+        return [
+            m("span.rep", self.attrs.item.origin),
+            " ",
+            m.trust(icon("arrow-right")),
+            " ",
+            m("span.rep", self.attrs.item.change),
+        ];
     },
 };
 
@@ -446,7 +519,9 @@ const ChangeSplit = {
             " ",
             m(
                 "span.nowrap",
-                self.attrs.item.change.map(item => m("ins", `${item.change || item.origin}`))
+                self.attrs.item.change.map(item =>
+                    m(item.type == "add" ? "ins" : "span.rep", `${item.change || item.origin}`)
+                )
             ),
         ];
     },
@@ -463,7 +538,7 @@ const ChangeMerge = {
                 self.attrs.item.origin.map(item => [m("span.rep", `${item}`), " "])
             ),
             m.trust(icon("arrow-right")),
-            m("span.nowrap", [" ", m("ins", origin)]),
+            m("span.nowrap", [" ", m("span.rep", origin)]),
         ];
     },
 };

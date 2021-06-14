@@ -1,86 +1,35 @@
-<header>
+<header class='sticky'>
     <a class="header-title hh" href="/"> Orto </a>
-    <!-- <nav>
-            <script>
-                function submit_feedback(e) {
+    <nav class="header-nav">
+        <script>
+            function smoothscroll(e) {
+                if (new URL(e.target.href).pathname == window.location.pathname) {
                     e.preventDefault();
-
-                    const form = document.forms["feedback-form"];
-                    const data = [
-                        `comma_quality=${encodeURIComponent(form.comma_quality.value)}`,
-                        `wait_time=${encodeURIComponent(form.wait_time.value)}`,
-                        `problems=${encodeURIComponent(form.problems.value)}`,
-                        `thoughts=${encodeURIComponent(form.thoughts.value)}`,
-                    ].join("&");
-
-                    const xhr = new XMLHttpRequest();
-                    xhr.open("POST", "/api/v1/feedback");
-                    xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-                    xhr.send(data);
-
-                    modal("modal-feedback");
-                    modal("modal-result");
+                    window.history.pushState(null, null, e.target.href);
+                    document.querySelector(window.location.hash).scrollIntoView({ behavior: "smooth" });
                 }
-            </script>
-            <button class="primary" onclick="modal('modal-feedback')">Feedback</button>
+            }
+        </script>
+        <script>
+            window.addEventListener('load', () => {
+                const el = document.querySelector(".sticky");
+                const observer = new IntersectionObserver(
+                    ([e]) => e.target.classList.toggle("sticky-pinned", e.intersectionRatio < 1),
+                    { threshold: 1 }
+                );
+                observer.observe(el);
+            })
+        </script>
 
-            <div id="modal-feedback" class="modal">
-                <a class="modal-close" onclick="modal('modal-feedback')"></a>
-                <div class="modal-content">
-                    <a class="modal-x" onclick="modal('modal-feedback')">
-                        <svg class="icon">
-                            <use href="/static/icons/teenyicons/outline.svg#outline--x"></use>
-                        </svg>
-                    </a>
-                    <form id="feedback-form" onsubmit="submit_feedback(event)">
-                        <h1>Feedback</h1>
+        <a class="nav-item" href="/#Home" onclick="smoothscroll(event)">Home</a>
+        <a class="nav-item" href="/#Features" onclick="smoothscroll(event)">Features</a>
+        <a class="nav-item" href="/#Pricing" onclick="smoothscroll(event)">Pricing</a>
+        <a class="nav-item" href="/#Reviews" onclick="smoothscroll(event)">Reviews</a>
+        <a class="nav-item" href="/#About" onclick="smoothscroll(event)">About</a>
 
-                        <div class="feedback-note">Tusind tak, fordi du hjælper med at forbedre Orto!</div>
+        <span class="spacer-h" style="--width: 2rem"></span>
 
-                        <label for="comma_quality">Hvordan vurderer du dine kommaforslag i dag?</label>
-                        <select id="comma_quality" name="comma_quality">
-                            <option value="B">Dårlige</option>
-                            <option value="O">Okay</option>
-                            <option value="G">Rigtig god</option>
-                        </select>
-
-                        <label for="wait_time">Hvordan er ventetiden, når du beder om rettelser?</label>
-                        <select id="wait_time" name="wait_time">
-                            <option value="T">Alt for lang</option>
-                            <option value="L">Lidt lang</option>
-                            <option value="O">Okay</option>
-                            <option value="G">Ret god</option>
-                            <option value="R">Rigtig godt</option>
-                        </select>
-
-                        <label for="problems">Hvilke problemer er du stødt på?</label>
-                        <textarea id="problems" name="problems"></textarea>
-
-                        <label for="thoughts"> Du er meget velkommen til at skrive dine overvejelser: </label>
-                        <textarea id="thoughts" name="thoughts"></textarea>
-
-                        <button class="submit" type="submit">Submit</button>
-                    </form>
-                </div>
-            </div>
-            <div id="modal-result" class="modal">
-                <a class="modal-close" onclick="modal('modal-result')"></a>
-                <div class="modal-content panel">
-                    <a class="modal-x" onclick="modal('modal-result')">
-                        <svg class="icon">
-                            <use href="/static/icons/teenyicons/outline.svg#outline--x" />
-                        </svg>
-                    </a>
-                    <div class="feedback-result">
-                        <h1>Tak for din feedback! Vi kigger på den det vons.</h1>
-                        <h2>Send endelig feedback, så ofte du vil.</h2>
-                        <img
-                            alt="thank you!"
-                            loading="lazy"
-                            src="https://media1.tenor.com/images/c1573b4b45dc7dd0faf89eb5064f53f9/tenor.gif?itemid=17045602"
-                        />
-                    </div>
-                </div>
-            </div>
-        </nav> -->
+        <a class="nav-item" href="/user/signup">Sign-up</a>
+        <a class="nav-item primary button" href="/user/signin">Sign-in</a>
+    </nav>
 </header>

@@ -1,0 +1,44 @@
+[class*="overflow-hint"] {
+    position: relative;
+    transition: box-shadow ease-in 1s;
+    z-index: 1;
+    height: 1px;
+}
+
+[class*="overflow-hint"]::after {
+    content: "";
+    box-shadow: 0 0px 15px 0px var(--black-lighter);
+    opacity: 0;
+    transition: opacity 0.1s ease-out;
+    height: 1px;
+    display: block;
+    position: relative;
+}
+
+[class*="overflow-hint"].pinned::after {
+    opacity: 1;
+}
+
+.overflow-hint-top {
+    /* top: 0px; */
+}
+
+.overflow-hint-top::after {
+    top: -1px;
+}
+
+.overflow-hint-top.pinned {
+    position: sticky;
+    top: -0.1px;
+}
+
+.overflow-hint-bottom {
+    /* bottom: 0px; */
+}
+.overflow-hint-bottom::after {
+    bottom: -1px;
+}
+.overflow-hint-bottom.pinned {
+    position: sticky;
+    bottom: -1px;
+}
