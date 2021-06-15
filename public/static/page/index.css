@@ -43,7 +43,7 @@ main {
 
 .title {
     color: var(--primary);
-    font-size: 3rem;
+    font-size: 3.5rem;
     margin: 0;
 }
 
@@ -54,6 +54,8 @@ figure {
 .subtitle {
     font-weight: 600;
     margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
 }
 
 #onboarding img {
