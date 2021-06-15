@@ -301,6 +301,8 @@ a:focus {
     transition: opacity 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67), color 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
     box-shadow: none;
     border-radius: 1em;
+    width: 2em;
+    height: 2em;
 }
 
 .glider-prev .icon,
