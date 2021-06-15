@@ -2,20 +2,20 @@
     {{#*inline "head"}}
         <title>Editor</title>
 
-        <link rel="stylesheet" href="/static/lib/microtip/microtip.min.css" />
-        <script src="/static/lib/mithril/mithril.min.js"></script>
+        {{asset "cold" type="stylesheet" src="/static/lib/microtip/microtip.min.css"}}
 
+        {{asset "cold" type="script" src="/static/lib/mithril/mithril.min.js"}}
 
-        <link rel="stylesheet" href="/static/component/modal/modal.css" />
-        <script src="/static/component/modal/modal.js"></script>
+        {{asset "cold" type="stylesheet" src="/static/component/modal/modal.css"}}
+        {{asset "cold" type="script" src="/static/component/modal/modal.js"}}
 
-        <link rel="stylesheet" href="/static/component/editor/editor.css" />
-        <script src="/static/component/editor/editor.js"></script>
+        {{asset "cold" type="stylesheet" src="/static/component/overflow-hint/overflow-hint.css"}}
+        {{asset "cold" type="script" src="/static/component/overflow-hint/overflow-hint.js"}}
 
-        <link rel="stylesheet" href="/static/component/overflow-hint/overflow-hint.css" />
-        <script src="/static/component/overflow-hint/overflow-hint.js"></script>
+        {{asset "hot" type="stylesheet" src="/static/component/editor/editor.css"}}
+        {{asset "hot" type="script" src="/static/component/editor/editor.js"}}
 
-        <link rel="stylesheet" href="/static/page/editor.css" />
+        {{asset "hot" type="stylesheet" src="/static/page/editor.css"}}
     {{/inline}}
 
     {{#*inline "body"}}
