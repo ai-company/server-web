@@ -1,8 +1,3 @@
-@import "/static/lib/normalize/normalize.css";
-@import "/static/font/Poppins/Poppins.css";
-
-@import "grid.css";
-
 /*! PALLETTE  https://coolors.co/ffc43c-3c87cd-f05b56-62c370-242325-f5f8f9 */
 
 :root {
@@ -57,7 +52,7 @@
 
 :root {
     --font-head: Poppins, sans;
-    --font-body: sans;
+    --font-body: Source Sans Pro, sans;
 
     --primary-lighter: var(--blue-lighter);
     --primary-light: var(--blue-light);
