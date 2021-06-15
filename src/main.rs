@@ -74,6 +74,14 @@ async fn main() -> std::io::Result<()> {
             .register_templates_directory(".html", "template/")
             .unwrap();
 
+        let asset_helper = util::AssetHelper {
+            v_major: env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap(),
+            v_minor: env!("CARGO_PKG_VERSION_MINOR").parse().unwrap(),
+            v_patch: env!("CARGO_PKG_VERSION_PATCH").parse().unwrap(),
+        };
+
+        templater.register_helper("asset", Box::new(asset_helper));
+
         App::new()
             .wrap(Compress::default())
             .wrap(NormalizePath::default())

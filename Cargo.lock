@@ -2130,7 +2130,7 @@ dependencies = [
 
 [[package]]
 name = "server"
-version = "0.10.2-beta"
+version = "0.11.0"
 dependencies = [
  "actix-files",
  "actix-web",
