@@ -2,6 +2,7 @@ mod api;
 mod editor;
 mod index;
 mod not_found;
+pub mod payment;
 
 use actix_files::Files;
 use actix_web::{dev::HttpServiceFactory, web};
@@ -41,6 +42,27 @@ pub fn router() -> impl HttpServiceFactory {
                 .route(web::get().to(editor::get)),
         )
         .service(
+            web::scope("/payment/")
+                .service(
+                    web::resource("/status/{token}/").route(web::get().to(payment::status::get)),
+                )
+                .service(
+                    web::scope("/stripe/")
+                        .service(
+                            web::resource("/webhook/")
+                                .route(web::post().to(payment::stripe::webhook::post)),
+                        )
+                        .service(
+                            web::resource("/checkout/")
+                                .route(web::post().to(payment::stripe::checkout::post)),
+                        )
+                        .service(
+                            web::resource("/portal/")
+                                .route(web::post().to(payment::stripe::portal::post)),
+                        ),
+                ),
+        )
+        .service(
             // api endpoints
             // requires authorization, except demo
             web::scope("/api/")
@@ -65,3 +87,61 @@ pub fn router() -> impl HttpServiceFactory {
         )
         .default_service(web::to(not_found::get))
 }
+
+#[derive(Debug)]
+pub enum EndpointProcessingError {
+    Unauthorized,
+    RequestUnparsable,
+    RequestNonsensical,
+    Processing(Box<dyn std::error::Error>),
+}
+
+impl From<Box<dyn std::error::Error>> for EndpointProcessingError {
+    fn from(e: Box<dyn std::error::Error>) -> Self {
+        EndpointProcessingError::Processing(e)
+    }
+}
+
+impl From<actix_web::Error> for EndpointProcessingError {
+    fn from(e: actix_web::Error) -> Self {
+        EndpointProcessingError::Processing(Box::new(e))
+    }
+}
+impl From<actix_web::http::Error> for EndpointProcessingError {
+    fn from(e: actix_web::http::Error) -> Self {
+        EndpointProcessingError::Processing(Box::new(e))
+    }
+}
+impl From<actix_web::cookie::ParseError> for EndpointProcessingError {
+    fn from(e: actix_web::cookie::ParseError) -> Self {
+        EndpointProcessingError::Processing(Box::new(e))
+    }
+}
+
+impl From<serde_qs::Error> for EndpointProcessingError {
+    fn from(e: serde_qs::Error) -> Self {
+        EndpointProcessingError::Processing(Box::new(e))
+    }
+}
+
+impl From<serde_json::Error> for EndpointProcessingError {
+    fn from(e: serde_json::Error) -> Self {
+        EndpointProcessingError::Processing(Box::new(e))
+    }
+}
+
+impl std::fmt::Display for EndpointProcessingError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use EndpointProcessingError::*;
+        match self {
+            Unauthorized => write!(f, "User was not authorized"),
+            RequestUnparsable => write!(f, "Request did not match expected structure"),
+            RequestNonsensical => write!(f, "Did not expect request"),
+            Processing(e) => write!(f, "Encountered error during processing: {}", e),
+        }
+    }
+}
+
+impl std::error::Error for EndpointProcessingError {}
+
+pub type EndpointProcessingResult<T> = Result<T, EndpointProcessingError>;

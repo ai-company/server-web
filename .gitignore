@@ -3,3 +3,7 @@
 
 # ignore log.txt files from micro editor (?)
 log.txt
+
+users.db
+users.db-journal
+/src/keys.rs

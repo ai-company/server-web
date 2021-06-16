@@ -1,3 +1,4 @@
 {
-    "rust-analyzer.assist.importPrefix": "by_crate"
+    "rust-analyzer.assist.importPrefix": "by_crate",
+    "editor.formatOnSave": true,
 }
