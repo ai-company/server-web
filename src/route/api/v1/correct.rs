@@ -1,8 +1,12 @@
 use actix_web::{web, HttpResponse, Responder};
 
-use crate::route::SharedContext;
+use crate::{middleware::UserAuthorized, route::SharedContext};
 
-pub async fn post(body_string: String, context: web::Data<SharedContext>) -> impl Responder {
+pub async fn post(
+    body_string: String,
+    context: web::Data<SharedContext>,
+    _mw_authorized: UserAuthorized,
+) -> impl Responder {
     if body_string.trim().len() == 0 {
         HttpResponse::Ok().body("[]")
     } else {

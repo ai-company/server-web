@@ -1,47 +1,10 @@
-use std::future::Future;
-
-use actix_web::{
-    dev,
-    dev::{Service, ServiceRequest, ServiceResponse},
-    error::InternalError,
-    web, FromRequest, HttpMessage, HttpRequest, HttpResponse,
-};
-use futures::future::Either;
-
 use crate::tokens::is_invited;
+use crate::{database::SqlPool, helper::get_current_user_id};
+use actix_web::{
+    dev, error::InternalError, web, FromRequest, HttpMessage, HttpRequest, HttpResponse,
+};
 use futures::future::{err, ok, Ready};
 use handlebars::Handlebars;
-
-pub fn authorized(
-    req: ServiceRequest,
-    srv: &mut impl Service<
-        Request = ServiceRequest,
-        Response = ServiceResponse,
-        Error = actix_web::Error,
-    >,
-) -> impl Future<Output = Result<ServiceResponse, actix_web::Error>> {
-    let authorized = req
-        .cookies()
-        .map(|jar| {
-            jar.iter()
-                .find(|cookie| cookie.name() == "auth")
-                .map(|auth| is_invited(auth.value()))
-                .unwrap_or(false)
-        })
-        .unwrap_or(false);
-
-    if authorized {
-        Either::Left(srv.call(req))
-    } else {
-        Either::Right(async move {
-            Ok(ServiceResponse::new(
-                req.into_parts().0,
-                HttpResponse::Unauthorized().finish(),
-            ))
-        })
-    }
-}
-use crate::{database::SqlPool, helper::get_current_user_id};
 
 pub fn is_authorized(req: &HttpRequest) -> bool {
     req.cookies()

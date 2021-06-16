@@ -3,14 +3,12 @@ mod editor;
 mod index;
 mod not_found;
 pub mod payment;
+mod user;
 
 use actix_files::Files;
 use actix_web::{dev::HttpServiceFactory, web};
 
-use crate::{
-    ai_client::AIClient,
-    middleware::{authorized, logger},
-};
+use crate::{ai_client::AIClient, middleware::logger};
 
 #[derive(Clone, Debug)]
 pub struct SharedContext {
@@ -42,6 +40,24 @@ pub fn router() -> impl HttpServiceFactory {
                 .route(web::get().to(editor::get)),
         )
         .service(
+            web::scope("/user/")
+                .service(
+                    web::resource("/signup/")
+                        .route(web::get().to(user::signup::get))
+                        .route(web::post().to(user::signup::post)),
+                )
+                .service(
+                    web::resource("/signin/")
+                        .route(web::get().to(user::signin::get))
+                        .route(web::post().to(user::signin::post)),
+                )
+                .service(
+                    web::resource("/account/")
+                        .route(web::get().to(user::account::get))
+                        .route(web::delete().to(user::account::delete)),
+                ),
+        )
+        .service(
             web::scope("/payment/")
                 .service(
                     web::resource("/status/{token}/").route(web::get().to(payment::status::get)),
@@ -64,11 +80,10 @@ pub fn router() -> impl HttpServiceFactory {
         )
         .service(
             // api endpoints
-            // requires authorization, except demo
             web::scope("/api/")
                 .service(
+                    // requires authorization
                     web::scope("/v1/")
-                        .wrap_fn(authorized)
                         .service(
                             web::resource("/correct/")
                                 // get orto corrections

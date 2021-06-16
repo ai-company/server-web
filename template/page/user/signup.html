@@ -1,0 +1,128 @@
+{{#> base/page}}
+    {{#*inline "head"}}
+        <title>Sign-up</title>
+    {{/inline}}
+
+    {{#*inline "body"}}
+        <h1 class='align-center'>Sign up</h1>
+
+        <form method="POST">
+            <div class='row'>
+                <div class='col-12 col-md-3 align-md-right'>
+                    <h2 class='mt-0'>Tier:</h2>
+                </div>
+                <div class='col-6'>
+                    <div class='row'>
+                        <div class="col-3"></div>
+                        <div class='col'>
+                            <div class='input-group'>
+                                <input id="tier-student" name="tier" type="radio" value="student">
+                                <label for="tier-student">Student</label>
+                            </div>
+                            <div class='input-group'>
+                                <input id="tier-private" name="tier" type="radio" value="private">
+                                <label for="tier-private">Private</label>
+                            </div>
+                            <div class='input-group'>
+                                <input id="tier-business" name="tier" type="radio" value="business">
+                                <label for="tier-business">Business</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class='separator'>
+            <div class='row'>
+                <div class='col-12 col-md-3 align-md-right'>
+                    <h2 class='mt-0'>Account:</h2>
+                </div>
+                <div class='col-12 col-md-6'>
+                    <div class='row'>
+                        <div class='input-group col'>
+                            <label class='col-3 align-right' for="email">E-mail</label>
+                            <input class='col' id="email" name="email" type="email" placeholder="email@example.com"
+                                required>
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class='input-group col'>
+                            <label class='col-3 align-right' for="password">Password</label>
+                            <input class='col' id="password" name="password" type="password" required>
+                            <button type="button" class='input-addon' aria-label="Show password"
+                                data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
+                                <svg class="icon">
+                                    <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
+                                </svg>
+                            </button>
+                            <script>
+                                function togglepassword(self, id) {
+                                    target = document.getElementById(id);
+                                    console.log(target);
+
+                                    if (target.type == "password") {
+                                        self.attributes['aria-label'].value = "Hide password";
+                                        self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye-closed'></use></svg>";
+                                        target.type = "text";
+                                    } else {
+                                        self.attributes['aria-label'].value = "Show password";
+                                        self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye'></use></svg>";
+                                        target.type = "password";
+                                    }
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class='separator'>
+            <div class='row'>
+                <div class='col-12 col-md-3 align-md-right'>
+                    <h2 class='mt-0'>Billing:</h2>
+                </div>
+                <div class='col-12 col-md-6'>
+                    <div class='row'>
+                        <div class='input-group col'>
+                            <label class='col-3 align-right' for="firstname">First name</label>
+                            <input class='col' id="firstname" name="firstname" type="text" placeholder="John" required>
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class='input-group col'>
+                            <label class='col-3 align-right' for="lastname">Last name</label>
+                            <input class='col' id="lastname" name="lastname" type="text" placeholder="Doe" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class='row pt-2'>
+                <div class='col-12 col-md-3 align-md-right'>
+                </div>
+                <div class='col-12 col-md-6'>
+                    <div class='row'>
+                        <div class='col-3'></div>
+                        <div class='input-group col'>
+                            <input class='' id="terms" name="terms" type="checkbox" required>
+                            <label class=' align-right' for="terms">
+                                I accept the
+                                <a href='/legal/privacy' target="_blank">Privacy Policy</a>
+                                and
+                                <a href='/legal/terms-of-service' target="_blank">Terms of Service</a>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class='row pt-3'>
+                <div class='col-12 col-md-3 align-md-right'>
+                </div>
+                <div class='col-12 col-md-6 align-center'>
+                    <button type='submit'>Sign-up</button>
+                </div>
+            </div>
+
+        </form>
+
+    {{/inline}}
+{{/base/page}}
