@@ -1,4 +1,9 @@
 mod ai_client;
+mod crypt_funcs;
+mod database;
+mod helper;
+mod keys;
+mod macros;
 mod middleware;
 mod route;
 mod tokens;
@@ -14,6 +19,7 @@ use handlebars::Handlebars;
 use jemallocator::Jemalloc;
 
 use ai_client::AIClient;
+use r2d2_sqlite::SqliteConnectionManager;
 
 #[global_allocator]
 static ALLOCATOR: Jemalloc = Jemalloc;
@@ -63,6 +69,13 @@ async fn main() -> std::io::Result<()> {
     );
 
     HttpServer::new(move || {
+        let manager = SqliteConnectionManager::file("users.db");
+        let pool = r2d2::Pool::new(manager).unwrap();
+
+        if let Err(e) = database::initialize(pool.clone()) {
+            panic!("Failed initialize database with error: {}", e);
+        }
+
         let shared_context = route::SharedContext {
             root_path: root_path.clone(),
             model_danish: model_danish.clone(),
@@ -86,6 +99,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Compress::default())
             .wrap(NormalizePath::default())
             .data(shared_context)
+            .data(pool)
             .data(templater)
             .service(route::router())
     })
