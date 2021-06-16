@@ -35,3 +35,7 @@ So `/src/route/payment/stripe/checkout` is `/payment/stripe/checkout` and `/src/
 
 For the database the `initialize.rs` file is used for table creation/migration, this works by using the `user_version`
 variable in any Sqlite database, where 0 is assumed to be unintialized, and any other to be the current scheme version.
+
+## Basic signup/signin
+
+Accounts can be created and signed into using `/user/signup` and `/user/signin` routes respectively

@@ -27,7 +27,7 @@ impl HelperDef for AssetHelper {
         h: &Helper,
         _: &Handlebars,
         _: &Context,
-        rc: &mut RenderContext,
+        _rc: &mut RenderContext,
         out: &mut dyn Output,
     ) -> HelperResult {
         let asset_type = h

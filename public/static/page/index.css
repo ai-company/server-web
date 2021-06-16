@@ -210,11 +210,6 @@ figcaption {
     border-color: var(--primary);
 }
 
-.separator {
-    border: 1px solid var(--background-dark);
-    margin: 24px 0;
-}
-
 .tab-body {
     background: var(--background-light);
     padding: 16px;
@@ -259,16 +254,6 @@ figcaption {
 
 #logo-row {
     margin-top: 3rem;
-}
-
-a {
-    text-decoration: none;
-    color: var(--primary);
-}
-
-a:hover,
-a:focus {
-    text-decoration: underline;
 }
 
 .large-link {

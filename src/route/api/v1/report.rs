@@ -1,8 +1,12 @@
 use actix_web::{client::Client, http::header, web::Data, HttpResponse, Responder};
 
-use crate::route::SharedContext;
+use crate::{middleware::UserAuthorized, route::SharedContext};
 
-pub async fn post(body_string: String, _context: Data<SharedContext>) -> impl Responder {
+pub async fn post(
+    body_string: String,
+    _context: Data<SharedContext>,
+    _mw_authorized: UserAuthorized,
+) -> impl Responder {
     let client = Client::new();
 
     client
