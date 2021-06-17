@@ -76,7 +76,7 @@ async fn main() -> std::io::Result<()> {
             panic!("Failed initialize database with error: {}", e);
         }
 
-        let shared_context = route::SharedContext {
+        let shared_context = route::AiModels {
             root_path: root_path.clone(),
             model_danish: model_danish.clone(),
             model_english: model_english.clone(),

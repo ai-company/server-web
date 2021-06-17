@@ -11,7 +11,7 @@ use actix_web::{dev::HttpServiceFactory, web};
 use crate::{ai_client::AIClient, middleware::logger};
 
 #[derive(Clone, Debug)]
-pub struct SharedContext {
+pub struct AiModels {
     pub root_path: String,
     pub model_danish: AIClient,
     pub model_english: AIClient,
@@ -60,7 +60,7 @@ pub fn router() -> impl HttpServiceFactory {
         .service(
             web::scope("/payment/")
                 .service(
-                    web::resource("/status/{token}/").route(web::get().to(payment::status::get)),
+                    web::resource("/status/{user_id}/").route(web::get().to(payment::status::get)),
                 )
                 .service(
                     web::scope("/stripe/")

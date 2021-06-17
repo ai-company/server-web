@@ -1,8 +1,41 @@
 use actix_web::{web, HttpResponse, Responder};
 
-use crate::route::SharedContext;
+use crate::route::AiModels;
 
-pub async fn post(body_string: String, context: web::Data<SharedContext>) -> impl Responder {
+/// Demo Correction route
+///
+/// RESTRICTED:
+/// * TODO: DemoLimitRate
+/// * TODO: DemoLimitInput
+///
+/// FLOW:
+/// * receive plain string sentence body
+///     * if empty:
+///         * return OK []
+/// * call model server
+///     * if errored:
+///         * return InternalServerError
+/// * return OK Json response
+///
+/// TYPES:
+/// ```json
+/// IN: String
+/// OUT: [
+///     {
+///         "index": int,
+///         "type": "none" | "add" | "remove" | "split" | "merge",
+///         "origin": str | str[],
+///         "change": str | this[],
+///         "explain": str[]?
+///     },
+///     ...
+/// ]
+/// ```
+///
+/// TODO: implement ratelimiting (5 requests per minute)
+///
+/// TODO: implement character limit (512ch)
+pub async fn post(body_string: String, context: web::Data<AiModels>) -> impl Responder {
     if body_string.trim().len() == 0 {
         HttpResponse::Ok().body("[]")
     } else {
