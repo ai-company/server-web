@@ -1,5 +1,4 @@
 mod ai_client;
-mod crypt_funcs;
 mod database;
 mod helper;
 mod keys;

@@ -5,28 +5,20 @@ use std::convert::TryInto;
 // Never negative but row.get in rusqlite does not work for u64 for some reason
 pub type UserID = i64;
 
-use crate::crypt_funcs::{MAX_SALT_SIZE, PASSWORD_HASH_SIZE};
-
 #[derive(Clone)]
 pub struct User {
     pub id: UserID,
     pub email: String,
-    pub password: [u8; PASSWORD_HASH_SIZE],
-    pub salt: [u8; MAX_SALT_SIZE],
+    pub password: String,
     pub subscription_expiration: Option<i64>,
 }
 
-pub fn insert(
-    email: &str,
-    hash: &[u8],
-    salt: &[u8],
-    pool: &SqlPool,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn insert(email: &str, hash: &str, pool: &SqlPool) -> Result<(), Box<dyn std::error::Error>> {
     pool.get()?.execute(
         "INSERT INTO users
-                (email, password, salt)
-                VALUES (?1, ?2, ?3);",
-        params![email, hash, salt],
+                (email, password)
+                VALUES (?1, ?2);",
+        params![email, hash],
     )?;
     Ok(())
 }
@@ -36,7 +28,6 @@ pub fn save<C: DBConnection>(
         id,
         email,
         password,
-        salt,
         subscription_expiration,
     }: User,
     tran: &C,
@@ -46,10 +37,9 @@ pub fn save<C: DBConnection>(
                 SET
                     email = ?1,
                     password = ?2,
-                    salt = ?3,
                     subscription_expiration = ?4
                 WHERE id = ?5;",
-        params!(email, &password[..], &salt[..], subscription_expiration, id),
+        params!(email, password, subscription_expiration, id),
     )?;
     Ok(())
 }
@@ -57,75 +47,45 @@ pub fn save<C: DBConnection>(
 crate::basic_error!(DatabaseReadError, "Valid data not found in database");
 
 pub fn get(email: &str, pool: &SqlPool) -> Result<Option<User>, Box<dyn std::error::Error>> {
-    let (salt, hash, id, subscription_expiration): (Vec<u8>, Vec<u8>, UserID, Option<i64>) =
+    let (hash, id, subscription_expiration): (String, UserID, Option<i64>) =
         match pool.get()?.query_row(
-            "SELECT salt, password, id, subscription_expiration
+            "SELECT password, id, subscription_expiration
                     FROM users
                     WHERE email = ?1;",
             params![&email],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         ) {
             Ok(v) => v,
             Err(rusqlite::Error::QueryReturnedNoRows) => return Ok(None),
             Err(e) => return Err(Box::new(e)),
         };
-
-    let salt = match salt.try_into() {
-        Ok(arr) => arr,
-        Err(_) => {
-            return Err(Box::new(DatabaseReadError));
-        }
-    };
-
-    let hash = match hash.try_into() {
-        Ok(arr) => arr,
-        Err(_) => {
-            return Err(Box::new(DatabaseReadError));
-        }
-    };
 
     Ok(Some(User {
         id,
         email: email.to_owned(),
         password: hash,
-        salt,
         subscription_expiration,
     }))
 }
 
 pub fn get_with_id(id: UserID, pool: &SqlPool) -> Result<Option<User>, Box<dyn std::error::Error>> {
-    let (salt, hash, email, subscription_expiration): (Vec<u8>, Vec<u8>, String, Option<i64>) =
+    let (hash, email, subscription_expiration): (String, String, Option<i64>) =
         match pool.get()?.query_row(
-            "SELECT salt, password, email, subscription_expiration
+            "SELECT password, email, subscription_expiration
                     FROM users
                     WHERE id = ?1;",
             params![id],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         ) {
             Ok(v) => v,
             Err(rusqlite::Error::QueryReturnedNoRows) => return Ok(None),
             Err(e) => return Err(Box::new(e)),
         };
 
-    let salt = match salt.try_into() {
-        Ok(arr) => arr,
-        Err(_) => {
-            return Err(Box::new(DatabaseReadError));
-        }
-    };
-
-    let hash = match hash.try_into() {
-        Ok(arr) => arr,
-        Err(_) => {
-            return Err(Box::new(DatabaseReadError));
-        }
-    };
-
     Ok(Some(User {
         id,
         email: email,
         password: hash,
-        salt,
         subscription_expiration,
     }))
 }

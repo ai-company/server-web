@@ -8,7 +8,6 @@ use serde::Deserialize;
 use handlebars::Handlebars;
 
 use crate::{
-    crypt_funcs::{generate_from_password, HashedPassword},
     database::{user, SqlPool},
     route::EndpointProcessingResult,
 };
@@ -20,9 +19,12 @@ pub struct UserCreationRequest {
 }
 
 async fn signup(req: UserCreationRequest, pool: &SqlPool) -> EndpointProcessingResult<()> {
-    let HashedPassword { hash, salt } = generate_from_password(&req.password);
+    user::insert(
+        &req.email,
+        &bcrypt::hash(&req.password, bcrypt::DEFAULT_COST).unwrap(),
+        pool,
+    )?;
 
-    user::insert(&req.email, &hash[..], &salt[..], pool)?;
 
     Ok(())
 }

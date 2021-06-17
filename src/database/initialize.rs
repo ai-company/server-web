@@ -39,8 +39,7 @@ fn first_setup(mut con: Connection) -> Result<(), String> {
         "create table users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
-            password BLOB NOT NULL,
-            salt BLOB NOT NULL,
+            password TEXT NOT NULL,
             subscription_expiration DATE
         );",
         "create table tokens (

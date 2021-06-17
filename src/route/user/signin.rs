@@ -8,7 +8,6 @@ use time::Duration;
 
 use serde::Deserialize;
 
-use crate::crypt_funcs::hash_with_salt;
 use crate::database::{token, user, SqlPool};
 use crate::route::{EndpointProcessingError, EndpointProcessingResult};
 use token::Token;
@@ -22,7 +21,6 @@ pub struct SignInRequest {
 
 async fn signin(req: SignInRequest, pool: &SqlPool) -> EndpointProcessingResult<Token> {
     let User {
-        salt,
         password: stored_hash,
         id: user_id,
         ..
@@ -31,10 +29,7 @@ async fn signin(req: SignInRequest, pool: &SqlPool) -> EndpointProcessingResult<
         None => return Err(EndpointProcessingError::Unauthorized),
     };
 
-    // TODO: don't deal with password parts
-    let sent_hash = hash_with_salt(&req.password, &salt);
-
-    if sent_hash.to_vec() == stored_hash {
+    if bcrypt::verify(&req.password, &stored_hash).unwrap() {
         Ok(token::generate(pool, user_id)?)
     } else {
         Err(EndpointProcessingError::Unauthorized)
