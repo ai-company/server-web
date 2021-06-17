@@ -21,20 +21,24 @@ use jemallocator::Jemalloc;
 use ai_client::AIClient;
 use r2d2_sqlite::SqliteConnectionManager;
 
+use crate::route::RootPath;
+
 #[global_allocator]
 static ALLOCATOR: Jemalloc = Jemalloc;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let root_path = String::from_utf8(
-        env::current_dir()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .as_bytes()
-            .into(),
-    )
-    .unwrap();
+    let root_path = RootPath::new(
+        String::from_utf8(
+            env::current_dir()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .as_bytes()
+                .into(),
+        )
+        .unwrap(),
+    );
 
     let host_server = env::var("HOST_SERVER").unwrap_or("127.0.0.1".into());
     let host_danish = env::var("HOST_DANISH").unwrap_or("127.0.0.1".into());
@@ -77,7 +81,6 @@ async fn main() -> std::io::Result<()> {
         }
 
         let shared_context = route::AiModels {
-            root_path: root_path.clone(),
             model_danish: model_danish.clone(),
             model_english: model_english.clone(),
         };
@@ -101,6 +104,7 @@ async fn main() -> std::io::Result<()> {
             .data(shared_context)
             .data(pool)
             .data(templater)
+            .data(root_path.clone())
             .service(route::router())
     })
     .bind(addr_server)?

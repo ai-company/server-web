@@ -5,6 +5,8 @@ mod not_found;
 pub mod payment;
 mod user;
 
+use std::fmt::{self, Display, Formatter};
+
 use actix_files::Files;
 use actix_web::{dev::HttpServiceFactory, web};
 
@@ -12,9 +14,35 @@ use crate::{ai_client::AIClient, middleware::logger};
 
 #[derive(Clone, Debug)]
 pub struct AiModels {
-    pub root_path: String,
     pub model_danish: AIClient,
     pub model_english: AIClient,
+}
+
+#[derive(Clone, Debug)]
+pub struct RootPath(pub String);
+
+impl RootPath {
+    pub fn new<T: Into<String>>(path: T) -> Self {
+        RootPath(path.into())
+    }
+}
+
+impl Display for RootPath {
+    fn fmt(&self, fmt: &mut Formatter) -> Result<(), fmt::Error> {
+        self.0.fmt(fmt)
+    }
+}
+
+impl Into<RootPath> for String {
+    fn into(self) -> RootPath {
+        RootPath::new(self)
+    }
+}
+
+impl Into<String> for RootPath {
+    fn into(self) -> String {
+        self.0
+    }
 }
 
 pub fn router() -> impl HttpServiceFactory {
