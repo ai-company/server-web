@@ -22,6 +22,7 @@ pub fn get_millis_since_epoch() -> Result<i64, UnexpectedTimeTravel> {
     }
 }
 
+/// Get current `auth` cookie if one exists
 pub fn get_session_cookie(req: &HttpRequest) -> Option<String> {
     req.cookies()
         .map(|jar| {
@@ -32,6 +33,7 @@ pub fn get_session_cookie(req: &HttpRequest) -> Option<String> {
         .unwrap_or(None)
 }
 
+/// Find current `UserID` associated with the current `auth` cookie
 pub fn get_current_user_id(
     req: &HttpRequest,
     pool: &SqlPool,
@@ -50,6 +52,7 @@ pub fn get_current_user_id(
     }
 }
 
+/// Find `User` associated with the current `UserID`
 pub fn get_current_user(
     req: &HttpRequest,
     pool: &SqlPool,

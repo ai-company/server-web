@@ -19,7 +19,7 @@ pub struct UserCreationRequest {
     pub password: String,
 }
 
-async fn signup_req(req: UserCreationRequest, pool: &SqlPool) -> EndpointProcessingResult<()> {
+async fn signup(req: UserCreationRequest, pool: &SqlPool) -> EndpointProcessingResult<()> {
     let HashedPassword { hash, salt } = generate_from_password(&req.password);
 
     user::insert(&req.email, &hash[..], &salt[..], pool)?;
@@ -34,7 +34,7 @@ pub async fn get(template: Data<Handlebars<'_>>) -> impl Responder {
 }
 
 pub async fn post(req: web::Form<UserCreationRequest>, pool: web::Data<SqlPool>) -> impl Responder {
-    match signup_req(req.into_inner(), pool.as_ref()).await {
+    match signup(req.into_inner(), pool.as_ref()).await {
         Ok(_) => HttpResponse::Created()
             .header(header::LOCATION, "/user/account")
             .finish(),

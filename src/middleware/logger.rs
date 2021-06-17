@@ -3,6 +3,9 @@ use std::future::Future;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse};
 use chrono::Utc;
 
+/// Scope request logging middleware
+///
+/// This logs the executed request with format: `dd/mm/yy hh:mm:ss REQTIMEµs METHOD STATUS PATH`
 pub fn logger(
     req: ServiceRequest,
     srv: &mut impl Service<

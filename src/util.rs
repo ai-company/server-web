@@ -13,7 +13,6 @@ use handlebars::{
 /// * Cold cache resets every minor version change.
 /// * Hot cache resets every patch version change.
 /// * Both caches reset on major version change.
-
 #[derive(Clone, Copy)]
 pub struct AssetHelper {
     pub v_major: usize,
@@ -73,7 +72,7 @@ impl HelperDef for AssetHelper {
                     .hash()
                     .get("type")
                     .ok_or(RenderError::new(
-                        "asset: preload: specify 'type' - stylesheet | script",
+                        "asset: hot|cold: specify 'type' - stylesheet | script",
                     ))?
                     .value()
                     .render();
@@ -81,7 +80,7 @@ impl HelperDef for AssetHelper {
                 let src = h
                     .hash()
                     .get("src")
-                    .ok_or(RenderError::new("asset: preload: specify 'src'"))?
+                    .ok_or(RenderError::new("asset: hot|cold: specify 'src'"))?
                     .value()
                     .render();
 
@@ -103,14 +102,16 @@ impl HelperDef for AssetHelper {
 }
 
 impl AssetHelper {
-    fn preload(&self, type_: &str, as_: &str, src: &str) -> String {
+    /// Preload asset, is not versioned
+    pub fn preload(&self, type_: &str, as_: &str, src: &str) -> String {
         format!(
             "<link rel='preload' type='{}' as='{}' href='{}' crossorigin='anonymous'>",
             type_, as_, src
         )
     }
 
-    fn cold(&self, type_: &str, src: &str) -> String {
+    /// Cold asset, resets for every Minor version
+    pub fn cold(&self, type_: &str, src: &str) -> String {
         match type_ {
             "script" => format!(
                 "<script src='{}?v{}.{}'></script>",
@@ -123,7 +124,8 @@ impl AssetHelper {
         }
     }
 
-    fn hot(&self, type_: &str, src: &str) -> String {
+    /// Hot asset, resets for every Patch version
+    pub fn hot(&self, type_: &str, src: &str) -> String {
         match type_ {
             "script" => format!(
                 "<script src='{}?v{}.{}.{}'></script>",

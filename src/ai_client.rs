@@ -3,16 +3,36 @@ use std::{
     net::{SocketAddr, TcpStream},
 };
 
-#[derive(Debug, Clone)]
-pub struct AIClient {
-    pub addr: SocketAddr,
-}
-
 pub enum AiError {
     ConnectionFailed,
     QueryFailed,
     ReadFailed,
     Utf8ConvertFailed,
+}
+
+/// Connector for AI model server
+///
+/// Flow:
+/// * try connect to model server
+///     * if not connected:
+///         * return ConnectionFailed
+/// * try send full text query to server
+///     * if not sent:
+///         * return QueryFailed
+/// * try read response (expected json containing full text diff)
+///     * if not received:
+///         * return ReadFailed
+/// * try parse response (expected UTF-8)
+///     * if invalid:
+///         * return Utf8ConvertFailed
+/// * return response
+///
+/// TODO: implement stage completion messages and handling
+///
+/// TODO: implement pool (model side?)
+#[derive(Debug, Clone)]
+pub struct AIClient {
+    pub addr: SocketAddr,
 }
 
 impl AIClient {

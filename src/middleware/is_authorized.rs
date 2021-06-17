@@ -17,6 +17,23 @@ pub fn is_authorized(req: &HttpRequest) -> bool {
         .unwrap_or(false)
 }
 
+/// Route Authorization middleware
+///
+/// The route that contains this extractor will only execute if user is logged on
+///
+/// Usage:
+/// ```
+/// fn route_handler(_: HttpRequest, _mw_auth: UserAuthorized) -> impl Responder { ... }
+/// ```
+///
+/// Flow:
+/// * try get db connection
+///     * if no connection:
+///         * return InternalServerError with direct html body in case there are bigger issues
+/// * try get current user session
+///     * if no session:
+///         * return Unauthorized with 401 template
+/// * continue
 pub struct UserAuthorized;
 
 impl FromRequest for UserAuthorized {

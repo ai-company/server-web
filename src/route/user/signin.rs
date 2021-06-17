@@ -20,7 +20,7 @@ pub struct SignInRequest {
     pub password: String,
 }
 
-async fn sign_in(req: SignInRequest, pool: &SqlPool) -> EndpointProcessingResult<Token> {
+async fn signin(req: SignInRequest, pool: &SqlPool) -> EndpointProcessingResult<Token> {
     let User {
         salt,
         password: stored_hash,
@@ -50,7 +50,7 @@ pub async fn get(template: Data<Handlebars<'_>>) -> impl Responder {
 pub async fn post(req: web::Form<SignInRequest>, pool: web::Data<SqlPool>) -> impl Responder {
     use EndpointProcessingError::*;
 
-    match sign_in(req.into_inner(), pool.as_ref()).await {
+    match signin(req.into_inner(), pool.as_ref()).await {
         Ok(token) => HttpResponse::Found()
             .cookie(
                 Cookie::build("auth", token)
