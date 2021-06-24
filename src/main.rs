@@ -71,14 +71,14 @@ async fn main() -> std::io::Result<()> {
         &root_path, &addr_server, &addr_english, &addr_danish
     );
 
+    let manager = SqliteConnectionManager::file("users.db");
+    let pool = r2d2::Pool::new(manager).unwrap();
+
+    if let Err(e) = database::initialize(pool.clone()) {
+        panic!("Failed initialize database with error: {}", e);
+    }
+
     HttpServer::new(move || {
-        let manager = SqliteConnectionManager::file("users.db");
-        let pool = r2d2::Pool::new(manager).unwrap();
-
-        if let Err(e) = database::initialize(pool.clone()) {
-            panic!("Failed initialize database with error: {}", e);
-        }
-
         let shared_context = route::AiModels {
             model_danish: model_danish.clone(),
             model_english: model_english.clone(),
@@ -101,7 +101,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Compress::default())
             .wrap(NormalizePath::default())
             .data(shared_context)
-            .data(pool)
+            .data(pool.clone())
             .data(templater)
             .data(root_path.clone())
             .service(route::router())

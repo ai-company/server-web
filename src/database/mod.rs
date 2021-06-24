@@ -12,6 +12,7 @@ pub use sync_transaction::SyncTransaction;
 mod db_connection;
 pub use db_connection::DBConnection;
 
+pub mod migration;
 pub mod stripe_profile;
 pub mod token;
 pub mod user;
