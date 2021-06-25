@@ -4,6 +4,299 @@
     {{/inline}}
 
     {{#*inline "body"}}
-        <h1>Account</h1>
+        <h1 class="align-center">Account</h1>
+        <div id="account">
+            <div>
+                <div role="tab">
+                    <svg class='icon'>
+                        <use href="/static/icons/teenyicons/outline.svg#outline--user-circle"></use>
+                    </svg>
+                    Profile
+                </div>
+                <div role="tabpanel">
+                    <form method="POST">
+                        <div class='row'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                            </div>
+
+                            <div class='col-12 col-md-6'>
+                                <div class='row'>
+                                    <div class='input-group col'>
+                                        <label class='col-3 align-right' for="email">E-mail</label>
+                                        <input class='col' id="email" name="email" type="email"
+                                            placeholder="email@example.com" value="{{User.email}}" required>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='input-group col'>
+                                        <label class='col-3 align-right' for="password">Password</label>
+                                        <input class='col' id="password" name="password" type="password" required>
+                                        <button type="button" class='input-addon' aria-label="Show password"
+                                            data-microtip-position="left" role="tooltip"
+                                            onclick="togglepassword(this, 'password')">
+                                            <svg class="icon">
+                                                <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
+                                            </svg>
+                                        </button>
+                                        <script>
+                                            function togglepassword(self, id) {
+                                                target = document.getElementById(id);
+                                                console.log(target);
+
+                                                if (target.type == "password") {
+                                                    self.attributes['aria-label'].value = "Hide password";
+                                                    self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye-closed'></use></svg>";
+                                                    target.type = "text";
+                                                } else {
+                                                    self.attributes['aria-label'].value = "Show password";
+                                                    self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye'></use></svg>";
+                                                    target.type = "password";
+                                                }
+                                            }
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class='row pt-3'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                            </div>
+                            <div class='col-12 col-md-6 align-center'>
+                                <button type='submit'>Save</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr class='separator'>
+
+                    <form action="/user/signout" class='align-center'>
+                        <button class='white' type="submit">Sign-out</button>
+                    </form>
+
+                    <hr class='separator'>
+
+                    <div class='align-center'>
+                        <button class="red" onclick="modal('account-delete')">
+                            <svg class="icon">
+                                <use href="/static/icons/teenyicons/outline.svg#outline--bin"></use>
+                            </svg>
+                            DELETE ACCOUNT
+                        </button>
+                    </div>
+
+                    <div id="account-delete" class="modal">
+                        <a class="modal-close" onclick="modal('account-delete')"></a>
+
+                        <div class="modal-content panel">
+                            <a class="modal-x" onclick="modal('account-delete')">
+                                <svg class="icon">
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--x"></use>
+                                </svg>
+                            </a>
+
+                            <div class='row'>
+                                <div class='col' style="color: var(--red);">
+                                    <div class='align-center fg-red'>
+                                        <svg class="icon icon-lg">
+                                            <use
+                                                href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle">
+                                            </use>
+                                        </svg>
+                                    </div>
+                                    <h2>
+                                        Are you sure you want to delete your account?
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <div class='row'>
+                                <div class='col px-3'>
+                                    <strong>
+                                        Deleting account will perform the following actions irreversibly:
+                                    </strong>
+                                    <ol>
+                                        <li><strong>Clear your Orto service discounts (if any)</strong></li>
+                                        <li><strong>Cancel your Orto subscription</strong></li>
+                                        <li><strong>Delete your Orto account information</strong></li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class='row'>
+                                <div class='col'></div>
+                                <button class='green col mt-2' onclick="modal('account-delete')">
+                                    <svg class="icon icon-auto">
+                                        <use href="/static/icons/teenyicons/outline.svg#outline--arrow-left"></use>
+                                    </svg>
+                                    Go back
+                                </button>
+                                <form class='col mt-2' action=/user/delete>
+                                    <button class='red col ' href="/user/delete">
+                                        <svg class="icon icon-auto">
+                                            <use href="/static/icons/teenyicons/outline.svg#outline--bin"></use>
+                                        </svg>
+                                        Delete account
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div>
+                <div role="tab">
+                    <svg class='icon'>
+                        <use href="/static/icons/teenyicons/outline.svg#outline--wallet-alt"></use>
+                    </svg>
+                    Billing
+                </div>
+                <div role="tabpanel">
+                    <form method="POST">
+                        <div class='row'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                            </div>
+
+                            <div class='col-12 col-md-6'>
+                                <div class='row'>
+                                    <div class='input-group col'>
+                                        <label class='col-3 align-right' for="firstname">First name</label>
+                                        <input class='col' id="firstname" name="firstname" type="text"
+                                            placeholder="John" value="{{User.firstname}}" required>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='input-group col'>
+                                        <label class='col-3 align-right' for="lastname">Last name</label>
+                                        <input class='col' id="lastname" name="lastname" type="text" placeholder="Doe"
+                                            value="{{User.lastname}}" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class='row pt-3'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                            </div>
+                            <div class='col-12 col-md-6 align-center'>
+                                <button type='submit'>Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <div role="tab">
+                    <svg class='icon'>
+                        <use href="/static/icons/teenyicons/outline.svg#outline--briefcase-alt"></use>
+                    </svg>
+                    Plan Details
+                </div>
+                <div role="tabpanel">
+                    <form method="POST">
+                        <div class='row'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                            </div>
+                            <div class='col-6'>
+                                <div class='row'>
+                                    <div class="col-3"></div>
+                                    <div class='col'>
+                                        <div class='input-group'>
+                                            <input id="tier-student" name="tier" type="radio" value="student">
+                                            <label for="tier-student">Student</label>
+                                        </div>
+                                        <div class='input-group'>
+                                            <input id="tier-private" name="tier" type="radio" value="private">
+                                            <label for="tier-private">Private</label>
+                                        </div>
+                                        <div class='input-group'>
+                                            <input id="tier-business" name="tier" type="radio" value="business">
+                                            <label for="tier-business">Business</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class='row pt-3'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                            </div>
+                            <div class='col-12 col-md-6 align-center'>
+                                <button type='submit'>Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <div role="tab">
+                    <svg class='icon'>
+                        <use href="/static/icons/teenyicons/outline.svg#outline--question-circle"></use>
+                    </svg>
+                    Help & Support
+                </div>
+                <div role="tabpanel">
+                    <form method="POST">
+                        <div class='row'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                                <h3 class='mt-0'>FAQ:</h3>
+                            </div>
+                            <div class='col-12 col-md-6'>
+                                <div class='row'>
+                                    <div class='input-group col'>
+                                        <label class='col-3 align-right' for="firstname">First name</label>
+                                        <input class='col' id="firstname" name="firstname" type="text"
+                                            placeholder="John" required>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='input-group col'>
+                                        <label class='col-3 align-right' for="lastname">Last name</label>
+                                        <input class='col' id="lastname" name="lastname" type="text" placeholder="Doe"
+                                            required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class='row'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                                <h3 class='mt-0'>Support:</h3>
+                            </div>
+                            <div class='col-12 col-md-6'>
+                                <div class='row'>
+                                    <div class='input-group col'>
+                                        <label class='col-3 align-right' for="firstname">First name</label>
+                                        <input class='col' id="firstname" name="firstname" type="text"
+                                            placeholder="John" required>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='input-group col'>
+                                        <label class='col-3 align-right' for="lastname">Last name</label>
+                                        <input class='col' id="lastname" name="lastname" type="text" placeholder="Doe"
+                                            required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class='row pt-3'>
+                            <div class='col-12 col-md-3 align-md-right'>
+                            </div>
+                            <div class='col-12 col-md-6 align-center'>
+                                <button type='submit'>Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>Tabs("#account")</script>
     {{/inline}}
 {{/base/page}}
