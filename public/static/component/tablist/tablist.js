@@ -1,3 +1,24 @@
+/**
+ * Tablist component
+ *
+ * USAGE:
+ * ```
+ * <div id='tabs'>
+ *     <div>
+ *         <div role="tab">Grammar analysis</div>
+ *         <div role="tabpanel"><img src="/static/img/grammar.png" height="250px" /></div>
+ *     </div>
+ *     <div>
+ *         <div role="tab">Spellchecking</div>
+ *         <div role="tabpanel"><img src="/static/img/spelling.png" height="250px" /></div>
+ *     </div>
+ * </div>
+ * <script>
+ *     Tabs("#tabs");
+ * </script>
+ * ```
+ */
+
 const MTabs = {
     instances: 0,
 
