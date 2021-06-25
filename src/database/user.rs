@@ -1,11 +1,12 @@
 use super::{stripe_profile, token, DBConnection, SqlPool, SyncTransaction};
 use rusqlite::{params, Transaction};
+use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
 // Never negative but row.get in rusqlite does not work for u64 for some reason
 pub type UserID = i64;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
     pub id: UserID,
     pub email: String,

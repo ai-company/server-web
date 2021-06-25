@@ -4,7 +4,7 @@ use actix_web::{web::Data, HttpRequest, HttpResponse, Responder};
 use crate::database::{user, SqlPool};
 use crate::helper::get_current_user;
 
-use crate::middleware::UserAuthorized;
+use crate::middleware::{Session, UserAuthorized};
 use crate::route::{EndpointProcessingError, EndpointProcessingResult};
 
 use handlebars::Handlebars;
@@ -26,8 +26,12 @@ async fn account_delete(req: HttpRequest, pool: &SqlPool) -> EndpointProcessingR
 
 // Wrappers
 
-pub async fn get(template: Data<Handlebars<'_>>, _mw_authorized: UserAuthorized) -> impl Responder {
-    HttpResponse::Ok().body(template.render("page/user/account", &()).unwrap())
+pub async fn get(
+    template: Data<Handlebars<'_>>,
+    _mw_authorized: UserAuthorized,
+    session: Session,
+) -> impl Responder {
+    HttpResponse::Ok().body(template.render("page/user/account", &session).unwrap())
 }
 
 pub async fn delete(
