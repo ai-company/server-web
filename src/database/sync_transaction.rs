@@ -7,6 +7,7 @@ use super::{db_connection::DynResult, DBConnection, SqlPool};
 
 pub struct SyncTransaction {
     con: Arc<Mutex<PooledConnection<SqliteConnectionManager>>>,
+    done: bool, // prevent double rollback on drop, if transaction finalised
 }
 
 impl SyncTransaction {
@@ -15,21 +16,18 @@ impl SyncTransaction {
         con.execute("BEGIN TRANSACTION", params!())?;
         Ok(SyncTransaction {
             con: Arc::new(Mutex::new(con)),
+            done: false,
         })
     }
 
-    pub fn commit(self) -> rusqlite::Result<usize> {
-        self.con
-            .lock()
-            .unwrap()
-            .execute("TRANSACTION COMMIT", params![])
+    pub fn commit(mut self) -> rusqlite::Result<usize> {
+        self.done = true;
+        self.con.lock().unwrap().execute("COMMIT", params![])
     }
 
-    pub fn rollback(self) -> rusqlite::Result<usize> {
-        self.con
-            .lock()
-            .unwrap()
-            .execute("ROLLBACK TRANSACTION", params![])
+    pub fn rollback(mut self) -> rusqlite::Result<usize> {
+        self.done = true;
+        self.con.lock().unwrap().execute("ROLLBACK", params![])
     }
 }
 
@@ -54,10 +52,12 @@ impl DBConnection for SyncTransaction {
 
 impl Drop for SyncTransaction {
     fn drop(&mut self) {
-        self.con
-            .lock()
-            .unwrap()
-            .execute("ROLLBACK TRANSACTION", params![])
-            .unwrap();
+        if !self.done {
+            self.con
+                .lock()
+                .unwrap()
+                .execute("ROLLBACK", params![])
+                .unwrap();
+        }
     }
 }

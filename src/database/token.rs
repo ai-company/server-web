@@ -29,6 +29,16 @@ pub fn generate(pool: &SqlPool, user_id: UserID) -> Result<Token, Box<dyn std::e
     Ok(token)
 }
 
+pub fn destroy(pool: &SqlPool, user_id: UserID) -> Result<(), Box<dyn std::error::Error>> {
+    let tran = SyncTransaction::new(pool)?;
+
+    delete(user_id, &tran)?;
+
+    tran.commit()?;
+
+    Ok(())
+}
+
 pub fn get_owner(
     pool: &SqlPool,
     token: Token,

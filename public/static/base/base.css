@@ -287,6 +287,18 @@ a:focus {
     font-size: 45px;
 }
 
+.text-sm {
+    font-size: 0.8em;
+}
+
+.text-md {
+    font-size: 1.2em;
+}
+
+.text-lg {
+    font-size: 1.6em;
+}
+
 .note-header {
     padding: 12px;
     color: var(--black-lighter);
