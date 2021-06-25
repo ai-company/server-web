@@ -4,12 +4,13 @@ use std::io::prelude::*;
 use std::io::{self, BufRead};
 use std::path::Path;
 
-use crypto::digest::Digest;
-use crypto::sha2::Sha256;
+use hmac::digest::FixedOutput;
 use lettre::smtp::authentication::IntoCredentials;
 use lettre::{SmtpClient, Transport};
 use lettre_email::EmailBuilder;
 use nanoid;
+use sha2::Digest;
+use sha2::Sha256;
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where
@@ -80,11 +81,7 @@ pub fn is_invited(token: &str) -> bool {
 }
 
 pub fn try_send_token_to(email: &str) -> Result<(), ()> {
-    let mut hasher = Sha256::new();
-
-    hasher.input_str(&email);
-
-    let email_hash = hasher.result_str();
+    let email_hash = hex::encode(Sha256::digest(email.as_bytes()));
 
     if let Ok(lines) = read_lines("db/emails.txt") {
         let mut found = false;
