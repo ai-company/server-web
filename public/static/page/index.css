@@ -210,33 +210,6 @@ figcaption {
     border-color: var(--primary);
 }
 
-.tab-body {
-    background: var(--background-light);
-    padding: 16px;
-    border-radius: 0 0 4px 4px;
-    border: 1px solid var(--background-darker);
-    border-top: none;
-}
-
-.tab-head {
-    display: flex;
-    border-bottom: 1px solid var(--background-darker);
-}
-
-.tab-head button {
-    border: 1px solid var(--background-darker);
-    border-bottom-color: transparent;
-    margin-bottom: -1px;
-    border-radius: 4px 4px 0 0;
-    background: var(--background-darker);
-    box-shadow: none;
-    --color-background-focus: var(--white);
-}
-
-.tab-head .tab-active {
-    background: var(--background);
-}
-
 #editor-textarea {
     width: 100%;
     height: 100%;

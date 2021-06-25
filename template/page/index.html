@@ -38,6 +38,9 @@
     {{asset "hot" type="stylesheet" src="/static/component/editor/editor.css"}}
     {{asset "hot" type="script" src="/static/component/editor/editor.js"}}
 
+    {{asset "cold" type="script" src="/static/component/tablist/tablist.js"}}
+    {{asset "cold" type="stylesheet" src="/static/component/tablist/tablist.css"}}
+
     {{asset "hot" type="stylesheet" src="/static/page/index.css"}}
 </head>
 
@@ -141,32 +144,17 @@
 
             <div class="row">
                 <div class="col">
-                    <div class="tab-head">
-                        <button class="tab-active" onclick="switchTab(event, 'grammar')">Grammar analysis</button>
-                        <button onclick="switchTab(event, 'spellchecking')">Spellchecking</button>
+                    <div id='features-tabs'>
+                        <div>
+                            <div role="tab">Grammar analysis</div>
+                            <div role="tabpanel"><img src="/static/img/grammar.png" height="250px" /></div>
+                        </div>
+                        <div>
+                            <div role="tab">Spellchecking</div>
+                            <div role="tabpanel"><img src="/static/img/spelling.png" height="250px" /></div>
+                        </div>
                     </div>
-
-                    <div id="grammar" class="tab-body">
-                        <img src="/static/img/grammar.png" height="250px" />
-                    </div>
-
-                    <div id="spellchecking" class="tab-body" style="display:none">
-                        <img src="/static/img/spelling.png" height="250px" />
-                    </div>
-
-                    <script>
-                        function switchTab(e, cityName) {
-                            var i;
-                            var x = document.getElementsByClassName("tab-body");
-                            var currentactivetab = document.querySelector('.tab-active');
-                            currentactivetab.classList.toggle('tab-active');
-                            e.target.classList.toggle('tab-active');
-                            for (i = 0; i < x.length; i++) {
-                                x[i].style.display = "none";
-                            }
-                            document.getElementById(cityName).style.display = "block";
-                        }
-                    </script>
+                    <script>Tabs("#features-tabs")</script>
                 </div>
                 <div class="col-12 col-lg-4 ">
                     <div class='row  pl-lg-3'>
