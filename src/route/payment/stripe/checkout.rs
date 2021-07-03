@@ -23,7 +23,7 @@ pub struct CreateCheckoutRequest {
 }
 
 // https://stripe.com/docs/api/checkout/sessions/create
-
+// Contains contsants for what the Stripe page should do on the frontend on failure/sucess
 fn create_checkout_body(
     price_id: String,
     stripe_profile: StripeProfile,
@@ -57,6 +57,7 @@ fn create_checkout_body(
     })
 }
 
+// Attempt to extact the session id of a new session from a Stripe API response.
 async fn get_session_id(
     response: ClientResponse<Decompress<Payload>>,
 ) -> Result<SessionID, Box<dyn std::error::Error>> {
@@ -77,6 +78,7 @@ lazy_static::lazy_static! {
 }
 
 // auth done by middleware
+// Create a Checkout session on stripe and send the user the id of that session if successful.
 async fn create_checkout(
     httpreq: &HttpRequest,
     req: CreateCheckoutRequest,
@@ -88,6 +90,7 @@ async fn create_checkout(
     // Then we make sure they have info with stripe
     let stripe_profile = stripe_profile::get_or_create(user, pool).await?;
 
+    // Note this is the ID of the subscription the user wants, this is assumed to be accurate since it can only be a subscription we create and publish, however checks might be needed for student status or other cases.
     let CreateCheckoutRequest { price_id } = req;
     let body = create_checkout_body(price_id, stripe_profile)?;
 

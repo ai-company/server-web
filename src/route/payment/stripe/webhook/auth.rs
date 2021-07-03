@@ -9,6 +9,7 @@ use crate::route::payment::stripe::WEBHOOK_SECRET;
 
 use crate::route::{EndpointProcessingError, EndpointProcessingResult};
 
+// Determine the expected signature from stripe based on a shared secret, and the SHA256 hash of the request/webhook
 pub fn compute_signature(payload: &str, secret: &[u8]) -> String {
     let mut mac = HmacSha256::new_varkey(secret).expect("HMAC can take key of any size");
     mac.update(payload.as_bytes());
@@ -20,10 +21,8 @@ pub fn compute_signature(payload: &str, secret: &[u8]) -> String {
 }
 
 pub fn parse_stripe_signature_header(header: &str) -> Result<HashMap<String, String>, ()> {
-    let signature = header.trim().to_string();
-    let signature: Vec<&str> = signature.split(",").collect();
+    let signature = header.trim().split(",");
     let signature: Vec<Vec<&str>> = signature
-        .iter()
         .map(|pair| pair.split("=").map(|s| s.trim()).collect())
         .collect();
 

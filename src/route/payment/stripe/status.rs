@@ -34,12 +34,13 @@ struct SubscriptionStatusWrapper {
     data: Vec<SubscriptionStatus>,
 }
 
+// A check to see if a user has a current subscription, first by checking the database, and then Stripe
+// TODO: Save the status of Stripe subscription if it differs from the database
 pub async fn verify_stripe_subscription(
     user_id: UserID,
     pool: SqlPool,
 ) -> Result<bool, Box<dyn std::error::Error>> {
     // First we try to get the stripe profile (no profile means no subscription, not an error)
-    println!("Going to verify stripe");
     let stripe = match database::stripe_profile::get(user_id, &pool) {
         Ok(Some(v)) => v,
         Err(e) => {
