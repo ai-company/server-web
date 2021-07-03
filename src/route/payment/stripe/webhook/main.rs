@@ -15,6 +15,7 @@ crate::basic_error_with_message!(
     "Stripe webhook activated with invalid signature"
 );
 
+// Log the lastest stripe webhook to a file, only to be used in debugging
 fn log_request(input: &str) -> std::io::Result<()> {
     use std::fs::File;
     use std::io::Write;
@@ -23,6 +24,7 @@ fn log_request(input: &str) -> std::io::Result<()> {
     Ok(())
 }
 
+// Function run when any webhook is recived
 pub async fn process_webhook(
     req: &HttpRequest,
     body: String,
@@ -38,8 +40,6 @@ pub async fn process_webhook(
     if is_debugging_backend {
         let _ = log_request(&body);
     }
-
-    // let event: Event = serde_json::from_slice(&body)?;
 
     if is_debugging_backend == event.livemode {
         if is_debugging_backend {
@@ -66,7 +66,7 @@ pub async fn process_webhook(
     use EventType::*;
 
     match event.event_type.unwrap() {
-        // These two are functionally identical, since the event contains the data for the subscription changed function to take account for this
+        // These types are all functionally identical, since they all just illustrate a change happened, and include internal data that describes the exact change to perform
         CustomerSubscriptionUpdated
         | CustomerSubscriptionCreated
         | CustomerSubscriptionDeleted

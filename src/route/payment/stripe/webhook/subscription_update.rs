@@ -5,6 +5,7 @@ use crate::{
 
 use super::{EventObject, ScheduleObject, SubscriptionObject, SubscriptionStatus};
 
+// On subscription change, either by ScheduleObject or SubscriptionObject, apply the change to the database
 pub fn subscription_changed(input: EventObject, pool: &SqlPool) -> EndpointProcessingResult<()> {
     use EventObject::*;
     match input {

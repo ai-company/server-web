@@ -9,6 +9,7 @@ lazy_static::lazy_static! {
     pub static ref BEARER_KEY: String = format!("Bearer {}", KEY);
 }
 
+// Create a stripe account for a given customer on stripe, and if suceesful return their new Stripe id
 pub async fn create_customer(user: User) -> Result<StripeID, Box<dyn std::error::Error>> {
     #[derive(Serialize)]
     struct StripeCustomer {
@@ -44,6 +45,7 @@ pub async fn create_customer(user: User) -> Result<StripeID, Box<dyn std::error:
         .id)
 }
 
+// Attempt to delete a user's Stripe profile based on their ID
 pub async fn delete_customer(id: &StripeID) -> Result<(), Box<dyn std::error::Error>> {
     let base: &str = &STRIPE_CUSTOMER_ENDPOINT;
     let uri: &str = &format!("{}/{}", base, id);
