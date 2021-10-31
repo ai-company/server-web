@@ -31,10 +31,10 @@ use crate::{
     },
 };
 
-const TIER_MAP: [(&'static str, &'static str); 3] = [
-    ("student", "price_1IC9WtLKbmf1O8QW4FgBWQS6"),
-    ("private", "price_1IC9WtLKbmf1O8QW4FgBWQS6"),
-    ("business", "price_1IC9WtLKbmf1O8QW4FgBWQS6"),
+const TIER_MAP: [(&'static str, &'static str); 2] = [
+    ("student", "price_1Jqe80LKbmf1O8QWd1ZrcER7"),
+    ("private", "price_1Jqe7iLKbmf1O8QWrf9Ofnih"),
+    // ("business", "price_1IC9WtLKbmf1O8QW4FgBWQS6"),
 ];
 
 #[derive(Debug, Serialize, Deserialize)]
