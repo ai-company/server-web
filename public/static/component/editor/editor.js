@@ -413,7 +413,7 @@ const CorrectionCard = {
             : "";
 
         const explanation = [
-            self.attrs.item.explain,
+            ...self.attrs.item.explain,
             ...(Array.isArray(self.attrs.item.change) ? self.attrs.item.change.map(i => i.explain || null) : []),
         ].filter(i => i);
 
