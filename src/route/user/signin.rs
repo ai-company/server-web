@@ -1,4 +1,4 @@
-use actix_web::cookie::Cookie;
+use actix_web::cookie::{Cookie, SameSite};
 use actix_web::http::header;
 use actix_web::web;
 use actix_web::{web::Data, HttpResponse, Responder};
@@ -8,9 +8,10 @@ use time::Duration;
 
 use serde::Deserialize;
 
-use crate::database::{token, user, SqlPool};
+use crate::database::{sessions, user, SqlPool};
+use crate::middleware;
 use crate::route::{EndpointProcessingError, EndpointProcessingResult};
-use token::Token;
+use sessions::SessionToken;
 use user::User;
 
 #[derive(Deserialize)]
@@ -19,18 +20,18 @@ pub struct SignInRequest {
     pub password: String,
 }
 
-async fn signin(req: SignInRequest, pool: &SqlPool) -> EndpointProcessingResult<Token> {
+async fn signin(req: SignInRequest, pool: &SqlPool) -> EndpointProcessingResult<SessionToken> {
     let User {
         password: stored_hash,
         id: user_id,
         ..
     } = match user::get(&req.email, pool)? {
-        Some(v) => v,
-        None => return Err(EndpointProcessingError::Unauthorized),
+        Some(v) if v.verified => v,
+        _ => return Err(EndpointProcessingError::Unauthorized),
     };
 
     if bcrypt::verify(&req.password, &stored_hash).unwrap() {
-        Ok(token::generate(pool, user_id)?)
+        Ok(sessions::generate(pool, user_id)?)
     } else {
         Err(EndpointProcessingError::Unauthorized)
     }
@@ -38,8 +39,14 @@ async fn signin(req: SignInRequest, pool: &SqlPool) -> EndpointProcessingResult<
 
 // Wrapper
 
-pub async fn get(template: Data<Handlebars<'_>>) -> impl Responder {
-    HttpResponse::Ok().body(template.render("page/user/signin", &()).unwrap())
+pub async fn get(template: Data<Handlebars<'_>>, session: middleware::Session) -> impl Responder {
+    if let middleware::Session::Guest = session {
+        HttpResponse::Ok().body(template.render("page/user/signin", &()).unwrap())
+    } else {
+        HttpResponse::Found()
+            .header(header::LOCATION, "/user/account")
+            .finish()
+    }
 }
 
 pub async fn post(req: web::Form<SignInRequest>, pool: web::Data<SqlPool>) -> impl Responder {
@@ -48,9 +55,10 @@ pub async fn post(req: web::Form<SignInRequest>, pool: web::Data<SqlPool>) -> im
     match signin(req.into_inner(), pool.as_ref()).await {
         Ok(token) => HttpResponse::Found()
             .cookie(
-                Cookie::build("auth", token)
+                Cookie::build("session", token)
                     .path("/")
                     .http_only(true)
+                    .same_site(SameSite::Lax)
                     .max_age(Duration::days(30))
                     .finish(),
             )

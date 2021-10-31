@@ -18,7 +18,7 @@ pub async fn get_stripe_error_message(
 ) -> Box<dyn std::error::Error> {
     match res.json::<StripeAPIError>().await {
         Ok(body) => Box::new(body),
-        Err(_) => Box::new(StripeError::static_message("Failed to read response")),
+        Err(e) => Box::new(e),
     }
 }
 

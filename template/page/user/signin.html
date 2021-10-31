@@ -1,16 +1,20 @@
-{{#> base/page}}
+{{#> page/base}}
     {{#*inline "head"}}
-        <title>Sign-up</title>
+        <title>Orto - Sign-in</title>
+
+        {{link "hot" type="script" src="/static/base/util.js"}}
     {{/inline}}
 
     {{#*inline "body"}}
         <h1 class='align-center'>Sign in</h1>
 
+        <hr class='separator'>
+
         <form method="POST">
             <div class='row'>
-                <div class='col-12 col-md-3 align-md-right'>
+                <div class='col-12 col-md-2 align-md-right'>
                 </div>
-                <div class='col-12 col-md-6'>
+                <div class='col-11 col-md-8 col-lg-7'>
                     <div class='row'>
                         <div class='input-group col'>
                             <label class='col-3 align-right' for="email">E-mail</label>
@@ -28,22 +32,6 @@
                                     <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
                                 </svg>
                             </button>
-                            <script>
-                                function togglepassword(self, id) {
-                                    target = document.getElementById(id);
-                                    console.log(target);
-
-                                    if (target.type == "password") {
-                                        self.attributes['aria-label'].value = "Hide password";
-                                        self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye-closed'></use></svg>";
-                                        target.type = "text";
-                                    } else {
-                                        self.attributes['aria-label'].value = "Show password";
-                                        self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye'></use></svg>";
-                                        target.type = "password";
-                                    }
-                                }
-                            </script>
                         </div>
                     </div>
                 </div>
@@ -59,6 +47,5 @@
             </div>
 
         </form>
-
     {{/inline}}
-{{/base/page}}
+{{/page/base}}

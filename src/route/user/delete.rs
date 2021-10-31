@@ -8,16 +8,23 @@ use time::Duration;
 
 use serde::Deserialize;
 
-use crate::database::{token, user, SqlPool};
+use crate::database::{sessions, user, SqlPool, SyncTransaction};
 use crate::helper::{get_current_user, get_current_user_id};
-use crate::middleware::UserAuthorized;
+use crate::middleware;
 use crate::route::{EndpointProcessingError, EndpointProcessingResult};
-use token::Token;
+use sessions::SessionToken;
 use user::User;
 
 async fn delete(req: HttpRequest, pool: &SqlPool) -> EndpointProcessingResult<()> {
     let user = get_current_user(&req, &pool)?;
-    user::delete(user, pool).await?;
+    let trans = SyncTransaction::new(pool)?;
+
+    user::delete(user, &trans).await?;
+
+    trans
+        .commit()
+        .map_err(|e| EndpointProcessingError::Processing(Box::new(e)))?;
+
     Ok(())
 }
 
@@ -27,7 +34,7 @@ pub async fn get(
     req: HttpRequest,
     template: Data<Handlebars<'_>>,
     pool: web::Data<SqlPool>,
-    _mw_authorized: UserAuthorized,
+    _: middleware::UserAuthorized,
 ) -> impl Responder {
     use EndpointProcessingError::*;
 
@@ -36,7 +43,7 @@ pub async fn get(
         Err(Unauthorized) => HttpResponse::Found().header(header::LOCATION, "/").finish(),
         Err(RequestUnparsable) | Err(RequestNonsensical) => HttpResponse::BadRequest().finish(),
         Err(e) => {
-            println!("Failed to sign out with error: {}", e);
+            println!("Failed to delete user with error: {}", e);
             HttpResponse::InternalServerError().finish()
         }
     }

@@ -2,7 +2,7 @@ use actix_web::{HttpMessage, HttpRequest};
 
 use crate::{
     database::{
-        token,
+        sessions,
         user::{self, User, UserID},
         SqlPool,
     },
@@ -22,18 +22,18 @@ pub fn get_millis_since_epoch() -> Result<i64, UnexpectedTimeTravel> {
     }
 }
 
-/// Get current `auth` cookie if one exists
+/// Get current `session` cookie if one exists
 pub fn get_session_cookie(req: &HttpRequest) -> Option<String> {
     req.cookies()
         .map(|jar| {
             jar.iter()
-                .find(|cookie| cookie.name() == "auth")
+                .find(|cookie| cookie.name() == "session")
                 .map(|auth| auth.value().into())
         })
         .unwrap_or(None)
 }
 
-/// Find current `UserID` associated with the current `auth` cookie
+/// Find current `UserID` associated with the current `session` cookie
 pub fn get_current_user_id(
     req: &HttpRequest,
     pool: &SqlPool,
@@ -43,7 +43,7 @@ pub fn get_current_user_id(
         None => return Err(EndpointProcessingError::Unauthorized),
     };
 
-    let id = token::get_owner(pool, auth)?;
+    let id = sessions::get_owner(pool, auth)?;
 
     if let Some(id) = id {
         Ok(id)

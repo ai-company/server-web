@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    {{link "cold" type="stylesheet" src="/static/font/Poppins/Poppins.css"}}
+    {{link "cold" type="stylesheet" src="/static/font/SourceSansPro/SourceSansPro.css"}}
+
+    {{link "cold" type="stylesheet" src="/static/lib/normalize/normalize.css"}}
+    {{link "cold" type="stylesheet" src="/static/base/layout.css"}}
+
+    {{link "cold" type="stylesheet" src="/static/base/base.css"}}
+
+    {{link "cold" type="stylesheet" src="/static/lib/microtip/microtip.min.css"}}
+
+    {{link "cold" type="script" src="/static/lib/mithril/mithril.min.js"}}
+
+    {{link "cold" type="script" src="/static/component/tablist/tablist.js"}}
+    {{link "cold" type="stylesheet" src="/static/component/tablist/tablist.css"}}
+
+    {{link "cold" type="script" src="/static/component/modal/modal.js"}}
+    {{link "cold" type="stylesheet" src="/static/component/modal/modal.css"}}
+
+    {{> head}}
+</head>
+
+<body>
+    <div class="container">
+        {{> block/header}}
+
+        <main>
+            {{> body}}
+        </main>
+
+        {{> block/footer}}
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+{{#> page/base}}
+    {{#*inline "head"}}
+        <title>Orto - Sign-up success</title>
+
+        {{link "hot" type="script" src="/static/base/util.js"}}
+    {{/inline}}
+
+    {{#*inline "body"}}
+        <h1 class='mb-0 align-center'>Sign up</h1>
+
+        <div class='row'>
+            <div class='col'></div>
+
+            <div class='col-12 col-md-9 col-lg-7'>
+                <hr class='separator'>
+
+                <div class='align-center'>
+                    <h1>
+                        <svg class="icon" style="font-size: 6rem; color: var(--green)">
+                            <use href="/static/icons/teenyicons/outline.svg#outline--tick-circle"></use>
+                        </svg>
+                    </h1>
+
+                    <h1 style="color: var(--green)">Success!</h1>
+
+                    <h3>Your subscription has been successful</h3>
+
+                    <div>
+                        <a class='button primary' href='/editor'>Proceed to editor</a>
+                    </div>
+                    <div class='pt-1 pb-2'>
+                        <a class='' href='/user/account'>Proceed to account</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class='col'></div>
+        </div>
+    {{/inline}}
+{{/page/base}}

@@ -1,0 +1,76 @@
+<style>
+    .button {
+        color: #fff;
+        background-color: #3c87cd;
+        border: 1px outset #00000030;
+        border-radius: 4px;
+        padding: 6px 12px;
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+        box-shadow: 0 3px 4px -3px #0005;
+        font-weight: bold;
+        margin: 16px 0;
+    }
+
+    .panel {
+        padding: 24px 16px;
+        background-color: #f5f8f9;
+        border-top: 1px inset #00000030;
+        border-bottom: 1px inset #00000030;
+    }
+
+    .center {
+        text-align: center;
+        max-width: 640px;
+        background-color: #fafcff;
+        border: 1px outset #00000030;
+    }
+
+    a {
+        color: #3c87cd;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    h1 {
+        margin: 0;
+        padding: 1rem 0;
+    }
+
+    footer {
+        padding: 16px 0;
+    }
+
+    .dim {
+        color: #0009;
+    }
+
+</style>
+
+<table class='main' width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td align="center">
+            <div class="center">
+                <header>
+                    <h1>
+                        {{>title}}
+                    </h1>
+                </header>
+
+                <div class='panel'>
+                    {{>body}}
+                </div>
+
+                <footer>
+                    <div>
+                        <small>This email is automatic. Please don't reply to this email.</small>
+                    </div>
+                    <div>
+                        <small class='dim'>© 2021, ai-company. All rights reserved.</small>
+                    </div>
+                </footer>
+            </div>
+        </td>
+    </tr>
+</table>

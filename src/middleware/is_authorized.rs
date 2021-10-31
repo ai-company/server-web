@@ -10,7 +10,7 @@ pub fn is_authorized(req: &HttpRequest) -> bool {
     req.cookies()
         .map(|jar| {
             jar.iter()
-                .find(|cookie| cookie.name() == "auth")
+                .find(|cookie| cookie.name() == "session")
                 .map(|auth| is_invited(auth.value()))
                 .unwrap_or(false)
         })
@@ -38,7 +38,7 @@ pub struct UserAuthorized;
 
 impl FromRequest for UserAuthorized {
     type Error = InternalError<&'static str>;
-    type Future = Ready<Result<UserAuthorized, Self::Error>>;
+    type Future = Ready<Result<Self, Self::Error>>;
     type Config = ();
 
     fn from_request(_req: &HttpRequest, _payload: &mut dev::Payload) -> Self::Future {

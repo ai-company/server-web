@@ -1,0 +1,16 @@
+{{#> email/base}}
+    {{#*inline "title"}}
+        Welcome to <a href="https://orto.ai/">Orto</a>!
+    {{/inline}}
+
+    {{#*inline "body"}}
+        <p>
+            Please click the button below to confirm your email and continue to payment.<br>
+            If it was not you who requested the sign-up, ignore this email.
+        </p>
+
+        <div>
+            <a class="button" href="{{url}}?token={{token}}">Proceed to payment and finish sign-up</a>
+        </div>
+    {{/inline}}
+{{/email/base}}

@@ -1,20 +1,13 @@
 use super::{StripeError, API_URL, KEY};
 use crate::{database, route::payment::stripe::StripeAPIError};
-use actix_web::client::Client;
+use actix_web::{client::Client, web};
 use database::{stripe_profile::StripeID, user::UserID, SqlPool};
 use serde::{Deserialize, Serialize};
 
-fn make_query_params(stripe_id: StripeID) -> Result<String, serde_qs::Error> {
-    #[derive(Serialize)]
-    struct Parameters {
-        status: [&'static str; 1],
-        customer: StripeID,
-    }
-
-    serde_qs::to_string(&Parameters {
-        status: ["active"],
-        customer: stripe_id,
-    })
+#[derive(Serialize)]
+pub struct Parameters {
+    status: &'static str,
+    customer: StripeID,
 }
 
 lazy_static::lazy_static! {
@@ -22,11 +15,11 @@ lazy_static::lazy_static! {
     pub static ref BEARER_KEY: String = format!("Bearer {}", KEY);
 }
 
-#[derive(Deserialize)]
-struct SubscriptionStatus {
-    current_period_end: i64,
-    current_period_start: i64,
-    start_date: i64,
+#[derive(Deserialize, Clone, Debug)]
+pub struct SubscriptionStatus {
+    pub current_period_end: i64,
+    pub current_period_start: i64,
+    pub start_date: i64,
 }
 
 #[derive(Deserialize)]
@@ -38,24 +31,35 @@ struct SubscriptionStatusWrapper {
 // TODO: Save the status of Stripe subscription if it differs from the database
 pub async fn verify_stripe_subscription(
     user_id: UserID,
-    pool: SqlPool,
-) -> Result<bool, Box<dyn std::error::Error>> {
+    pool: &SqlPool,
+) -> Result<Option<SubscriptionStatus>, Box<dyn std::error::Error>> {
     // First we try to get the stripe profile (no profile means no subscription, not an error)
-    let stripe = match database::stripe_profile::get(user_id, &pool) {
+    let stripe = match database::stripe_profile::get(user_id, pool) {
         Ok(Some(v)) => v,
         Err(e) => {
             println!("Failed to get verify stripe subscription with error: {}", e);
-            return Ok(false);
+            return Ok(None);
         }
-        _ => return Ok(false),
+        _ => return Ok(None),
     };
 
-    let base: &str = &ENDPOINT_PATH;
-    let uri = format!("{}/{}", base, make_query_params(stripe.stripe_id)?);
+    println!("[STRP] verify: get stripe profile for user {}", user_id);
+
+    let uri: &str = &ENDPOINT_PATH;
     let key: &str = &BEARER_KEY;
 
     let client = Client::default();
-    let mut res = client.post(uri).header("Authorization", key).send().await?;
+    let mut res = client
+        .get(uri)
+        .header("Authorization", key)
+        .send_body(
+            serde_urlencoded::to_string(&Parameters {
+                status: "active",
+                customer: stripe.stripe_id,
+            })
+            .unwrap(),
+        )
+        .await?;
 
     if !res.status().is_success() {
         return Err(match res.json::<StripeAPIError>().await {
@@ -75,15 +79,21 @@ pub async fn verify_stripe_subscription(
         },
         Err(e) => return Err(Box::new(e)),
     }?;
-    let now = crate::helper::get_millis_since_epoch()?;
+    let now = crate::helper::get_millis_since_epoch()? / 1000;
 
     // We check if an active subscription starting before now, and ending after now exists
+    println!("{:?} {}", &data, now);
 
-    Ok(data.iter().any(
-        |SubscriptionStatus {
-             current_period_end,
-             current_period_start,
-             start_date,
-         }| *current_period_start <= now && *start_date <= now && *current_period_end > now,
-    ))
+    Ok(data
+        .iter()
+        .find(
+            |SubscriptionStatus {
+                 current_period_end,
+                 current_period_start,
+                 start_date,
+             }| {
+                *current_period_start <= now && *start_date <= now && *current_period_end > now
+            },
+        )
+        .cloned())
 }

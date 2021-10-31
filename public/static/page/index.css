@@ -9,18 +9,6 @@ header {
     margin-top: 24px;
 }
 
-.sticky-pinned {
-    border-bottom: 1px solid var(--background-darker);
-    box-shadow: 0 8px 10px -12px var(--black-transparent-dark);
-    transition: border-color ease-out 0.3s, box-shadow ease-out 0.15s, background-color ease-out 0.2s;
-}
-
-header.sticky-pinned {
-    background: var(--background-lighter);
-    position: sticky;
-    top: -0.1px;
-}
-
 #particles {
     position: fixed;
     z-index: -1;
@@ -150,7 +138,7 @@ figcaption {
     text-align: center;
     font-weight: 600;
     font-size: 2.4rem;
-    margin-top: 0;
+    margin-top: 16px;
     margin-bottom: 40px;
 }
 

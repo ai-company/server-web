@@ -1,3 +1,4 @@
+use crate::database::billing_info::{self, BillingInfo};
 use crate::database::user::User;
 use crate::helper::get_current_user;
 use crate::tokens::is_invited;
@@ -15,7 +16,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// Usage:
 /// ```
-/// fn route_handler(_: HttpRequest, _mw_session: Session) -> impl Responder { ... }
+/// fn route_handler(_: HttpRequest, session: Session) -> impl Responder { ... }
 /// ```
 ///
 /// Flow:
@@ -32,12 +33,34 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Session {
     Guest,
-    User(User),
+    User(SessionData),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SessionData {
+    pub user: User,
+    pub billing: BillingInfo,
+}
+
+impl Session {
+    pub fn unwrap_user(&self) -> &User {
+        match self {
+            Self::User(data) => &data.user,
+            _ => panic!("user session not active!"),
+        }
+    }
+
+    pub fn unwrap_billing(&self) -> &BillingInfo {
+        match self {
+            Self::User(data) => &data.billing,
+            _ => panic!("user session not active!"),
+        }
+    }
 }
 
 impl FromRequest for Session {
     type Error = InternalError<&'static str>;
-    type Future = Ready<Result<Session, Self::Error>>;
+    type Future = Ready<Result<Self, Self::Error>>;
     type Config = ();
 
     fn from_request(_req: &HttpRequest, _payload: &mut dev::Payload) -> Self::Future {
@@ -46,7 +69,13 @@ impl FromRequest for Session {
 
         if let Some(pool) = pool {
             match get_current_user(_req, pool) {
-                Ok(data) => ok(Session::User(data)),
+                Ok(user) => {
+                    let billing = billing_info::get_with_id(user.id, pool);
+                    ok(Session::User(SessionData {
+                        user,
+                        billing: billing.unwrap().unwrap(),
+                    }))
+                }
                 Err(_) => ok(Session::Guest),
             }
         } else {

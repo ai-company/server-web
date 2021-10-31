@@ -1,12 +1,12 @@
 use actix_web::{web, HttpResponse, Responder};
 use handlebars::Handlebars;
 
-use crate::middleware::{Session, UserAuthorized};
+use crate::middleware;
 
 pub async fn get(
     template: web::Data<Handlebars<'_>>,
-    _mw_authorized: UserAuthorized,
-    session: Session,
+    session: middleware::Session,
+    _: middleware::UserAuthorized,
 ) -> impl Responder {
     HttpResponse::Ok().body(template.render("page/editor", &session).unwrap())
 }

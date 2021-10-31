@@ -4,9 +4,12 @@ use crate::database::{user::UserID, SqlPool};
 
 async fn subscription_status(
     user_id: UserID,
-    pool: SqlPool,
+    pool: &SqlPool,
 ) -> Result<bool, Box<dyn std::error::Error>> {
-    if super::stripe::status::verify_stripe_subscription(user_id, pool).await? {
+    if super::stripe::status::verify_stripe_subscription(user_id, pool)
+        .await?
+        .is_some()
+    {
         Ok(true)
     } else {
         // Note more payment providers will be inserted above, so this isnt just if something == true { true } else { false }
@@ -19,7 +22,7 @@ async fn subscription_status(
 // TODO: no authorization check?
 pub async fn get(user_id: web::Path<String>, pool: web::Data<SqlPool>) -> impl Responder {
     match user_id.parse() {
-        Ok(user_id) => match subscription_status(user_id, pool.as_ref().clone()).await {
+        Ok(user_id) => match subscription_status(user_id, &pool).await {
             Ok(status) => match status {
                 true => HttpResponse::Ok().finish(),
                 false => HttpResponse::NotFound().finish(),

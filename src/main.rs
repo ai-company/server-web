@@ -1,5 +1,7 @@
 mod ai_client;
 mod database;
+mod email;
+mod emails;
 mod helper;
 mod keys;
 mod macros;
@@ -7,18 +9,22 @@ mod middleware;
 mod route;
 mod tokens;
 mod util;
+mod validator;
 
-use std::{env, net::ToSocketAddrs};
+use std::{env, fmt::Pointer, net::ToSocketAddrs};
 
 use actix_web::{
     middleware::{Compress, NormalizePath},
     App, HttpServer,
 };
-use handlebars::Handlebars;
+use handlebars::{
+    html_escape, Context, Handlebars, Helper, HelperDef, HelperResult, Output, RenderContext,
+    Renderable,
+};
 use jemallocator::Jemalloc;
+use r2d2_sqlite::SqliteConnectionManager;
 
 use ai_client::AIClient;
-use r2d2_sqlite::SqliteConnectionManager;
 
 use crate::route::RootPath;
 
@@ -95,7 +101,13 @@ async fn main() -> std::io::Result<()> {
             v_patch: env!("CARGO_PKG_VERSION_PATCH").parse().unwrap(),
         };
 
-        templater.register_helper("asset", Box::new(asset_helper));
+        let url_helper = util::UrlHelper;
+
+        let embed_helper = util::EmbedHelper;
+
+        templater.register_helper("link", Box::new(asset_helper));
+        templater.register_helper("embed", Box::new(embed_helper));
+        templater.register_helper("url", Box::new(url_helper));
 
         App::new()
             .wrap(Compress::default())

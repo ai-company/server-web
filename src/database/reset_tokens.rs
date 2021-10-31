@@ -11,19 +11,17 @@ pub fn insert<C: DBConnection>(
     user_id: UserID,
 ) -> Result<(), Box<dyn std::error::Error>> {
     con.execute(
-        "INSERT INTO tokens
-                (token, user, expiration)
-                VALUES (?1, ?2, datetime('now', '30 day'));",
+        "INSERT INTO reset_tokens (token, user_id, expires_at) VALUES (?1, ?2, datetime('now', '1 hour'))",
         params![&token[..], user_id],
     )?;
     Ok(())
 }
 
 pub fn generate(pool: &SqlPool, user_id: UserID) -> Result<Token, Box<dyn std::error::Error>> {
-    let token = nanoid::simple();
+    let token = nanoid::generate(48);
 
     // Will fail on token collision, though very unlikely
-    // Token expires in 30 days after current UTC timestamp
+    // Token expires in 1 hour after current UTC timestamp
     insert(pool.clone(), &token, user_id)?;
 
     Ok(token)
@@ -44,10 +42,9 @@ pub fn get_owner(
     token: Token,
 ) -> Result<Option<UserID>, Box<dyn std::error::Error>> {
     match pool.get()?.query_row(
-        "SELECT user
-                FROM tokens
-                WHERE token = ?1
-                    AND expiration > datetime('now')",
+        "SELECT user_id
+        FROM reset_tokens
+        WHERE token = ?1 AND expires_at > datetime('now')",
         params![&token[..]],
         |row| Ok(row.get(0)?),
     ) {
@@ -58,6 +55,9 @@ pub fn get_owner(
 }
 
 pub fn delete(owner: UserID, trans: &SyncTransaction) -> Result<(), Box<dyn std::error::Error>> {
-    trans.execute("DELETE FROM tokens WHERE user = ?1", params![owner])?;
+    trans.execute(
+        "DELETE FROM reset_tokens WHERE user_id = ?1",
+        params![owner],
+    )?;
     Ok(())
 }
