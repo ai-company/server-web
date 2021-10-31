@@ -1,6 +1,6 @@
 {{#> email/base}}
     {{#*inline "title"}}
-        <a href="{{url "/"}}">Orto</a> subscription activated
+        <a href="{{get_url "/"}}">Orto</a> subscription activated
     {{/inline}}
 
     {{#*inline "body"}}
@@ -11,7 +11,7 @@
             You will be charged <b>{{price}}DKK</b> for every month of use, paid up front.
         </p>
         <p>
-            You can cancel the subscription any time from your <a href="{{url "/user/account"}}">account page</a>.
+            You can cancel the subscription any time from your <a href="{{get_url "/user/account"}}">account page</a>.
         </p>
     {{/inline}}
 {{/email/base}}

@@ -107,7 +107,7 @@ async fn main() -> std::io::Result<()> {
 
         templater.register_helper("link", Box::new(asset_helper));
         templater.register_helper("embed", Box::new(embed_helper));
-        templater.register_helper("url", Box::new(url_helper));
+        templater.register_helper("get_url", Box::new(url_helper));
 
         App::new()
             .wrap(Compress::default())
