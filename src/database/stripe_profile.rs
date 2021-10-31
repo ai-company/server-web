@@ -7,41 +7,42 @@ use super::{
 };
 use rusqlite::params;
 
+use chrono::{self, DateTime};
+
 pub type StripeID = String;
 
+#[derive(Debug)]
 pub struct StripeSubscription {
     pub start: i64,
-    pub expiration: i64,
+    pub end: i64,
 }
 
+#[derive(Debug)]
 pub struct StripeProfile {
     pub stripe_id: StripeID,
     pub user: UserID,
     pub subscription: Option<StripeSubscription>,
-    pub last_updated: i64,
 }
 
 pub async fn create(
-    user: User,
+    user: &User,
     pool: &SqlPool,
 ) -> Result<StripeProfile, Box<dyn std::error::Error + 'static>> {
     // We create the customer in Stripe's API
     let user_id = user.id;
-    let customer_stripe_id = crate::route::payment::stripe::customer::create_customer(user).await?;
+    let stripe_id = crate::route::payment::stripe::customer::create_customer(user).await?;
 
     let customer = StripeProfile {
-        stripe_id: customer_stripe_id,
+        stripe_id,
         user: user_id,
         subscription: None,
-        last_updated: crate::helper::get_millis_since_epoch()?,
     };
 
     pool.get()?.execute(
-        "INSERT INTO stripe_profiles
-                (stripe_id, user, last_updated)
-                VALUES (?1, ?2, datetime(?3, 'unixepoch'));",
-        params![customer.stripe_id, user_id, customer.last_updated],
+        "INSERT INTO stripe_profiles (id, user_id) VALUES (?1, ?2)",
+        params![customer.stripe_id, user_id],
     )?;
+
     Ok(customer)
 }
 
@@ -49,24 +50,19 @@ pub fn get<C: DBConnection>(
     user_id: UserID,
     con: &C,
 ) -> Result<Option<StripeProfile>, Box<dyn std::error::Error>> {
-    let result: Result<(StripeID, Option<i64>, Option<i64>, i64), _> = con.query_row(
-        "SELECT stripe_id FROM stripe_profiles WHERE user = ?1",
+    let result: Result<(StripeID, Option<i64>, Option<i64>), _> = con.query_row(
+        "SELECT id, subscription_end, subscription_start FROM stripe_profiles WHERE user_id = ?1",
         params![user_id],
-        |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+        |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
     );
+
     match result {
-        Ok((stripe_id, expiration, start, last_updated)) => Ok(Some(StripeProfile {
+        Ok((stripe_id, end, start)) => Ok(Some(StripeProfile {
             user: user_id,
             stripe_id,
-            subscription: if expiration.is_some() && start.is_some() {
-                Some(StripeSubscription {
-                    expiration: expiration.unwrap(),
-                    start: start.unwrap(),
-                })
-            } else {
-                None
-            },
-            last_updated,
+            subscription: start
+                .zip(end)
+                .and_then(|(start, end)| Some(StripeSubscription { start, end })),
         })),
         Err(e) => match e.downcast_ref::<rusqlite::Error>() {
             Some(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
@@ -76,7 +72,7 @@ pub fn get<C: DBConnection>(
 }
 
 pub async fn get_or_create(
-    user: User,
+    user: &User,
     pool: &SqlPool,
 ) -> Result<StripeProfile, Box<dyn std::error::Error>> {
     // Note we have to throw away the Error since it's not sync and the await below gets angry :<
@@ -84,9 +80,16 @@ pub async fn get_or_create(
         println!("Got error that had to be thrown away {}", e);
         1
     });
+
     match val {
-        Ok(Some(profile)) => Ok(profile),
-        Ok(None) => create(user, pool).await,
+        Ok(Some(profile)) => {
+            println!("[STRP] found existing profile");
+            Ok(profile)
+        }
+        Ok(None) => {
+            println!("[STRP] creating new stripe profile");
+            create(user, pool).await
+        }
         Err(_) => Err(Box::new(EndpointProcessingError::Unauthorized)),
     }
 }
@@ -100,9 +103,10 @@ pub fn set_subscription(
     pool: &SqlPool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut con = pool.get()?;
+
     // We verify the user exists
     let user_id: UserID = match con.query_row(
-        "SELECT user FROM stripe_profiles WHERE stripe_id == '?1'",
+        "SELECT user_id FROM stripe_profiles WHERE id == ?1",
         params![stripe_id],
         |row| Ok(row.get(0)?),
     ) {
@@ -112,19 +116,20 @@ pub fn set_subscription(
         }
         Err(e) => return Err(Box::new(e)),
     };
+
+    println!("[ DB ] stripe: get user {}", stripe_id);
+
     let tran = con.transaction()?;
     // Then we save the new subscription info
     tran.execute(
         "UPDATE stripe_profiles
-                SET
-                    stripe_subscription_start = datetime(?1, 'unixepoch'),
-                    stripe_subscription_expiration = datetime(?2, 'unixepoch'),
-                    last_updated = datetime('now')
-                WHERE stripe_id == '?3';",
+        SET
+            subscription_start = ?1,
+            subscription_end = ?2
+        WHERE id == ?3;",
         params![start, end, stripe_id],
     )?;
-    // Then we update to the newest subscription information for the user
-    user::update_subscription_expiration(user_id, pool, &tran)?;
+
     tran.commit()?;
     Ok(())
 }
@@ -136,7 +141,7 @@ pub fn remove_subscription(
     let mut con = pool.get()?;
     // We verify the user exists
     let user_id: UserID = match con.query_row(
-        "SELECT user FROM stripe_profiles WHERE stripe_id == '?1'",
+        "SELECT user_id FROM stripe_profiles WHERE id == '?1'",
         params![stripe_id],
         |row| Ok(row.get(0)?),
     ) {
@@ -150,15 +155,13 @@ pub fn remove_subscription(
     // Then we save the new subscription info
     tran.execute(
         "UPDATE stripe_profiles
-                SET
-                    stripe_subscription_start = NULL,
-                    stripe_subscription_expiration = NULL,
-                    last_updated = datetime('now')
-                WHERE stripe_id == '?1';",
+        SET
+            subscription_start = NULL,
+            subscription_end = NULL
+        WHERE id == '?1'",
         params![stripe_id],
     )?;
-    // Then we update to the newest subscription information for the user
-    user::update_subscription_expiration(user_id, pool, &tran)?;
+
     tran.commit()?;
     Ok(())
 }
@@ -177,7 +180,7 @@ pub async fn delete_user(
 
     // First we remove the user from the database (On a transaction, so not commited yet)
     trans.execute(
-        "DELETE FROM stripe_profiles WHERE stripe_id = ?1",
+        "DELETE FROM stripe_profiles WHERE id = ?1",
         params![stripe_user.stripe_id],
     )?;
 

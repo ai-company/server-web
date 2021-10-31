@@ -1,6 +1,6 @@
 use r2d2::PooledConnection;
 use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::params;
+use rusqlite::{params, Params};
 use std::sync::{Arc, Mutex};
 
 use super::{db_connection::DynResult, DBConnection, SqlPool};
@@ -32,18 +32,12 @@ impl SyncTransaction {
 }
 
 impl DBConnection for SyncTransaction {
-    fn execute<P>(&self, sql: &str, params: P) -> DynResult<usize>
-    where
-        P: IntoIterator,
-        P::Item: rusqlite::ToSql,
-    {
+    fn execute<P: Params>(&self, sql: &str, params: P) -> DynResult<usize> {
         Ok(self.con.lock().unwrap().execute(sql, params)?)
     }
 
-    fn query_row<T, P, F>(&self, sql: &str, params: P, f: F) -> DynResult<T>
+    fn query_row<T, P: Params, F>(&self, sql: &str, params: P, f: F) -> DynResult<T>
     where
-        P: IntoIterator,
-        P::Item: rusqlite::ToSql,
         F: FnOnce(&rusqlite::Row<'_>) -> rusqlite::Result<T>,
     {
         Ok(self.con.lock().unwrap().query_row(sql, params, f)?)

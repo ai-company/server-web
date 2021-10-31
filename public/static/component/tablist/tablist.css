@@ -5,25 +5,27 @@
 
 [role="tablist"] [role="tab"] {
     border: 1px solid var(--background-darker);
-    border-bottom-color: transparent;
+    border-bottom-color: var(--background-darker);
     margin-bottom: -1px;
     border-radius: 4px 4px 0 0;
-    background: var(--background-darker);
     box-shadow: none;
-    --color-background-focus: var(--white);
+    --color-background-normal: var(--background-dark);
+    --color-background-hover: var(--background);
+    --color-background-focus: var(--background-light);
 }
 
 [role="tablist"] [role="tab"]:focus {
     border-color: var(--primary);
-    border-bottom-color: transparent;
+    border-bottom-color: var(--background-darker);
 }
 
 [role="tablist"] [role="tab"][aria-selected] {
-    background: var(--background);
+    background: var(--background-lighter);
+    border-bottom-color: transparent;
 }
 
 [role="tablist"] [role="tabpanel"] {
-    background: var(--background-light);
+    background: var(--background-lighter);
     padding: 16px;
     border-radius: 0 0 4px 4px;
     border: 1px solid var(--background-darker);

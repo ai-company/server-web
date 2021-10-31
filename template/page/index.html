@@ -6,46 +6,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Orto</title>
 
-    {{asset "cold" type="stylesheet" src="/static/font/Poppins/Poppins.css"}}
-    {{asset "cold" type="stylesheet" src="/static/font/SourceSansPro/SourceSansPro.css"}}
+    {{link "cold" type="stylesheet" src="/static/font/Poppins/Poppins.css"}}
+    {{link "cold" type="stylesheet" src="/static/font/SourceSansPro/SourceSansPro.css"}}
 
-    {{asset "preload" type="font/woff" as="font" src="/static/font/Poppins/Poppins-Regular.woff"}}
-    {{asset "preload" type="font/woff" as="font" src="/static/font/Poppins/Poppins-SemiBold.woff"}}
-    {{asset "preload" type="font/woff" as="font" src="/static/font/Poppins/Poppins-Bold.woff"}}
+    {{link "cold" type="stylesheet" src="/static/lib/normalize/normalize.css"}}
+    {{link "cold" type="stylesheet" src="/static/base/layout.css"}}
 
-    {{asset "preload" type="font/woff" as="font" src="/static/font/SourceSansPro/SourceSansPro-Regular.woff"}}
-    {{asset "preload" type="font/woff" as="font" src="/static/font/SourceSansPro/SourceSansPro-SemiBold.woff"}}
-    {{asset "preload" type="font/woff" as="font" src="/static/font/SourceSansPro/SourceSansPro-Bold.woff"}}
-
-
-    {{asset "cold" type="stylesheet" src="/static/lib/normalize/normalize.css"}}
-    {{asset "cold" type="stylesheet" src="/static/base/grid.css"}}
-
-    {{asset "hot" type="stylesheet" src="/static/base/base.css"}}
+    {{link "hot" type="stylesheet" src="/static/base/base.css"}}
 
 
 
-    {{asset "cold" type="stylesheet" src="/static/lib/microtip/microtip.min.css"}}
+    {{link "cold" type="stylesheet" src="/static/lib/microtip/microtip.min.css"}}
 
-    {{asset "cold" type="stylesheet" src="/static/lib/glider/glider.css"}}
-    {{asset "cold" type="script" src="/static/lib/glider/glider.min.js"}}
+    {{link "cold" type="stylesheet" src="/static/lib/glider/glider.css"}}
+    {{link "cold" type="script" src="/static/lib/glider/glider.min.js"}}
 
-    {{asset "cold" type="script" src="/static/lib/mithril/mithril.min.js"}}
+    {{link "cold" type="script" src="/static/lib/mithril/mithril.min.js"}}
 
-    {{asset "cold" type="stylesheet" src="/static/component/modal/modal.css"}}
-    {{asset "cold" type="script" src="/static/component/modal/modal.js"}}
+    {{link "cold" type="stylesheet" src="/static/component/modal/modal.css"}}
+    {{link "cold" type="script" src="/static/component/modal/modal.js"}}
 
-    {{asset "hot" type="stylesheet" src="/static/component/editor/editor.css"}}
-    {{asset "hot" type="script" src="/static/component/editor/editor.js"}}
+    {{link "hot" type="stylesheet" src="/static/component/editor/editor.css"}}
+    {{link "hot" type="script" src="/static/component/editor/editor.js"}}
 
-    {{asset "cold" type="script" src="/static/component/tablist/tablist.js"}}
-    {{asset "cold" type="stylesheet" src="/static/component/tablist/tablist.css"}}
+    {{link "cold" type="script" src="/static/component/tablist/tablist.js"}}
+    {{link "cold" type="stylesheet" src="/static/component/tablist/tablist.css"}}
 
-    {{asset "hot" type="stylesheet" src="/static/page/index.css"}}
+    {{link "hot" type="stylesheet" src="/static/page/index.css"}}
 </head>
 
 <body>
-    {{> base/header}}
+    {{#> block/header}}
+        {{#*inline "addons"}}
+            <script>
+                function smoothscroll(e) {
+                    if (new URL(e.target.href).pathname == window.location.pathname) {
+                        e.preventDefault();
+                        window.history.pushState(null, null, e.target.href);
+                        document.querySelector(window.location.hash).scrollIntoView({ behavior: "smooth" });
+                    }
+                }
+                document.addEventListener("DOMContentLoaded", e => document.querySelector(window.location.hash).scrollIntoView());
+            </script>
+            <span class='d-none d-sm-inline'>
+                <a class="nav-item" href="/#Home" onclick="smoothscroll(event)">Home</a>
+                <a class="nav-item" href="/#Features" onclick="smoothscroll(event)">Features</a>
+                <a class="nav-item" href="/#Pricing" onclick="smoothscroll(event)">Pricing</a>
+                <a class="nav-item" href="/#Reviews" onclick="smoothscroll(event)">Reviews</a>
+                <a class="nav-item" href="/#About" onclick="smoothscroll(event)">About</a>
+
+            </span>
+        {{/inline}}
+    {{/block/header}}
 
     <div id="Home" class="info-row">
         <div class="container">
@@ -240,7 +252,8 @@
                         <ul class="tier-details">
                             <li>Spelling fixing</li>
                             <li>Grammar fixing</li>
-                            <li>API access and documentation</li>
+                            <li>API access</li>
+                            <li>Documentation</li>
                             <li>Business Support</li>
                         </ul>
                         <a href='/user/signup?tier=business' class="primary button tier-pick">
@@ -257,7 +270,7 @@
     <div id="Reviews" class="info-row bg-primary-darker fg-inv-lighter">
         <div class='container'>
             <h1 class="row-title">Reviews</h1>
-
+            <!-- ! implement review wrapping for buttons -->
             <div class='row'>
                 <div class='col-1'></div>
                 <div class="col-10">

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     database::{stripe_profile, SqlPool},
     helper::get_current_user,
-    middleware::UserAuthorized,
+    middleware,
 };
 use stripe_profile::StripeID;
 
@@ -56,7 +56,7 @@ async fn create_portal(
     let user = get_current_user(req, pool)?;
 
     // Then we make sure they have info with stripe
-    let stripe_profile = stripe_profile::get_or_create(user, pool).await?;
+    let stripe_profile = stripe_profile::get_or_create(&user, pool).await?;
 
     let body = create_portal_body(stripe_profile.stripe_id, RETURN_URL)?;
 
@@ -85,7 +85,7 @@ async fn create_portal(
 pub async fn post(
     req: HttpRequest,
     pool: web::Data<SqlPool>,
-    _mw_authorized: UserAuthorized,
+    _: middleware::UserAuthorized,
 ) -> impl Responder {
     match create_portal(&req, pool.as_ref()).await {
         Ok(id) => HttpResponse::Created().body(id),

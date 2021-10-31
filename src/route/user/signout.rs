@@ -8,16 +8,16 @@ use time::Duration;
 
 use serde::Deserialize;
 
-use crate::database::{token, user, SqlPool};
+use crate::database::{sessions, user, SqlPool};
 use crate::helper::get_current_user_id;
-use crate::middleware::UserAuthorized;
+use crate::middleware;
 use crate::route::{EndpointProcessingError, EndpointProcessingResult};
-use token::Token;
+use sessions::SessionToken;
 use user::User;
 
 async fn signout(req: HttpRequest, pool: &SqlPool) -> EndpointProcessingResult<()> {
     let user_id = get_current_user_id(&req, &pool)?;
-    token::destroy(pool, user_id)?;
+    sessions::destroy(pool, user_id)?;
     Ok(())
 }
 
@@ -27,7 +27,7 @@ pub async fn get(
     req: HttpRequest,
     template: Data<Handlebars<'_>>,
     pool: web::Data<SqlPool>,
-    _mw_authorized: UserAuthorized,
+    _: middleware::UserAuthorized,
 ) -> impl Responder {
     use EndpointProcessingError::*;
 

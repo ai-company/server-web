@@ -1,0 +1,28 @@
+<header class='sticky'>
+    <a class="header-title hh" href="/"> Orto </a>
+    <nav class="header-nav">
+        <script>
+            window.addEventListener('load', () => {
+                const el = document.querySelector(".sticky");
+                const observer = new IntersectionObserver(
+                    ([e]) => e.target.classList.toggle("sticky-pinned", e.intersectionRatio < 1),
+                    { threshold: 1 }
+                );
+                observer.observe(el);
+            })
+        </script>
+
+        {{> addons}}
+
+        <div class='d-none d-md-inline-block'>
+            <span class="spacer-h" style="--width: 2rem"></span>
+        </div>
+
+        <a class="nav-item" href="/user/signin">
+            Sign-in
+        </a>
+        <a class="nav-item primary button" href="/user/signup">
+            Sign-up
+        </a>
+    </nav>
+</header>

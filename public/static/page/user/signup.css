@@ -1,0 +1,34 @@
+.tier {
+    margin-bottom: 8px;
+}
+
+.tier input[type="radio"] {
+    display: none;
+}
+
+.tier label {
+    border: 1px solid var(--black-transparent-dark);
+    background: var(--background-lighter);
+    display: block;
+    border-radius: 4px;
+    padding: 8px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* box-shadow: 0 3px 4px -3px #0005; */
+}
+
+.tier label:hover {
+    background: var(--background-light);
+}
+
+.tier input[type="radio"]:checked + label {
+    border-color: var(--primary-lighter);
+    background: var(--primary-transparent);
+    /* border-style: inset; */
+    /* box-shadow: none; */
+}
+
+.tier-price {
+    color: var(--primary-lighter);
+}

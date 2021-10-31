@@ -3,11 +3,55 @@ use handlebars::{
     RenderError,
 };
 
+use std::{
+    collections::HashMap,
+    error::Error,
+    fmt::{Debug, Display},
+    fs::File,
+    hash::Hash,
+    io::Read,
+    marker::PhantomData,
+    ops::Deref,
+    pin::Pin,
+    str::from_utf8,
+};
+
+use actix_multipart::{Multipart, MultipartError};
+use actix_web::{
+    cookie::Cookie,
+    dev,
+    error::{ErrorBadRequest, InternalError},
+    http::{header, Method},
+    web::{self, Bytes, Data, Form, Query},
+    FromRequest, HttpMessage, HttpRequest, HttpResponse, Responder,
+};
+use regex::Regex;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use strum::EnumVariantNames;
+
+use futures::{
+    future::{err, ok, Ready},
+    stream::{Stream, StreamExt},
+    Future, FutureExt,
+};
+use serde_json::json;
+use time::Duration;
+
+use crate::{
+    database::{
+        sessions::{self, SessionToken},
+        user, SqlPool,
+    },
+    middleware,
+    route::{self, EndpointProcessingError, EndpointProcessingResult},
+    validator::{ValidationError, ValidationResult, Validator},
+};
+
 /// Handlebars asset helper
 ///
 /// ```
-/// {{asset "preload" type="..." as="..." src="..."}}
-/// {{asset "cold|hot" type="stylesheet|script" src="..."}}
+/// {{link "preload" type="..." as="..." src="..."}}
+/// {{link "cold|hot" type="stylesheet|script" src="..."}}
 /// ```
 ///
 /// * Cold cache resets every minor version change.
@@ -23,10 +67,10 @@ pub struct AssetHelper {
 impl HelperDef for AssetHelper {
     fn call<'reg: 'rc, 'rc>(
         &self,
-        h: &Helper,
-        _: &Handlebars,
-        _: &Context,
-        _rc: &mut RenderContext,
+        h: &Helper<'reg, 'rc>,
+        _r: &'reg Handlebars<'reg>,
+        _ctx: &'rc Context,
+        _rc: &mut RenderContext<'reg, 'rc>,
         out: &mut dyn Output,
     ) -> HelperResult {
         let asset_type = h
@@ -114,11 +158,11 @@ impl AssetHelper {
     pub fn cold(&self, type_: &str, src: &str) -> String {
         match type_ {
             "script" => format!(
-                "<script src='{}?v{}.{}'></script>",
+                "<script src='{}?v={}.{}'></script>",
                 src, self.v_major, self.v_minor
             ),
             _ => format!(
-                "<link rel='{}' href='{}?v{}.{}' />",
+                "<link rel='{}' href='{}?v={}.{}' />",
                 type_, src, self.v_major, self.v_minor
             ),
         }
@@ -128,13 +172,303 @@ impl AssetHelper {
     pub fn hot(&self, type_: &str, src: &str) -> String {
         match type_ {
             "script" => format!(
-                "<script src='{}?v{}.{}.{}'></script>",
+                "<script src='{}?v={}.{}.{}'></script>",
                 src, self.v_major, self.v_minor, self.v_patch
             ),
             _ => format!(
-                "<link rel='{}' href='{}?v{}.{}.{}' />",
+                "<link rel='{}' href='{}?v={}.{}.{}' />",
                 type_, src, self.v_major, self.v_minor, self.v_patch
             ),
         }
     }
+}
+
+/// Handlebars embed helper
+///
+/// ```
+/// {{embed src="..."}}
+/// {{embed type="stylesheet|script" src="..."}}
+/// ```
+#[derive(Clone, Copy)]
+pub struct EmbedHelper;
+
+impl HelperDef for EmbedHelper {
+    fn call<'reg: 'rc, 'rc>(
+        &self,
+        h: &Helper<'reg, 'rc>,
+        _r: &'reg Handlebars<'reg>,
+        _ctx: &'rc Context,
+        _rc: &mut RenderContext<'reg, 'rc>,
+        out: &mut dyn Output,
+    ) -> HelperResult {
+        let failure_msg = RenderError::new("embed: failed to write");
+
+        let type_ = h.hash().get("type");
+
+        let src = h
+            .hash()
+            .get("src")
+            .ok_or(RenderError::new("embed: specify 'src'"))?
+            .value()
+            .render();
+
+        let body = {
+            let mut file = File::open(&src).map_err(|e| {
+                RenderError::new(format!(
+                    "embed: failed to open file {}: {}",
+                    src,
+                    e.to_string()
+                ))
+            })?;
+
+            let mut buf = Vec::new();
+            file.read_to_end(&mut buf)?;
+
+            String::from_utf8(buf)
+                .map_err(|_| RenderError::new(format!("embed: file {} is not valid utf8", src)))?
+        };
+
+        if let Some(type_) = type_ {
+            match type_.value().render().as_str() {
+                "stylesheet" => out.write(&self.stylesheet(&src, &body)).map_err(|_| failure_msg),
+                "script" => out.write(&self.script(&src, &body)).map_err(|_| failure_msg),
+                t => Err(RenderError::new(
+                    format!("embed: unknown type `{}`, expected: stylesheet | script. Omit type for plain embed", t)
+                ))
+            }
+        } else {
+            out.write(&self.plain(&src, &body)).map_err(|_| failure_msg)
+        }
+    }
+}
+
+impl EmbedHelper {
+    pub fn stylesheet(&self, src: &str, body: &str) -> String {
+        format!("<style data-src='{}'>\n{}\n</style>", src, body)
+    }
+
+    pub fn script(&self, src: &str, body: &str) -> String {
+        format!(
+            "<script data-src='{}'>\n{}\n</script>",
+            src,
+            body.replace("</script>", "&lt;/script&gt;")
+        )
+    }
+
+    pub fn plain(&self, src: &str, body: &str) -> String {
+        format!("<!-- \\/ {} \\/ -->\n{}\n<!-- /\\ {0} /\\ -->", src, body)
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct UrlHelper;
+
+impl HelperDef for UrlHelper {
+    fn call<'reg: 'rc, 'rc>(
+        &self,
+        h: &Helper<'reg, 'rc>,
+        _r: &'reg Handlebars<'reg>,
+        _ctx: &'rc Context,
+        _rc: &mut RenderContext<'reg, 'rc>,
+        out: &mut dyn Output,
+    ) -> HelperResult {
+        let path = h
+            .param(0)
+            .ok_or(RenderError::new("url: path not specified"))?
+            .value()
+            .render();
+
+        out.write(&route::url(&path))
+            .map_err(|_| RenderError::new("url: failed to write"))
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum FormField {
+    Binary(Vec<u8>),
+    String(String),
+}
+
+impl FormField {
+    pub fn binary(&self) -> &[u8] {
+        match self {
+            Self::Binary(f) => &f,
+            Self::String(s) => s.as_bytes(),
+        }
+    }
+
+    pub fn string(&self) -> Option<&str> {
+        match self {
+            Self::String(s) => Some(s),
+            _ => None,
+        }
+    }
+
+    pub fn is_file(&self) -> bool {
+        match self {
+            Self::Binary(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_string(self) -> bool {
+        !self.is_file()
+    }
+}
+
+#[derive(Debug)]
+pub struct FormData(pub HashMap<String, FormField>);
+
+impl FormData {
+    pub fn into_inner(self) -> HashMap<String, FormField> {
+        self.0
+    }
+
+    pub fn parse<T: DeserializeOwned + Debug>(&self) -> Result<T, RemapError> {
+        serde_remap(&self.0)
+    }
+}
+
+impl AsRef<HashMap<String, FormField>> for FormData {
+    fn as_ref(&self) -> &HashMap<String, FormField> {
+        &self.0
+    }
+}
+
+impl From<&FormData> for HashMap<String, Vec<u8>> {
+    fn from(data: &FormData) -> HashMap<String, Vec<u8>> {
+        data.0
+            .iter()
+            .map(|(k, v)| (k.to_owned(), v.binary().to_owned()))
+            .collect()
+    }
+}
+
+impl Deref for FormData {
+    type Target = HashMap<String, FormField>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromRequest for FormData {
+    type Error = actix_web::Error;
+    type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
+    type Config = ();
+
+    fn from_request(_req: &HttpRequest, _payload: &mut dev::Payload) -> Self::Future {
+        let content_type = _req.content_type();
+
+        if _req.method() == Method::GET {
+            let form = Query::<HashMap<String, FormField>>::from_request(_req, _payload);
+
+            async move {
+                match form.await {
+                    Ok(data) => Ok(FormData(
+                        data.iter()
+                            .filter_map(|(k, v)| {
+                                v.string().and_then(|v| {
+                                    if v.trim().len() > 0 {
+                                        Some((k.into(), FormField::String(v.into())))
+                                    } else {
+                                        None
+                                    }
+                                })
+                            })
+                            .collect(),
+                    )),
+                    Err(e) => {
+                        let cause = format!("could not parse form: {}", e.to_string());
+                        Err(ErrorBadRequest(cause))
+                    }
+                }
+            }
+            .boxed_local()
+        } else if content_type == "application/x-www-form-urlencoded" {
+            let form = Form::<HashMap<String, FormField>>::from_request(_req, _payload);
+
+            async move {
+                match form.await {
+                    Ok(data) => Ok(FormData(
+                        data.iter()
+                            .filter_map(|(k, v)| {
+                                v.string().and_then(|v| {
+                                    if v.trim().len() > 0 {
+                                        Some((k.into(), FormField::String(v.into())))
+                                    } else {
+                                        None
+                                    }
+                                })
+                            })
+                            .collect(),
+                    )),
+                    Err(e) => {
+                        let cause = format!("could not parse form: {}", e.to_string());
+                        Err(ErrorBadRequest(cause))
+                    }
+                }
+            }
+            .boxed_local()
+        } else if content_type == "multipart/form-data" {
+            let form = Multipart::from_request(_req, _payload);
+
+            async move {
+                let mut form = form.await.unwrap();
+
+                let mut items = HashMap::new();
+
+                while let Some(item) = form.next().await {
+                    let field = item.unwrap();
+                    let content_disposition = field.content_disposition().unwrap();
+
+                    let name = content_disposition.get_name().unwrap();
+                    let is_file = content_disposition.get_filename().is_some();
+                    let chunks: Vec<_> = field.collect().await;
+                    let mut data = Vec::new();
+
+                    for chunk in chunks {
+                        data.extend(chunk.unwrap());
+                    }
+
+                    if let (Ok(data), false) = (from_utf8(&data), is_file) {
+                        if data.trim().len() > 0 {
+                            items.insert(name.to_owned(), FormField::String(data.to_owned()));
+                        }
+                    } else if data.len() > 0 {
+                        items.insert(name.to_owned(), FormField::Binary(data));
+                    }
+                }
+
+                Ok(FormData(items))
+            }
+            .boxed_local()
+        } else {
+            async move { Err(ErrorBadRequest("invalid content type".to_owned())) }.boxed_local()
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum RemapError {
+    SerializationError(Box<dyn Error>),
+    DeserializationError(Box<dyn Error>),
+}
+
+impl Display for RemapError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::SerializationError(e) => write!(f, "Serialization error: {}", e)?,
+            Self::DeserializationError(e) => write!(f, "Deserialization error: {}", e)?,
+        }
+        Ok(())
+    }
+}
+
+pub fn serde_remap<S: Serialize, D: DeserializeOwned + Debug>(input: S) -> Result<D, RemapError> {
+    serde_json::from_str(
+        &serde_json::to_string(&input).map_err(|e| RemapError::SerializationError(Box::new(e)))?,
+    )
+    .map_err(|e| RemapError::DeserializationError(Box::new(e)))
 }

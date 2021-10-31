@@ -29,6 +29,13 @@ const MTabs = {
         this.total_tabs = vnode.attrs.tabs.header.length;
 
         MTabs.instances++;
+
+        if (window.location.hash && window.location.hash.startsWith("#tab-")) {
+            const [_, instance, active_tab] = window.location.hash.split("-");
+            if (this.instance == instance && active_tab) {
+                this.active_tab = active_tab;
+            }
+        }
     },
 
     view: function (vnode) {
@@ -72,7 +79,10 @@ const MTabs = {
                                 tabindex: this.focused_tab == i ? 0 : -1,
                                 "aria-selected": this.active_tab == i,
                                 "aria-controls": `panel-${this.instance}-${i}`,
-                                onclick: e => (this.active_tab = this.focused_tab = i),
+                                onclick: e => {
+                                    this.active_tab = this.focused_tab = i;
+                                    history.replaceState({}, "", `#tab-${this.instance}-${i}`);
+                                },
                             },
                             m.trust(tab)
                         )

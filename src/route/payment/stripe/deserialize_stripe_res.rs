@@ -5,13 +5,18 @@ use actix_web::{
 use serde::{de, Deserialize};
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct StripeAPIError {
+pub struct StripeAPIErrorData {
     #[serde(rename = "type")]
-    error_type: String,
-    code: String,
-    decline_code: Option<String>,
-    message: String,
-    param: String,
+    pub error_type: String,
+    pub code: String,
+    pub decline_code: Option<String>,
+    pub message: String,
+    pub param: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct StripeAPIError {
+    pub error: StripeAPIErrorData,
 }
 
 impl<'a> std::fmt::Display for StripeAPIError {
@@ -19,7 +24,7 @@ impl<'a> std::fmt::Display for StripeAPIError {
         write!(
             f,
             "Got code {} for error type {} with message: {}",
-            self.code, self.error_type, self.message
+            self.error.code, self.error.error_type, self.error.message
         )
     }
 }
@@ -33,13 +38,16 @@ where
     for<'de> T: de::Deserialize<'de>,
 {
     match res.body().await {
-        Ok(data) => match serde_json::from_slice(&data) {
-            Ok(v) => Ok(v),
-            Err(_) => Err(match serde_json::from_slice::<StripeAPIError>(&data) {
-                Ok(v) => Box::new(v),
-                Err(e) => Box::new(e),
-            }),
-        },
+        Ok(data) => {
+            println!("{:?}", &data);
+            match serde_json::from_slice(&data) {
+                Ok(v) => Ok(v),
+                Err(_) => Err(match serde_json::from_slice::<StripeAPIError>(&data) {
+                    Ok(v) => Box::new(v),
+                    Err(e) => Box::new(e),
+                }),
+            }
+        }
         Err(e) => Err(Box::new(e)),
     }
 }

@@ -1,14 +1,20 @@
 mod api;
 mod editor;
 mod index;
+mod mailtest;
 mod not_found;
 pub mod payment;
-mod user;
+pub mod user;
 
-use std::fmt::{self, Display, Formatter};
+use std::{
+    fmt::{self, Display, Formatter},
+    fs::File,
+    io::Read,
+    sync::Arc,
+};
 
 use actix_files::Files;
-use actix_web::{dev::HttpServiceFactory, web};
+use actix_web::{dev::HttpServiceFactory, http::header, web, HttpRequest, HttpResponse, Responder};
 
 use crate::{ai_client::AIClient, middleware::logger};
 
@@ -45,92 +51,108 @@ impl Into<String> for RootPath {
     }
 }
 
+#[cfg(debug_assertions)]
+pub const BASE_URL: &str = "http://local.host:8000";
+#[cfg(not(debug_assertions))]
+pub const BASE_URL: &str = "https://orto.ai";
+
+pub fn url(path: &str) -> String {
+    format!("{}/{}", BASE_URL, path.trim_matches('/'))
+}
+
 pub fn router() -> impl HttpServiceFactory {
-    web::scope("")
+    // static assets
+    let assets = Files::new("/static", "./public/static").prefer_utf8(true);
+
+    // home landing
+    // if not authorized: serve form
+    // else: serve button to editor
+    let landing = web::resource("/").route(web::get().to(index::get));
+
+    // editor
+    // if authorized: serve editor
+    // else if not authorized but has valid token param: consume token and authorize
+    // else: redirect home with sad message
+    let editor = web::resource("/editor/").route(web::get().to(editor::get));
+
+    let user = web::scope("/user/")
+        .service(
+            web::scope("/signup/")
+                .route("", web::get().to(user::signup::index::get))
+                .route("", web::post().to(user::signup::index::post)),
+        )
+        .service(
+            web::resource("/signin/")
+                .route(web::get().to(user::signin::get))
+                .route(web::post().to(user::signin::post)),
+        )
+        .service(web::resource("/signout/").route(web::get().to(user::signout::get)))
+        .service(web::resource("/delete/").route(web::get().to(user::delete::get)))
+        .service(
+            web::resource("/account/")
+                .route(web::get().to(user::account::get))
+                .route(web::delete().to(user::account::delete)),
+        );
+
+    let stripe = web::scope("/payment/")
+        .route("", web::get().to(payment::index::get))
+        .route("/success/", web::get().to(payment::success::get))
+        .route("/cancel/", web::get().to(payment::cancel::get))
+        .service(web::resource("/status/{user_id}/").route(web::get().to(payment::status::get)))
+        .service(
+            web::scope("/stripe/")
+                .service(
+                    web::resource("/webhook/")
+                        .route(web::post().to(payment::stripe::webhook::post)),
+                )
+                // .service(
+                //     web::resource("/checkout/")
+                //         .route(web::post().to(payment::stripe::checkout::post)),
+                // )
+                .service(
+                    web::resource("/portal/").route(web::post().to(payment::stripe::portal::post)),
+                ),
+        );
+
+    // api endpoints
+    let api = web::scope("/api/")
+        .service(
+            // requires authorization
+            web::scope("/v1/")
+                .service(
+                    web::resource("/correct/")
+                        // get orto corrections
+                        .route(web::post().to(api::v1::correct::post)),
+                )
+                .service(
+                    web::resource("/report/")
+                        // bad correction reports
+                        .route(web::post().to(api::v1::report::post)),
+                ),
+        )
+        .service(
+            // demo api, ratelimited
+            web::resource("/demo/correct/").route(web::post().to(api::demo::correct::post)),
+        );
+
+    let routes = web::scope("")
         .wrap_fn(logger)
-        .service(
-            // static assets
-            Files::new("/static", "./public/static").prefer_utf8(true),
-        )
-        .service(
-            web::resource("/")
-                // home landing
-                // if not authorized: serve form
-                // else: serve button to editor
-                .route(web::get().to(index::get)),
-        )
-        .service(
-            web::resource("/editor/")
-                // editor
-                // if authorized: serve editor
-                // else if not authorized but has valid token param: consume token and authorize
-                // else: redirect home with sad message
-                .route(web::get().to(editor::get)),
-        )
-        .service(
-            web::scope("/user/")
-                .service(
-                    web::resource("/signup/")
-                        .route(web::get().to(user::signup::get))
-                        .route(web::post().to(user::signup::post)),
-                )
-                .service(
-                    web::resource("/signin/")
-                        .route(web::get().to(user::signin::get))
-                        .route(web::post().to(user::signin::post)),
-                )
-                .service(web::resource("/signout/").route(web::get().to(user::signout::get)))
-                .service(web::resource("/delete/").route(web::get().to(user::delete::get)))
-                .service(
-                    web::resource("/account/")
-                        .route(web::get().to(user::account::get))
-                        .route(web::delete().to(user::account::delete)),
-                ),
-        )
-        .service(
-            web::scope("/payment/")
-                .service(
-                    web::resource("/status/{user_id}/").route(web::get().to(payment::status::get)),
-                )
-                .service(
-                    web::scope("/stripe/")
-                        .service(
-                            web::resource("/webhook/")
-                                .route(web::post().to(payment::stripe::webhook::post)),
-                        )
-                        .service(
-                            web::resource("/checkout/")
-                                .route(web::post().to(payment::stripe::checkout::post)),
-                        )
-                        .service(
-                            web::resource("/portal/")
-                                .route(web::post().to(payment::stripe::portal::post)),
-                        ),
-                ),
-        )
-        .service(
-            // api endpoints
-            web::scope("/api/")
-                .service(
-                    // requires authorization
-                    web::scope("/v1/")
-                        .service(
-                            web::resource("/correct/")
-                                // get orto corrections
-                                .route(web::post().to(api::v1::correct::post)),
-                        )
-                        .service(
-                            web::resource("/report/")
-                                // bad correction reports
-                                .route(web::post().to(api::v1::report::post)),
-                        ),
-                )
-                .service(
-                    // demo api, ratelimited
-                    web::resource("/demo/correct/").route(web::post().to(api::demo::correct::post)),
-                ),
-        )
-        .default_service(web::to(not_found::get))
+        .service(assets)
+        .service(landing)
+        .service(editor)
+        .service(user)
+        .service(stripe)
+        .service(api)
+        .default_service(web::to(not_found::get));
+
+    #[cfg(debug_assertions)]
+    let routes = {
+        let mail_test = web::resource("/mailtest/").route(web::get().to(mailtest::get));
+
+        routes.service(mail_test)
+    };
+
+    routes
 }
 
 #[derive(Debug)]

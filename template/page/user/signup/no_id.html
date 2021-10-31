@@ -1,0 +1,36 @@
+{{#> page/base}}
+    {{#*inline "head"}}
+        <title>Orto - Sign-up failed</title>
+
+        {{link "hot" type="script" src="/static/base/util.js"}}
+    {{/inline}}
+
+    {{#*inline "body"}}
+        <h1 class='mb-0 align-center'>Sign up</h1>
+
+        <div class='row'>
+            <div class='col'></div>
+
+            <div class='col-12 col-md-9 col-lg-7'>
+                <hr class='separator'>
+
+                <div class='align-center'>
+                    <h1>
+                        <svg class="icon" style="font-size: 6rem; color: var(--red)">
+                            <use href="/static/icons/teenyicons/outline.svg#outline--x-circle"></use>
+                        </svg>
+                    </h1>
+                    <h1 style="color: var(--red)">Unknown or expired signup link!</h1>
+
+                    <h3>Your sign-up has been unsuccessful</h3>
+
+                    <div>
+                        <a class='button primary' href="/user/signup">Return to sign-up and try again</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class='col'></div>
+        </div>
+    {{/inline}}
+{{/page/base}}

@@ -1,89 +1,159 @@
-{{#> base/page}}
+{{#> page/base}}
     {{#*inline "head"}}
-        <title>Account</title>
+        <title>Orto - Account</title>
+
+        {{link "hot" type="stylesheet" src="/static/page/user/signup.css"}}
+        {{link "hot" type="script" src="/static/base/util.js"}}
     {{/inline}}
 
     {{#*inline "body"}}
-        <h1 class="align-center">Account</h1>
-        <div id="account">
-            <div>
-                <div role="tab">
-                    <svg class='icon'>
-                        <use href="/static/icons/teenyicons/outline.svg#outline--user-circle"></use>
-                    </svg>
-                    Profile
+        <h1 class='mb-0 align-center'>Account</h1>
+
+        <noscript>
+            <h3 class='align-center error'>Javascript is required for the page to properly display and function</h3>
+        </noscript>
+
+        <div class='row'>
+            <div class='col'></div>
+
+            <div class='col-12 col-md-9 col-lg-7'>
+                <hr class='separator'>
+
+                <h4>Account details</h4>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 ' for="email">E-mail</label>
+                    <div>{{User.user.email}}</div>
                 </div>
-                <div role="tabpanel">
-                    <form method="POST">
-                        <div class='row'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                            </div>
 
-                            <div class='col-12 col-md-6'>
-                                <div class='row'>
-                                    <div class='input-group col'>
-                                        <label class='col-3 align-right' for="email">E-mail</label>
-                                        <input class='col' id="email" name="email" type="email"
-                                            placeholder="email@example.com" value="{{User.email}}" required>
-                                    </div>
+                <hr class='separator'>
+                <h4>Tier</h4>
+
+                <div class='row justify-center'>
+                    <style>
+                        .account-tier {
+                            border: 1px solid var(--black-transparent-dark);
+                            background: var(--background-lighter);
+                            display: block;
+                            border-radius: 4px;
+                            padding: 8px;
+                            height: 100%;
+                        }
+
+                    </style>
+                    <div class='col account-tier'>
+                        {{#if (eq User.user.tier "student")}}
+                            <label class='row'>
+                                <div class='col-4 align-center'>
+                                    <h3 class="tier-title mb-0">Studerende</h3>
+                                    <h4 class="tier-price mt-0 mb-0">29kr pr. måned</h4>
                                 </div>
-                                <div class='row'>
-                                    <div class='input-group col'>
-                                        <label class='col-3 align-right' for="password">Password</label>
-                                        <input class='col' id="password" name="password" type="password" required>
-                                        <button type="button" class='input-addon' aria-label="Show password"
-                                            data-microtip-position="left" role="tooltip"
-                                            onclick="togglepassword(this, 'password')">
-                                            <svg class="icon">
-                                                <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
-                                            </svg>
-                                        </button>
-                                        <script>
-                                            function togglepassword(self, id) {
-                                                target = document.getElementById(id);
-                                                console.log(target);
-
-                                                if (target.type == "password") {
-                                                    self.attributes['aria-label'].value = "Hide password";
-                                                    self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye-closed'></use></svg>";
-                                                    target.type = "text";
-                                                } else {
-                                                    self.attributes['aria-label'].value = "Show password";
-                                                    self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye'></use></svg>";
-                                                    target.type = "password";
-                                                }
-                                            }
-                                        </script>
-                                    </div>
+                                <div class='col'>
+                                    <ul class="tier-details">
+                                        <li>Spelling fixing</li>
+                                        <li>Grammar fixing</li>
+                                    </ul>
                                 </div>
-                            </div>
-                        </div>
+                            </label>
+                        {{/if}}
 
-                        <div class='row pt-3'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                            </div>
-                            <div class='col-12 col-md-6 align-center'>
-                                <button type='submit'>Save</button>
-                            </div>
-                        </div>
-                    </form>
+                        {{#if (eq User.user.tier "private")}}
+                            <label class="row">
+                                <div class="col-4 align-center">
+                                    <h3 class="tier-title mb-0">Privat</h3>
+                                    <h4 class="tier-price mt-0 mb-0">39kr pr. måned</h4>
+                                </div>
+                                <div class="col">
+                                    <ul class="tier-details">
+                                        <li>Spelling fixing</li>
+                                        <li>Grammar fixing</li>
+                                    </ul>
+                                </div>
+                            </label>
+                        {{/if}}
 
-                    <hr class='separator'>
-
-                    <form action="/user/signout" class='align-center'>
-                        <button class='white' type="submit">Sign-out</button>
-                    </form>
-
-                    <hr class='separator'>
-
-                    <div class='align-center'>
-                        <button class="red" onclick="modal('account-delete')">
-                            <svg class="icon">
-                                <use href="/static/icons/teenyicons/outline.svg#outline--bin"></use>
-                            </svg>
-                            DELETE ACCOUNT
-                        </button>
+                        {{#if (eq User.user.tier "business")}}
+                            <label class='row'>
+                                <div class="col-4 align-center">
+                                    <h3 class="tier-title mb-0">Virksomhed</h3>
+                                    <h4 class="tier-price mt-0 mb-0">10kr pr. 800 ord</h4>
+                                </div>
+                                <div class="col">
+                                    <ul class="tier-details">
+                                        <li>Spelling fixing</li>
+                                        <li>Grammar fixing</li>
+                                        <li>API access</li>
+                                        <li>Documentation</li>
+                                        <li>Business Support</li>
+                                    </ul>
+                                </div>
+                            </label>
+                        {{/if}}
                     </div>
+                </div>
+
+                <div class='row {{#if (not validation.tier)}}d-none{{/if}}'>
+                    <div class='col error'>
+                        {{#each validation.tier}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <hr class='separator'>
+                <h4>Billing details</h4>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 ' for="fullname">Full name</label>
+                    <div>{{User.billing.fullname}}</div>
+                </div>
+
+                {{#if User.billing.cvr}}
+                    <div class='input-group row'>
+                        <label class='col-3 col-sm-2 ' for="cvr">CVR</label>
+                        <label class='input-addon addon-left'>DK</label>
+                        <div>{{User.billing.cvr}}</div>
+                    </div>
+                {{/if}}
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 ' for="address">Address</label>
+                    <div>{{User.billing.address}}</div>
+                </div>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 ' for="city">City</label>
+                    <div>{{User.billing.city}}</div>
+                </div>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 ' for="zip">Zip code</label>
+                    <div>{{User.billing.zip}}</div>
+                </div>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 ' for="country">Country</label>
+                    <div>{{User.billing.country}}</div>
+                </div>
+
+                <hr class='separator'>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2'><strong>Sign out</strong></label>
+                    <label class='col'>End your session</label>
+                    <a class='button col-2' href='/user/signout'>Sign-out</a>
+                </div>
+
+                <hr class='separator'>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2'><strong>Delete account</strong></label>
+                    <label class='col'>Cancel subscription and permanently remove account</label>
+                    <button class='red col-2' onclick="modal('account-delete')">Delete</button>
 
                     <div id="account-delete" class="modal">
                         <a class="modal-close" onclick="modal('account-delete')"></a>
@@ -95,208 +165,37 @@
                                 </svg>
                             </a>
 
-                            <div class='row'>
-                                <div class='col' style="color: var(--red);">
-                                    <div class='align-center fg-red'>
-                                        <svg class="icon icon-lg">
-                                            <use
-                                                href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle">
-                                            </use>
-                                        </svg>
-                                    </div>
-                                    <h2>
-                                        Are you sure you want to delete your account?
-                                    </h2>
-                                </div>
+                            <div class='align-center'>
+                                <svg class='icon icon-lg' style='color: var(--red)'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg>
                             </div>
 
-                            <div class='row'>
-                                <div class='col px-3'>
-                                    <strong>
-                                        Deleting account will perform the following actions irreversibly:
-                                    </strong>
-                                    <ol>
-                                        <li><strong>Clear your Orto service discounts (if any)</strong></li>
-                                        <li><strong>Cancel your Orto subscription</strong></li>
-                                        <li><strong>Delete your Orto account information</strong></li>
-                                    </ol>
-                                </div>
-                            </div>
+                            <h2 style='color: var(--red)'>Are you sure you want to delete your account?</h2>
+
+                            <h4>Deleting your account will perform the following actions:</h4>
+                            <ol>
+                                <li>Clear your Orto service discounts (if any)</li>
+                                <li>Cancel your Orto subscription</li>
+                                <li>Delete your Orto account information</li>
+                            </ol>
+
+                            <hr class='separator'>
 
                             <div class='row'>
-                                <div class='col'></div>
-                                <button class='green col mt-2' onclick="modal('account-delete')">
-                                    <svg class="icon icon-auto">
-                                        <use href="/static/icons/teenyicons/outline.svg#outline--arrow-left"></use>
-                                    </svg>
-                                    Go back
-                                </button>
-                                <form class='col mt-2' action=/user/delete>
-                                    <button class='red col ' href="/user/delete">
-                                        <svg class="icon icon-auto">
-                                            <use href="/static/icons/teenyicons/outline.svg#outline--bin"></use>
-                                        </svg>
-                                        Delete account
-                                    </button>
-                                </form>
+                                <div class='col-sm col-12 mb-1 mb-sm-0'>
+                                    <button style='width:100%' onclick="modal('account-delete')">Go back</button>
+                                </div>
+                                <div class='col-sm-3 col-12'>
+                                    <a class='button red' style='width:100%' href='/user/delete'>Delete account</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
-            <div>
-                <div role="tab">
-                    <svg class='icon'>
-                        <use href="/static/icons/teenyicons/outline.svg#outline--wallet-alt"></use>
-                    </svg>
-                    Billing
-                </div>
-                <div role="tabpanel">
-                    <form method="POST">
-                        <div class='row'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                            </div>
-
-                            <div class='col-12 col-md-6'>
-                                <div class='row'>
-                                    <div class='input-group col'>
-                                        <label class='col-3 align-right' for="firstname">First name</label>
-                                        <input class='col' id="firstname" name="firstname" type="text"
-                                            placeholder="John" value="{{User.firstname}}" required>
-                                    </div>
-                                </div>
-                                <div class='row'>
-                                    <div class='input-group col'>
-                                        <label class='col-3 align-right' for="lastname">Last name</label>
-                                        <input class='col' id="lastname" name="lastname" type="text" placeholder="Doe"
-                                            value="{{User.lastname}}" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class='row pt-3'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                            </div>
-                            <div class='col-12 col-md-6 align-center'>
-                                <button type='submit'>Save</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div>
-                <div role="tab">
-                    <svg class='icon'>
-                        <use href="/static/icons/teenyicons/outline.svg#outline--briefcase-alt"></use>
-                    </svg>
-                    Plan Details
-                </div>
-                <div role="tabpanel">
-                    <form method="POST">
-                        <div class='row'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                            </div>
-                            <div class='col-6'>
-                                <div class='row'>
-                                    <div class="col-3"></div>
-                                    <div class='col'>
-                                        <div class='input-group'>
-                                            <input id="tier-student" name="tier" type="radio" value="student">
-                                            <label for="tier-student">Student</label>
-                                        </div>
-                                        <div class='input-group'>
-                                            <input id="tier-private" name="tier" type="radio" value="private">
-                                            <label for="tier-private">Private</label>
-                                        </div>
-                                        <div class='input-group'>
-                                            <input id="tier-business" name="tier" type="radio" value="business">
-                                            <label for="tier-business">Business</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class='row pt-3'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                            </div>
-                            <div class='col-12 col-md-6 align-center'>
-                                <button type='submit'>Save</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div>
-                <div role="tab">
-                    <svg class='icon'>
-                        <use href="/static/icons/teenyicons/outline.svg#outline--question-circle"></use>
-                    </svg>
-                    Help & Support
-                </div>
-                <div role="tabpanel">
-                    <form method="POST">
-                        <div class='row'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                                <h3 class='mt-0'>FAQ:</h3>
-                            </div>
-                            <div class='col-12 col-md-6'>
-                                <div class='row'>
-                                    <div class='input-group col'>
-                                        <label class='col-3 align-right' for="firstname">First name</label>
-                                        <input class='col' id="firstname" name="firstname" type="text"
-                                            placeholder="John" required>
-                                    </div>
-                                </div>
-                                <div class='row'>
-                                    <div class='input-group col'>
-                                        <label class='col-3 align-right' for="lastname">Last name</label>
-                                        <input class='col' id="lastname" name="lastname" type="text" placeholder="Doe"
-                                            required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class='row'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                                <h3 class='mt-0'>Support:</h3>
-                            </div>
-                            <div class='col-12 col-md-6'>
-                                <div class='row'>
-                                    <div class='input-group col'>
-                                        <label class='col-3 align-right' for="firstname">First name</label>
-                                        <input class='col' id="firstname" name="firstname" type="text"
-                                            placeholder="John" required>
-                                    </div>
-                                </div>
-                                <div class='row'>
-                                    <div class='input-group col'>
-                                        <label class='col-3 align-right' for="lastname">Last name</label>
-                                        <input class='col' id="lastname" name="lastname" type="text" placeholder="Doe"
-                                            required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class='row pt-3'>
-                            <div class='col-12 col-md-3 align-md-right'>
-                            </div>
-                            <div class='col-12 col-md-6 align-center'>
-                                <button type='submit'>Submit</button>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
+            <div class='col'></div>
         </div>
-        <script>Tabs("#account")</script>
     {{/inline}}
-{{/base/page}}
+{{/page/base}}

@@ -1,6 +1,6 @@
 use actix_web::{client::Client, http::header, web::Data, HttpResponse, Responder};
 
-use crate::{middleware::UserAuthorized, route::AiModels};
+use crate::{middleware, route::AiModels};
 
 /// Correction error reporting route
 ///
@@ -39,7 +39,7 @@ use crate::{middleware::UserAuthorized, route::AiModels};
 pub async fn post(
     body_string: String,
     _context: Data<AiModels>,
-    _mw_authorized: UserAuthorized,
+    _: middleware::UserAuthorized,
 ) -> impl Responder {
     let client = Client::new();
 

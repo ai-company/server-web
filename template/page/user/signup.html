@@ -1,128 +1,382 @@
-{{#> base/page}}
+{{#> page/base}}
     {{#*inline "head"}}
-        <title>Sign-up</title>
+        <title>Orto - Sign-up</title>
+
+        {{link "hot" type="stylesheet" src="/static/page/user/signup.css"}}
+        {{link "hot" type="script" src="/static/base/util.js"}}
     {{/inline}}
 
     {{#*inline "body"}}
-        <h1 class='align-center pb-3'>Sign up</h1>
+        <h1 class='mb-0 align-center'>Sign up</h1>
 
-        <form method="POST">
-            <div class='row'>
-                <div class='col-12 col-md-3 align-md-right'>
-                    <h3 class='mt-0'>Tier:</h3>
+        <noscript>
+            <h3 class='align-center error'>Javascript is required for the form to properly display and function</h3>
+        </noscript>
+
+        <form class='row' method="POST" enctype="multipart/form-data">
+            <div class='col'></div>
+            <div class='col-12 col-md-9 col-lg-7'>
+
+                <hr class='separator'>
+                <h4>Account details</h4>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="email">E-mail</label>
+                    <input class='col' id="email" name="email" type="email" placeholder="email@example.com"
+                        value="{{old.email}}">
                 </div>
-                <div class='col-6'>
-                    <div class='row'>
-                        <div class="col-3"></div>
-                        <div class='col'>
-                            <div class='input-group'>
-                                <input id="tier-student" name="tier" type="radio" value="student">
-                                <label for="tier-student">Student</label>
+
+                <div class='row {{#if (not validation.email)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.email}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
                             </div>
-                            <div class='input-group'>
-                                <input id="tier-private" name="tier" type="radio" value="private">
-                                <label for="tier-private">Private</label>
-                            </div>
-                            <div class='input-group'>
-                                <input id="tier-business" name="tier" type="radio" value="business">
-                                <label for="tier-business">Business</label>
-                            </div>
-                        </div>
+                        {{/each}}
                     </div>
                 </div>
-            </div>
-            <hr class='separator'>
-            <div class='row'>
-                <div class='col-12 col-md-3 align-md-right'>
-                    <h3 class='mt-0'>Account:</h3>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="password">Password</label>
+                    <input class='col' id="password" name="password" type="password">
+                    <button type="button" class='input-addon addon-right' aria-label="Show password"
+                        data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
+                        <svg class="icon">
+                            <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
+                        </svg>
+                    </button>
                 </div>
-                <div class='col-12 col-md-6'>
-                    <div class='row'>
-                        <div class='input-group col'>
-                            <label class='col-3 align-right' for="email">E-mail</label>
-                            <input class='col' id="email" name="email" type="email" placeholder="email@example.com"
-                                required>
-                        </div>
+                <div class='row {{#if (not validation.password)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.password}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
                     </div>
-                    <div class='row'>
-                        <div class='input-group col'>
-                            <label class='col-3 align-right' for="password">Password</label>
-                            <input class='col' id="password" name="password" type="password" required>
-                            <button type="button" class='input-addon' aria-label="Show password"
-                                data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
-                                <svg class="icon">
-                                    <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
+                </div>
+                <div class='row'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col info'>
+                        <svg class='icon'>
+                            <use href="/static/icons/teenyicons/outline.svg#outline--info-circle"></use>
+                        </svg>
+                        Password should be at least 8 characters long
+                    </div>
+                </div>
+
+                <hr class='separator'>
+                <h4>Choose a tier</h4>
+
+                <div class='row justify-center'>
+                    <div class='col-10 col-sm tier'>
+                        <input id="tier-student" name="tier" type="radio" value="student"
+                            {{#if (or (eq old.tier "student") (eq tier.tier "student"))}}checked{{/if}}>
+                        <label for="tier-student">
+                            <h3 class='tier-title align-center mb-0'>Studerende</h3>
+                            <div class='warning mt-1'>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
                                 </svg>
-                            </button>
-                            <script>
-                                function togglepassword(self, id) {
-                                    target = document.getElementById(id);
-                                    console.log(target);
+                                Requires your student ID
+                            </div>
+                            <ul class="tier-details">
+                                <li>Spelling fixing</li>
+                                <li>Grammar fixing</li>
+                            </ul>
+                            <h2 class="tier-price align-center mt-auto mb-0">
+                                29kr
+                            </h2>
+                            <strong class='align-center pb-1'>
+                                pr. måned
+                            </strong>
+                        </label>
+                    </div>
+                    <div class='col-10 col-sm tier'>
+                        <input id="tier-private" name="tier" type="radio" value="private"
+                            {{#if (or (eq old.tier "private") (eq tier.tier "private"))}}checked{{/if}}>
+                        <label for="tier-private">
+                            <h3 class='tier-title align-center mb-0'>Privat</h3>
+                            <ul class="tier-details">
+                                <li>Spelling fixing</li>
+                                <li>Grammar fixing</li>
+                            </ul>
 
-                                    if (target.type == "password") {
-                                        self.attributes['aria-label'].value = "Hide password";
-                                        self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye-closed'></use></svg>";
-                                        target.type = "text";
-                                    } else {
-                                        self.attributes['aria-label'].value = "Show password";
-                                        self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye'></use></svg>";
-                                        target.type = "password";
-                                    }
-                                }
-                            </script>
+                            <h2 class="tier-price align-center mt-auto mb-0">
+                                39kr
+                            </h2>
+                            <strong class='align-center pb-1'>
+                                pr. måned
+                            </strong>
+                        </label>
+                    </div>
+                    <!-- <div class='col-10 col-sm tier'>
+                        <input id="tier-business" name="tier" type="radio" value="business"
+                            {{#if (or (eq old.tier "business") (eq tier.tier "business"))}}checked{{/if}}>
+                        <label for="tier-business">
+                            <h3 class='tier-title align-center mb-0'>Virksomhed</h3>
+                            <ul class="tier-details">
+                                <li>Spelling fixing</li>
+                                <li>Grammar fixing</li>
+                                <li>API access</li>
+                                <li>Documentation</li>
+                                <li>Business Support</li>
+                            </ul>
+                            <h2 class="tier-price align-center mt-auto mb-0">
+                                10kr
+                            </h2>
+                            <strong class='align-center pb-1'>
+                                pr. 800 ord
+                            </strong>
+                        </label>
+                    </div> -->
+                </div>
+
+                <div class='row {{#if (not validation.tier)}}d-none{{/if}}'>
+                    <div class='col error'>
+                        {{#each validation.tier}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <hr class='separator'>
+                <h4>Billing details</h4>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="fullname">Full name</label>
+                    <input class='col' id="fullname" name="fullname" type="text" placeholder="John Doe"
+                        value="{{old.fullname}}">
+                </div>
+
+                <div class='row {{#if (not validation.fullname)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.fullname}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class='input-group row d-none'>
+                    <label class='col-3 col-sm-2 align-right' for="cvr">CVR</label>
+                    <label class='input-addon addon-left'>DK</label>
+                    <input class='col' id="cvr" name="cvr" type="text" pattern="^[0-9]{8}$" placeholder="12345678"
+                        value="{{old.cvr}}" onblur="cvrapi(event, 'error-cvr').bind(this)">
+                </div>
+
+                <div class='row {{#if (not validation.cvr)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div id='error-cvr' class='col error'>
+                        {{#each validation.cvr}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="address">Address</label>
+                    <input class='col' id="address" name="address" type="text" placeholder="Example street, 1"
+                        value="{{old.address}}">
+                </div>
+
+                <div class='row {{#if (not validation.address)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.address}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="city">City</label>
+                    <input class='col' id="city" name="city" type="text" placeholder="Copenhagen" value="{{old.city}}">
+                </div>
+
+                <div class='row {{#if (not validation.city)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.city}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="zip">Zip code</label>
+                    <input class='col' id="zip" name="zip" type="text" placeholder="DK-1000" value="{{old.zip}}">
+                </div>
+
+                <div class='row {{#if (not validation.zip)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.zip}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="country">Country</label>
+                    <input class='col' id="country" name="country" type="text" placeholder="Denmark"
+                        value="{{old.country}}">
+                </div>
+
+                <div class='row {{#if (not validation.country)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.country}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class='input-group row d-none'>
+                    <label class='col-3 col-sm-2 align-right' for="studentid">Student ID</label>
+                    <input class='col' id="studentid" name="studentid" type="file" value="{{old.studentid}}"
+                        accept="image/*">
+                </div>
+                <div class='row {{#if (not validation.studentid)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.studentid}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+                <div id='studentid-info' class='row'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col'>
+                        <div class='row'>
+                            <div class='col info'>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--info-circle"></use>
+                                </svg>
+                                Upload an image of your student ID. Max file size: 5 MiB
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class='col warning'>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--info-circle"></use>
+                                </svg>
+                                Your student ID will be manually verified before you will be able to complete the
+                                subscription. This may take up to a day. The image is only kept for the time of
+                                verification.
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <hr class='separator'>
-            <div class='row'>
-                <div class='col-12 col-md-3 align-md-right'>
-                    <h3 class='mt-0'>Billing:</h3>
-                </div>
-                <div class='col-12 col-md-6'>
-                    <div class='row'>
-                        <div class='input-group col'>
-                            <label class='col-3 align-right' for="firstname">First name</label>
-                            <input class='col' id="firstname" name="firstname" type="text" placeholder="John" required>
-                        </div>
-                    </div>
-                    <div class='row'>
-                        <div class='input-group col'>
-                            <label class='col-3 align-right' for="lastname">Last name</label>
-                            <input class='col' id="lastname" name="lastname" type="text" placeholder="Doe" required>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class='row pt-2'>
-                <div class='col-12 col-md-3 align-md-right'>
+                <hr class='separator'>
+
+                <div class='input-group row'>
+                    <div class='col-sm-2'></div>
+                    <input class='mr-1' id="terms" name="terms" type="checkbox" value="true"
+                        {{#if old.terms}}checked{{/if}}>
+                    <label class='col-10 col-sm-8' for="terms">
+                        I accept the
+                        <a href='/legal/privacy' target="_blank">Privacy Policy</a>
+                        and
+                        <a href='/legal/terms-of-service' target="_blank">Terms of Service</a>
+                    </label>
                 </div>
-                <div class='col-12 col-md-6'>
-                    <div class='row'>
-                        <div class='col-3'></div>
-                        <div class='input-group col'>
-                            <input class='' id="terms" name="terms" type="checkbox" required>
-                            <label class=' align-right' for="terms">
-                                I accept the
-                                <a href='/legal/privacy' target="_blank">Privacy Policy</a>
-                                and
-                                <a href='/legal/terms-of-service' target="_blank">Terms of Service</a>
-                            </label>
-                        </div>
+
+                <div class='row {{#if (not validation.terms)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.terms}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
                     </div>
                 </div>
-            </div>
 
-            <div class='row pt-3'>
-                <div class='col-12 col-md-3 align-md-right'>
-                </div>
-                <div class='col-12 col-md-6 align-center'>
-                    <button type='submit'>Sign-up</button>
-                </div>
-            </div>
 
+                <div class='pt-3 align-center'>
+                    <button type='submit'>Sign-up and proceed to payment</button>
+                </div>
+
+            </div>
+            <div class="col"></div>
         </form>
 
+        <script>
+            const fieldHandlers = {
+                business: function () {
+                    document.querySelector('label[for=fullname]').innerHTML = "Company name";
+                    document.querySelector('#cvr').parentElement.classList.remove('d-none');
+                    document.querySelector('#studentid').parentElement.classList.add('d-none');
+                    document.querySelector('#studentid-info').classList.add('d-none');
+                },
+                private: function () {
+                    document.querySelector('label[for=fullname]').innerHTML = "Full name";
+                    document.querySelector('#cvr').parentElement.classList.add('d-none');
+                    document.querySelector('#studentid').parentElement.classList.add('d-none');
+                    document.querySelector('#studentid-info').classList.add('d-none');
+                },
+                student: function () {
+                    document.querySelector('label[for=fullname]').innerHTML = "Full name";
+                    document.querySelector('#cvr').parentElement.classList.add('d-none');
+                    document.querySelector('#studentid').parentElement.classList.remove('d-none');
+                    document.querySelector('#studentid-info').classList.remove('d-none');
+                }
+            }
+
+            fieldHandlers.private();
+
+            for (let field of document.querySelectorAll('[name=tier]')) {
+                if (field.value == 'business' && field.checked) {
+                    fieldHandlers.business();
+                } else if (field.value == 'student' && field.checked) {
+                    fieldHandlers.student();
+                }
+
+                field.onclick = fieldHandlers[field.value];
+            }
+        </script>
+
     {{/inline}}
-{{/base/page}}
+{{/page/base}}

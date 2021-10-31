@@ -1,6 +1,6 @@
 use actix_web::{web, HttpResponse, Responder};
 
-use crate::{middleware::UserAuthorized, route::AiModels};
+use crate::{middleware, route::AiModels};
 
 /// Correction route
 ///
@@ -34,7 +34,7 @@ use crate::{middleware::UserAuthorized, route::AiModels};
 pub async fn post(
     body_string: String,
     context: web::Data<AiModels>,
-    _mw_authorized: UserAuthorized,
+    _: middleware::UserAuthorized,
 ) -> impl Responder {
     if body_string.trim().len() == 0 {
         HttpResponse::Ok().body("[]")

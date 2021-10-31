@@ -1,19 +1,19 @@
-{{#> base/page}}
+{{#> page/base}}
     {{#*inline "head"}}
-        <title>Editor</title>
+        <title>Orto - Editor</title>
 
-        {{asset "cold" type="script" src="/static/lib/mithril/mithril.min.js"}}
+        {{link "cold" type="script" src="/static/lib/mithril/mithril.min.js"}}
 
-        {{asset "cold" type="stylesheet" src="/static/component/modal/modal.css"}}
-        {{asset "cold" type="script" src="/static/component/modal/modal.js"}}
+        {{link "cold" type="stylesheet" src="/static/component/modal/modal.css"}}
+        {{link "cold" type="script" src="/static/component/modal/modal.js"}}
 
-        {{asset "cold" type="stylesheet" src="/static/component/overflow-hint/overflow-hint.css"}}
-        {{asset "cold" type="script" src="/static/component/overflow-hint/overflow-hint.js"}}
+        {{link "cold" type="stylesheet" src="/static/component/overflow-hint/overflow-hint.css"}}
+        {{link "cold" type="script" src="/static/component/overflow-hint/overflow-hint.js"}}
 
-        {{asset "hot" type="stylesheet" src="/static/component/editor/editor.css"}}
-        {{asset "hot" type="script" src="/static/component/editor/editor.js"}}
+        {{link "hot" type="stylesheet" src="/static/component/editor/editor.css"}}
+        {{link "hot" type="script" src="/static/component/editor/editor.js"}}
 
-        {{asset "hot" type="stylesheet" src="/static/page/editor.css"}}
+        {{link "hot" type="stylesheet" src="/static/page/editor.css"}}
     {{/inline}}
 
     {{#*inline "body"}}
@@ -28,4 +28,4 @@
             </div>
         </noscript>
     {{/inline}}
-{{/base/page}}
+{{/page/base}}
