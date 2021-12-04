@@ -1,33 +1,22 @@
-use std::collections::HashMap;
 
-use actix_multipart::Multipart;
+
+
 use actix_web::{
-    cookie::Cookie,
     http::header,
-    web::{self, Data},
+    web::{Data},
     HttpResponse, Responder,
 };
-use regex::Regex;
-use serde::{Deserialize, Serialize};
-use strum::EnumVariantNames;
 
-use futures::stream::{Stream, StreamExt};
+
+
+
+
 use handlebars::Handlebars;
-use serde_json::json;
-use time::Duration;
+
+
 
 use crate::{
-    database::{
-        sessions::{self, SessionToken},
-        stripe_profile::get_or_create,
-        user, SqlPool,
-    },
     middleware,
-    route::{
-        payment::stripe::checkout::{create_checkout, CreateCheckoutRequest},
-        user::signup::index::SignupTierQuery,
-        EndpointProcessingError, EndpointProcessingResult,
-    },
 };
 
 //

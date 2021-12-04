@@ -1,6 +1,6 @@
 use super::{StripeError, API_URL, KEY};
 use crate::{database, route::payment::stripe::StripeAPIError};
-use actix_web::{client::Client, web};
+use actix_web::{client::Client};
 use database::{stripe_profile::StripeID, user::UserID, SqlPool};
 use serde::{Deserialize, Serialize};
 

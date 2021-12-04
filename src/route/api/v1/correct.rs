@@ -36,7 +36,7 @@ pub async fn post(
     context: web::Data<AiModels>,
     _: middleware::UserAuthorized,
 ) -> impl Responder {
-    if body_string.trim().len() == 0 {
+    if body_string.trim().is_empty() {
         HttpResponse::Ok().body("[]")
     } else {
         match context.model_danish.request(&body_string) {

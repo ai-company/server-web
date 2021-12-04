@@ -68,7 +68,7 @@ pub mod v {
     }
 
     pub fn email(input: Option<&Vec<u8>>) -> ValidationResult {
-        const EMAIL_REGEX: &'static str = r#"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"#;
+        const EMAIL_REGEX: &str = r#"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"#;
 
         let email_matcher = Regex::new(EMAIL_REGEX).unwrap();
 
@@ -90,7 +90,7 @@ pub mod v {
     pub fn url(input: Option<&Vec<u8>>) -> ValidationResult {
         match input {
             Some(input) => match std::str::from_utf8(input) {
-                Ok(input) => match url::Url::parse(&input) {
+                Ok(input) => match url::Url::parse(input) {
                     Ok(_) => None,
                     Err(e) => Some(e.to_string()),
                 },
@@ -167,7 +167,7 @@ pub mod v {
     #[allow(non_snake_case)]
     pub trait BinaryUnit: Sized + Into<usize> {
         fn get_binary_prefix(self) -> (usize, &'static str) {
-            const UNITS: [&'static str; 5] = ["B", "KiB", "MiB", "GiB", "TiB"];
+            const UNITS: [&str; 5] = ["B", "KiB", "MiB", "GiB", "TiB"];
 
             let mut prefix = 0;
             let mut value = self.into();
@@ -277,7 +277,7 @@ pub mod v {
             Some(input) => {
                 let input = match unsafe { from_utf8_unchecked(input) }.parse::<isize>() {
                     Ok(v) => v,
-                    Err(_) => return Some(format!("Expected an integer")),
+                    Err(_) => return Some("Expected an integer".to_string()),
                 };
 
                 if input < MIN {
@@ -303,7 +303,7 @@ pub mod v {
             Some(input) => {
                 let input = match unsafe { from_utf8_unchecked(input) }.parse::<usize>() {
                     Ok(v) => v,
-                    Err(_) => return Some(format!("Expected an integer")),
+                    Err(_) => return Some("Expected an integer".to_string()),
                 };
 
                 if input < MIN {

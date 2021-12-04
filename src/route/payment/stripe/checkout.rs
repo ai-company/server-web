@@ -2,7 +2,6 @@ use super::{SessionID, API_URL, KEY};
 use actix_web::{
     client::{Client, ClientResponse},
     dev::{Decompress, Payload},
-    web, HttpRequest, HttpResponse, Responder,
 };
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
@@ -11,8 +10,8 @@ use crate::{
     database::{stripe_profile, user::User, SqlPool},
     route::{EndpointProcessingResult, BASE_URL},
 };
-use crate::{helper::get_current_user, route::payment::stripe::get_stripe_error_message};
-use crate::{middleware, route::EndpointProcessingError};
+use crate::{route::payment::stripe::get_stripe_error_message};
+use crate::{route::EndpointProcessingError};
 use stripe_profile::StripeProfile;
 
 const SUCCESS: &str = concatcp!(BASE_URL, "/payment/success");
@@ -116,7 +115,7 @@ pub async fn create_checkout(
         .await
         .map_err(|e| EndpointProcessingError::Processing(Box::new(e)))?;
 
-    if res.status().is_success() == false {
+    if !res.status().is_success() {
         println!("[STRP] failed to create checkout");
         return Err(get_stripe_error_message(res).await.into());
     }

@@ -38,7 +38,7 @@
 pub mod account;
 pub mod subscription;
 
-use std::collections::HashMap;
+
 
 use css_inline::CSSInliner;
 use handlebars::to_json;

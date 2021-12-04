@@ -1,22 +1,22 @@
-use actix_web::cookie::Cookie;
+
 use actix_web::http::header;
 use actix_web::{web, HttpRequest};
 use actix_web::{web::Data, HttpResponse, Responder};
 
 use handlebars::Handlebars;
-use time::Duration;
 
-use serde::Deserialize;
 
-use crate::database::{sessions, user, SqlPool, SyncTransaction};
-use crate::helper::{get_current_user, get_current_user_id};
+
+
+use crate::database::{user, SqlPool, SyncTransaction};
+use crate::helper::{get_current_user};
 use crate::middleware;
 use crate::route::{EndpointProcessingError, EndpointProcessingResult};
-use sessions::SessionToken;
-use user::User;
+
+
 
 async fn delete(req: HttpRequest, pool: &SqlPool) -> EndpointProcessingResult<()> {
-    let user = get_current_user(&req, &pool)?;
+    let user = get_current_user(&req, pool)?;
     let trans = SyncTransaction::new(pool)?;
 
     user::delete(user, &trans).await?;

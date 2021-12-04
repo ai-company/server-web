@@ -1,37 +1,32 @@
-use std::collections::HashMap;
 
-use actix_multipart::Multipart;
+
+
 use actix_web::{
-    cookie::Cookie,
     http::header,
     web::{self, Data},
     HttpResponse, Responder,
 };
-use regex::Regex;
-use serde::{Deserialize, Serialize};
-use strum::EnumVariantNames;
 
-use futures::stream::{Stream, StreamExt};
+
+
+
+
 use handlebars::Handlebars;
-use serde_json::json;
-use time::Duration;
+
+
 
 use crate::{
     database::{
         self,
-        sessions::{self, SessionToken},
         signup_tokens,
-        stripe_profile::{self, get_or_create},
+        stripe_profile::{self},
         user, SqlPool, SyncTransaction,
     },
     middleware,
     route::{
         payment::stripe::{
-            checkout::{create_checkout, CreateCheckoutRequest},
             status::verify_stripe_subscription,
         },
-        user::signup::index::SignupTierQuery,
-        EndpointProcessingError, EndpointProcessingResult,
     },
 };
 
@@ -75,7 +70,7 @@ pub async fn get(
         signup_tokens::delete(user.id, &trans).unwrap();
         trans.commit().unwrap();
 
-        user::verify(&user, &pool).unwrap();
+        user::verify(user, &pool).unwrap();
 
         HttpResponse::Ok().body(template.render("page/payment/success", &session).unwrap())
     }

@@ -3,8 +3,8 @@ use crate::{
     route::user::signup::index::UserCreationRequest,
 };
 
-use super::{sessions, stripe_profile, DBConnection, SqlPool, SyncTransaction};
-use rusqlite::{named_params, params, Row, Transaction};
+use super::{DBConnection, SqlPool, SyncTransaction};
+use rusqlite::{named_params, params, Row};
 use serde::{Deserialize, Serialize};
 use std::convert::{TryFrom, TryInto};
 

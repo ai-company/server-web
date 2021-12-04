@@ -1,10 +1,10 @@
 use crate::database::billing_info::{self, BillingInfo};
 use crate::database::user::User;
 use crate::helper::get_current_user;
-use crate::tokens::is_invited;
-use crate::{database::SqlPool, helper::get_current_user_id};
+
+use crate::{database::SqlPool};
 use actix_web::{
-    dev, error::InternalError, web, FromRequest, HttpMessage, HttpRequest, HttpResponse,
+    dev, error::InternalError, web, FromRequest, HttpRequest, HttpResponse,
 };
 use futures::future::{err, ok, Ready};
 use handlebars::Handlebars;
@@ -65,7 +65,7 @@ impl FromRequest for Session {
 
     fn from_request(_req: &HttpRequest, _payload: &mut dev::Payload) -> Self::Future {
         let pool = _req.app_data::<web::Data<SqlPool>>();
-        let template = _req.app_data::<web::Data<Handlebars<'_>>>().unwrap();
+        let _template = _req.app_data::<web::Data<Handlebars<'_>>>().unwrap();
 
         if let Some(pool) = pool {
             match get_current_user(_req, pool) {
