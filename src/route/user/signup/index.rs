@@ -1,42 +1,26 @@
-use std::{
-    ascii::AsciiExt, collections::HashMap, error::Error, fmt::Debug, marker::PhantomData, pin::Pin,
-    str::from_utf8,
-};
+use std::{collections::HashMap, fmt::Debug};
 
-use actix_multipart::{Multipart, MultipartError};
 use actix_web::{
     cookie::{Cookie, SameSite},
-    dev,
-    error::InternalError,
     http::header,
-    web::{self, Bytes, Data},
-    FromRequest, HttpMessage, HttpRequest, HttpResponse, Responder,
+    web::{self, Data},
+    HttpMessage, HttpRequest, HttpResponse, Responder,
 };
-use regex::Regex;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+
+use serde::{Deserialize, Serialize};
 use strum::EnumVariantNames;
 
-use futures::{
-    future::{err, ok, Ready},
-    stream::{Stream, StreamExt},
-    Future, FutureExt,
-};
 use handlebars::Handlebars;
 use serde_json::json;
 use time::Duration;
 
 use crate::{
-    database::{
-        billing_info,
-        sessions::{self, SessionToken},
-        signup_tokens, user, SqlPool,
-    },
-    email,
+    database::{billing_info, sessions::SessionToken, signup_tokens, user, SqlPool},
     emails::{account::confirmation::AccountConfirmationEmail, Email},
     middleware,
-    route::{EndpointProcessingError, EndpointProcessingResult},
+    route::EndpointProcessingError,
     util::FormData,
-    validator::{v, v::BinaryUnit, ValidationError, ValidationResult, Validator, ValidatorResult},
+    validator::{v, Validator, ValidatorResult},
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -141,7 +125,7 @@ async fn signup(
 ) -> UserCreationResult<SessionToken> {
     use UserCreationError::*;
 
-    let validation = signup_validate_form(&data);
+    let validation = signup_validate_form(data);
     if !validation.is_empty() {
         return Err(FormError(validation));
     }
@@ -151,7 +135,7 @@ async fn signup(
         Err(e) => return Err(InternalError(format!("Form processing failure: {}", e))),
     };
 
-    if let Some(_) = user::get(&req.email, &pool)? {
+    if user::get(&req.email, pool)?.is_some() {
         // let mut errmap = HashMap::new();
         // errmap.insert(
         //     "email".into(),

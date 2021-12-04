@@ -8,44 +8,26 @@ use std::{
     error::Error,
     fmt::{Debug, Display},
     fs::File,
-    hash::Hash,
     io::Read,
-    marker::PhantomData,
     ops::Deref,
     pin::Pin,
     str::from_utf8,
 };
 
-use actix_multipart::{Multipart, MultipartError};
+use actix_multipart::Multipart;
 use actix_web::{
-    cookie::Cookie,
     dev,
-    error::{ErrorBadRequest, InternalError},
-    http::{header, Method},
-    web::{self, Bytes, Data, Form, Query},
-    FromRequest, HttpMessage, HttpRequest, HttpResponse, Responder,
+    error::ErrorBadRequest,
+    http::Method,
+    web::{Form, Query},
+    FromRequest, HttpMessage, HttpRequest,
 };
-use regex::Regex;
+
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use strum::EnumVariantNames;
 
-use futures::{
-    future::{err, ok, Ready},
-    stream::{Stream, StreamExt},
-    Future, FutureExt,
-};
-use serde_json::json;
-use time::Duration;
+use futures::{stream::StreamExt, Future, FutureExt};
 
-use crate::{
-    database::{
-        sessions::{self, SessionToken},
-        user, SqlPool,
-    },
-    middleware,
-    route::{self, EndpointProcessingError, EndpointProcessingResult},
-    validator::{ValidationError, ValidationResult, Validator},
-};
+use crate::route::{self};
 
 /// Handlebars asset helper
 ///
@@ -135,9 +117,11 @@ impl HelperDef for AssetHelper {
                 }
             }
 
-            _ => Err(RenderError::new(
-                "asset: specify type: preload | hot | cold",
-            ))?,
+            _ => {
+                return Err(RenderError::new(
+                    "asset: specify type: preload | hot | cold",
+                ))
+            }
         };
 
         out.write(&node)
@@ -293,7 +277,7 @@ pub enum FormField {
 impl FormField {
     pub fn binary(&self) -> &[u8] {
         match self {
-            Self::Binary(f) => &f,
+            Self::Binary(f) => f,
             Self::String(s) => s.as_bytes(),
         }
     }
@@ -370,7 +354,7 @@ impl FromRequest for FormData {
                         data.iter()
                             .filter_map(|(k, v)| {
                                 v.string().and_then(|v| {
-                                    if v.trim().len() > 0 {
+                                    if !v.trim().is_empty() {
                                         Some((k.into(), FormField::String(v.into())))
                                     } else {
                                         None
@@ -395,7 +379,7 @@ impl FromRequest for FormData {
                         data.iter()
                             .filter_map(|(k, v)| {
                                 v.string().and_then(|v| {
-                                    if v.trim().len() > 0 {
+                                    if !v.trim().is_empty() {
                                         Some((k.into(), FormField::String(v.into())))
                                     } else {
                                         None
@@ -433,10 +417,10 @@ impl FromRequest for FormData {
                     }
 
                     if let (Ok(data), false) = (from_utf8(&data), is_file) {
-                        if data.trim().len() > 0 {
+                        if !data.trim().is_empty() {
                             items.insert(name.to_owned(), FormField::String(data.to_owned()));
                         }
-                    } else if data.len() > 0 {
+                    } else if !data.is_empty() {
                         items.insert(name.to_owned(), FormField::Binary(data));
                     }
                 }

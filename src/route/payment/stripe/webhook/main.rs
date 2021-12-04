@@ -33,7 +33,7 @@ pub async fn process_webhook(
 ) -> EndpointProcessingResult<()> {
     let headers = req.headers();
 
-    authenticate(&headers, &body)?;
+    authenticate(headers, &body)?;
 
     let is_debugging_backend = cfg!(debug_assertions);
     // If we're debuggling we'll log this event

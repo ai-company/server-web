@@ -1,13 +1,12 @@
 use crate::route::EndpointProcessingError;
 
 use super::{
-    user,
     user::{User, UserID},
     DBConnection, SqlPool, SyncTransaction,
 };
 use rusqlite::params;
 
-use chrono::{self, DateTime};
+
 
 pub type StripeID = String;
 
@@ -61,8 +60,7 @@ pub fn get<C: DBConnection>(
             user: user_id,
             stripe_id,
             subscription: start
-                .zip(end)
-                .and_then(|(start, end)| Some(StripeSubscription { start, end })),
+                .zip(end).map(|(start, end)| StripeSubscription { start, end }),
         })),
         Err(e) => match e.downcast_ref::<rusqlite::Error>() {
             Some(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
@@ -105,10 +103,10 @@ pub fn set_subscription(
     let mut con = pool.get()?;
 
     // We verify the user exists
-    let user_id: UserID = match con.query_row(
+    let _user_id: UserID = match con.query_row(
         "SELECT user_id FROM stripe_profiles WHERE id == ?1",
         params![stripe_id],
-        |row| Ok(row.get(0)?),
+        |row| row.get(0),
     ) {
         Ok(v) => v,
         Err(rusqlite::Error::QueryReturnedNoRows) => {
@@ -140,10 +138,10 @@ pub fn remove_subscription(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut con = pool.get()?;
     // We verify the user exists
-    let user_id: UserID = match con.query_row(
+    let _user_id: UserID = match con.query_row(
         "SELECT user_id FROM stripe_profiles WHERE id == '?1'",
         params![stripe_id],
-        |row| Ok(row.get(0)?),
+        |row| row.get(0),
     ) {
         Ok(v) => v,
         Err(rusqlite::Error::QueryReturnedNoRows) => {

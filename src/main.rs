@@ -11,15 +11,14 @@ mod tokens;
 mod util;
 mod validator;
 
-use std::{env, fmt::Pointer, net::ToSocketAddrs};
+use std::{env, net::ToSocketAddrs};
 
 use actix_web::{
     middleware::{Compress, NormalizePath},
     App, HttpServer,
 };
 use handlebars::{
-    html_escape, Context, Handlebars, Helper, HelperDef, HelperResult, Output, RenderContext,
-    Renderable,
+    Handlebars,
 };
 use jemallocator::Jemalloc;
 use r2d2_sqlite::SqliteConnectionManager;

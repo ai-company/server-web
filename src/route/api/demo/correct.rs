@@ -36,7 +36,7 @@ use crate::route::AiModels;
 ///
 /// TODO: implement character limit (512ch)
 pub async fn post(body_string: String, context: web::Data<AiModels>) -> impl Responder {
-    if body_string.trim().len() == 0 {
+    if body_string.trim().is_empty() {
         HttpResponse::Ok().body("[]")
     } else {
         match context.model_danish.request(&body_string) {

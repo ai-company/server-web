@@ -1,37 +1,34 @@
-use std::collections::HashMap;
 
-use actix_multipart::Multipart;
+
+
 use actix_web::{
     cookie::{Cookie, SameSite},
     http::header,
     web::{self, Data},
     HttpResponse, Responder,
 };
-use regex::Regex;
-use serde::{Deserialize, Serialize};
-use strum::EnumVariantNames;
 
-use futures::stream::{Stream, StreamExt};
+use serde::{Deserialize, Serialize};
+
+
+
 use handlebars::Handlebars;
-use serde_json::json;
+
 use time::Duration;
 
 use crate::{
     database::{
-        sessions::{self, SessionToken},
+        sessions::{self},
         signup_tokens,
-        stripe_profile::get_or_create,
-        user, SqlPool, SyncTransaction,
+        user, SqlPool,
     },
     middleware,
     route::{
         payment::stripe::checkout::{create_checkout, CreateCheckoutRequest},
-        user::signup::index::SignupTierQuery,
-        EndpointProcessingError, EndpointProcessingResult,
     },
 };
 
-const TIER_MAP: [(&'static str, &'static str); 2] = [
+const TIER_MAP: [(&str, &str); 2] = [
     ("student", "price_1Jqe80LKbmf1O8QWd1ZrcER7"),
     ("private", "price_1Jqe7iLKbmf1O8QWrf9Ofnih"),
     // ("business", "price_1IC9WtLKbmf1O8QW4FgBWQS6"),
@@ -51,13 +48,13 @@ pub async fn get(
     let pool = pool.into_inner();
 
     if let middleware::Session::Guest = session {
-        let user_id = match signup_tokens::get_owner(&pool, &token.token.as_ref().unwrap()) {
+        let user_id = match signup_tokens::get_owner(&pool, token.token.as_ref().unwrap()) {
             Ok(Some(user_id)) => user_id,
             Ok(_) => {
                 return HttpResponse::BadRequest()
                     .body(template.render("page/user/signup/no_id", &session).unwrap())
             }
-            Err(e) => {
+            Err(_e) => {
                 return HttpResponse::InternalServerError()
                     .body(template.render("page/user/signup/no_id", &session).unwrap())
             }
@@ -109,7 +106,7 @@ pub async fn get(
         let user = session.unwrap_user();
 
         let stripe_response = match create_checkout(
-            &user,
+            user,
             CreateCheckoutRequest {
                 price_id: TIER_MAP
                     .iter()

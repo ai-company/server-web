@@ -37,7 +37,7 @@ pub async fn create_customer(user: &User) -> Result<StripeID, Box<dyn std::error
         // .send()
         .await?;
 
-    if res.status().is_success() == false {
+    if !res.status().is_success() {
         println!(
             "[STRP] failed to create customer:\n\tres: {:?}\n\t{:?}",
             res.headers().clone(),
@@ -74,7 +74,7 @@ pub async fn delete_customer(id: &StripeID) -> Result<(), Box<dyn std::error::Er
         .send()
         .await?;
 
-    if res.status().is_success() == false {
+    if !res.status().is_success() {
         let err = res.json::<StripeAPIError>().await.unwrap();
 
         // user doesn't exist

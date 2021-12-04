@@ -49,7 +49,7 @@ pub fn get_owner(
         FROM sessions
         WHERE token = ?1 AND expires_at > datetime('now')",
         params![&token[..]],
-        |row| Ok(row.get(0)?),
+        |row| row.get(0),
     ) {
         Ok(v) => Ok(v),
         Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),

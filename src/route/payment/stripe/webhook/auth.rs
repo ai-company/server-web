@@ -21,9 +21,9 @@ pub fn compute_signature(payload: &str, secret: &[u8]) -> String {
 }
 
 pub fn parse_stripe_signature_header(header: &str) -> Result<HashMap<String, String>, ()> {
-    let signature = header.trim().split(",");
+    let signature = header.trim().split(',');
     let signature: Vec<Vec<&str>> = signature
-        .map(|pair| pair.split("=").map(|s| s.trim()).collect())
+        .map(|pair| pair.split('=').map(|s| s.trim()).collect())
         .collect();
 
     let mut values: HashMap<String, String> = HashMap::new();

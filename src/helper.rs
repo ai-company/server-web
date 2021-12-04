@@ -61,7 +61,7 @@ pub fn get_current_user(
 
     match user::get_with_id(id, pool) {
         Ok(Some(v)) => Ok(v),
-        Ok(None) => return Err(EndpointProcessingError::RequestNonsensical),
-        Err(e) => return Err(e.into()),
+        Ok(None) => Err(EndpointProcessingError::RequestNonsensical),
+        Err(e) => Err(e.into()),
     }
 }

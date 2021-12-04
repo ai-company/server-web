@@ -16,14 +16,14 @@ pub trait DBConnection {
 
 impl DBConnection for Transaction<'_> {
     fn execute<P: Params>(&self, sql: &str, params: P) -> DynResult<usize> {
-        Ok(Connection::execute(&self, sql, params)?)
+        Ok(Connection::execute(self, sql, params)?)
     }
 
     fn query_row<T, P: Params, F>(&self, sql: &str, params: P, f: F) -> DynResult<T>
     where
         F: FnOnce(&rusqlite::Row<'_>) -> rusqlite::Result<T>,
     {
-        Ok(Connection::query_row(&self, sql, params, f)?)
+        Ok(Connection::query_row(self, sql, params, f)?)
     }
 }
 

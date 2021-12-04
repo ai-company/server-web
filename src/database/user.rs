@@ -1,7 +1,7 @@
-use crate::{database::billing_info, route::user::signup::index::UserCreationRequest};
+use crate::{route::user::signup::index::UserCreationRequest};
 
-use super::{sessions, stripe_profile, DBConnection, SqlPool, SyncTransaction};
-use rusqlite::{named_params, params, Row, Transaction};
+use super::{stripe_profile, DBConnection, SqlPool, SyncTransaction};
+use rusqlite::{named_params, params, Row};
 use serde::{Deserialize, Serialize};
 use std::convert::{TryFrom, TryInto};
 
@@ -141,7 +141,7 @@ crate::basic_error_with_dyn_message!(UserDoesNotExist, "User does not exist for 
 /// - User billing info deleted (db trigger)
 #[allow(dead_code)]
 pub async fn delete(data: User, trans: &SyncTransaction) -> Result<(), Box<dyn std::error::Error>> {
-    let profile_removed = stripe_profile::delete_user(&data, &trans).await?;
+    let profile_removed = stripe_profile::delete_user(&data, trans).await?;
 
     // If a profile existed, and was removed, we must remember this account is now gone from Stripe, so it's a serious issue if something goes wrong now
 

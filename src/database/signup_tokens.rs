@@ -63,7 +63,7 @@ pub fn get_by_signup_key(
         FROM signup_tokens
         WHERE session_key = ?1 AND expires_at > datetime('now')",
         params![&signup_key[..]],
-        |row| Ok(row.get(0)?),
+        |row| row.get(0),
     ) {
         Ok(v) => Ok(v),
         Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
@@ -80,7 +80,7 @@ pub fn get_owner(
         FROM signup_tokens
         WHERE token = ?1 AND expires_at > datetime('now')",
         params![&token[..]],
-        |row| Ok(row.get(0)?),
+        |row| row.get(0),
     ) {
         Ok(v) => Ok(v),
         Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),

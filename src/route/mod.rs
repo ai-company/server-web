@@ -8,13 +8,10 @@ pub mod user;
 
 use std::{
     fmt::{self, Display, Formatter},
-    fs::File,
-    io::Read,
-    sync::Arc,
 };
 
 use actix_files::Files;
-use actix_web::{dev::HttpServiceFactory, http::header, web, HttpRequest, HttpResponse, Responder};
+use actix_web::{dev::HttpServiceFactory, web};
 
 use crate::{ai_client::AIClient, middleware::logger};
 
