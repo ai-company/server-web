@@ -891,8 +891,7 @@ input[type="file"] {
 /* ------------------------------------------------------------------------- */
 
 label {
-    font-family: var(--font-ui);
-    font-weight: var(--font-ui-weight);
+    font-family: var(--font-body);
 }
 
 label[for] {
