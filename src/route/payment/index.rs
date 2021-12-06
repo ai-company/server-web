@@ -1,6 +1,3 @@
-
-
-
 use actix_web::{
     cookie::{Cookie, SameSite},
     http::header,
@@ -10,8 +7,6 @@ use actix_web::{
 
 use serde::{Deserialize, Serialize};
 
-
-
 use handlebars::Handlebars;
 
 use time::Duration;
@@ -19,13 +14,10 @@ use time::Duration;
 use crate::{
     database::{
         sessions::{self},
-        signup_tokens,
-        user, SqlPool,
+        signup_tokens, user, SqlPool, SyncTransaction,
     },
     middleware,
-    route::{
-        payment::stripe::checkout::{create_checkout, CreateCheckoutRequest},
-    },
+    route::payment::stripe::checkout::{create_checkout, CreateCheckoutRequest},
 };
 
 const TIER_MAP: [(&str, &str); 2] = [
@@ -68,28 +60,37 @@ pub async fn get(
             }
         };
 
-        let stripe_response = match create_checkout(
-            &user,
-            CreateCheckoutRequest {
-                price_id: TIER_MAP
-                    .iter()
-                    .find(|i| i.0 == user.tier.as_ref().unwrap())
-                    .unwrap()
-                    .1
-                    .into(),
-            },
-            &pool,
-        )
-        .await
-        {
-            Ok(id) => id,
-            Err(e) => {
-                println!("Failed to pay with error: {}", e);
-                return HttpResponse::InternalServerError().finish();
-            }
-        };
+        // let stripe_response = match create_checkout(
+        //     &user,
+        //     CreateCheckoutRequest {
+        //         price_id: TIER_MAP
+        //             .iter()
+        //             .find(|i| i.0 == user.tier.as_ref().unwrap())
+        //             .unwrap()
+        //             .1
+        //             .into(),
+        //     },
+        //     &pool,
+        // )
+        // .await
+        // {
+        //     Ok(id) => id,
+        //     Err(e) => {
+        //         println!("Failed to pay with error: {}", e);
+        //         return HttpResponse::InternalServerError().finish();
+        //     }
+        // };
 
         let session_token = sessions::generate(&pool, user_id).unwrap();
+
+        {
+            // beta registration successful, drop the signup token
+            let trans = SyncTransaction::new(&pool).unwrap();
+            signup_tokens::delete(user.id, &trans).unwrap();
+            trans.commit().unwrap();
+
+            user::verify(&user, &pool).unwrap();
+        }
 
         HttpResponse::Found()
             .cookie(
@@ -100,34 +101,36 @@ pub async fn get(
                     .max_age(Duration::days(30))
                     .finish(),
             )
-            .header(header::LOCATION, stripe_response.url)
+            // .header(header::LOCATION, stripe_response.url)
+            .header(header::LOCATION, "/user/account")
             .finish()
     } else {
         let user = session.unwrap_user();
 
-        let stripe_response = match create_checkout(
-            user,
-            CreateCheckoutRequest {
-                price_id: TIER_MAP
-                    .iter()
-                    .find(|i| i.0 == user.tier.as_ref().unwrap())
-                    .unwrap()
-                    .1
-                    .into(),
-            },
-            &pool,
-        )
-        .await
-        {
-            Ok(id) => id,
-            Err(e) => {
-                println!("Failed to pay with error: {}", e);
-                return HttpResponse::InternalServerError().finish();
-            }
-        };
+        // let stripe_response = match create_checkout(
+        //     user,
+        //     CreateCheckoutRequest {
+        //         price_id: TIER_MAP
+        //             .iter()
+        //             .find(|i| i.0 == user.tier.as_ref().unwrap())
+        //             .unwrap()
+        //             .1
+        //             .into(),
+        //     },
+        //     &pool,
+        // )
+        // .await
+        // {
+        //     Ok(id) => id,
+        //     Err(e) => {
+        //         println!("Failed to pay with error: {}", e);
+        //         return HttpResponse::InternalServerError().finish();
+        //     }
+        // };
 
         HttpResponse::Found()
-            .header(header::LOCATION, stripe_response.url)
+            .header(header::LOCATION, "/user/account")
+            // .header(header::LOCATION, stripe_response.url)
             .finish()
     }
 }

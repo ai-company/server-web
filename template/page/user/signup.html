@@ -12,10 +12,17 @@
         <noscript>
             <h3 class='align-center error'>Javascript is required for the form to properly display and function</h3>
         </noscript>
-
         <form class='row' method="POST" enctype="multipart/form-data">
             <div class='col'></div>
             <div class='col-12 col-md-9 col-lg-7'>
+                <div class='row'>
+                    <h4 class='col error'>
+                        <svg class='icon icon-auto'>
+                            <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                        </svg>
+                        You must be invited to the Closed Beta test to be able to sign up at this time.
+                    </h4>
+                </div>
 
                 <hr class='separator'>
                 <h4>Account details</h4>
@@ -68,85 +75,6 @@
                             <use href="/static/icons/teenyicons/outline.svg#outline--info-circle"></use>
                         </svg>
                         Password should be at least 8 characters long
-                    </div>
-                </div>
-
-                <hr class='separator'>
-                <h4>Choose a tier</h4>
-
-                <div class='row justify-center'>
-                    <div class='col-10 col-sm tier'>
-                        <input id="tier-student" name="tier" type="radio" value="student"
-                            {{#if (or (eq old.tier "student") (eq tier.tier "student"))}}checked{{/if}}>
-                        <label for="tier-student">
-                            <h3 class='tier-title align-center mb-0'>Studerende</h3>
-                            <div class='warning mt-1'>
-                                <svg class='icon'>
-                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
-                                </svg>
-                                Requires your student ID
-                            </div>
-                            <ul class="tier-details">
-                                <li>Spelling fixing</li>
-                                <li>Grammar fixing</li>
-                            </ul>
-                            <h2 class="tier-price align-center mt-auto mb-0">
-                                29kr
-                            </h2>
-                            <strong class='align-center pb-1'>
-                                pr. måned
-                            </strong>
-                        </label>
-                    </div>
-                    <div class='col-10 col-sm tier'>
-                        <input id="tier-private" name="tier" type="radio" value="private"
-                            {{#if (or (eq old.tier "private") (eq tier.tier "private"))}}checked{{/if}}>
-                        <label for="tier-private">
-                            <h3 class='tier-title align-center mb-0'>Privat</h3>
-                            <ul class="tier-details">
-                                <li>Spelling fixing</li>
-                                <li>Grammar fixing</li>
-                            </ul>
-
-                            <h2 class="tier-price align-center mt-auto mb-0">
-                                39kr
-                            </h2>
-                            <strong class='align-center pb-1'>
-                                pr. måned
-                            </strong>
-                        </label>
-                    </div>
-                    <!-- <div class='col-10 col-sm tier'>
-                        <input id="tier-business" name="tier" type="radio" value="business"
-                            {{#if (or (eq old.tier "business") (eq tier.tier "business"))}}checked{{/if}}>
-                        <label for="tier-business">
-                            <h3 class='tier-title align-center mb-0'>Virksomhed</h3>
-                            <ul class="tier-details">
-                                <li>Spelling fixing</li>
-                                <li>Grammar fixing</li>
-                                <li>API access</li>
-                                <li>Documentation</li>
-                                <li>Business Support</li>
-                            </ul>
-                            <h2 class="tier-price align-center mt-auto mb-0">
-                                10kr
-                            </h2>
-                            <strong class='align-center pb-1'>
-                                pr. 800 ord
-                            </strong>
-                        </label>
-                    </div> -->
-                </div>
-
-                <div class='row {{#if (not validation.tier)}}d-none{{/if}}'>
-                    <div class='col error'>
-                        {{#each validation.tier}}
-                            <div>
-                                <svg class='icon'>
-                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
-                                </svg> {{this}}
-                            </div>
-                        {{/each}}
                     </div>
                 </div>
 
@@ -334,7 +262,7 @@
 
 
                 <div class='pt-3 align-center'>
-                    <button type='submit'>Sign-up and proceed to payment</button>
+                    <button type='submit'>Sign-up</button>
                 </div>
 
             </div>

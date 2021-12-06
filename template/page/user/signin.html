@@ -6,46 +6,52 @@
     {{/inline}}
 
     {{#*inline "body"}}
-        <h1 class='align-center'>Sign in</h1>
+        <h1 class='mb-0 align-center'>Sign in</h1>
 
-        <hr class='separator'>
+        <form class="row" method="POST">
+            <div class='col'></div>
 
-        <form method="POST">
-            <div class='row'>
-                <div class='col-12 col-md-2 align-md-right'>
+            <div class='col-12 col-md-9 col-lg-7'>
+
+                <hr class='separator'>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="email">E-mail</label>
+                    <input class='col' id="email" name="email" type="email" placeholder="email@example.com" required
+                        autocomplete="email">
                 </div>
-                <div class='col-11 col-md-8 col-lg-7'>
-                    <div class='row'>
-                        <div class='input-group col'>
-                            <label class='col-3 align-right' for="email">E-mail</label>
-                            <input class='col' id="email" name="email" type="email" placeholder="email@example.com"
-                                required>
-                        </div>
-                    </div>
-                    <div class='row'>
-                        <div class='input-group col'>
-                            <label class='col-3 align-right' for="password">Password</label>
-                            <input class='col' id="password" name="password" type="password" required>
-                            <button type="button" class='input-addon' aria-label="Show password"
-                                data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
-                                <svg class="icon">
-                                    <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
-                                </svg>
-                            </button>
-                        </div>
+                <div class='row {{#if (not validation.email)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.email}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle">
+                                    </use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
                     </div>
                 </div>
-            </div>
 
-
-            <div class='row pt-3'>
-                <div class='col-12 col-md-3 align-md-right'>
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="password">Password</label>
+                    <input class='col' id="password" name="password" type="password" required
+                        autocomplete="current-password">
+                    <button type="button" class='input-addon addon-right' aria-label="Show password"
+                        data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
+                        <svg class="icon">
+                            <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
+                        </svg>
+                    </button>
                 </div>
-                <div class='col-12 col-md-6 align-center'>
+
+                <div class='pt-3 align-center'>
                     <button type='submit'>Sign-in</button>
                 </div>
             </div>
 
+            <div class='col'></div>
         </form>
     {{/inline}}
 {{/page/base}}

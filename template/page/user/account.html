@@ -40,8 +40,13 @@
                             height: 100%;
                         }
 
+                        .account-tier.beta {
+                            border-color: #ffd060;
+                            background: #fffff1;
+                        }
+
                     </style>
-                    <div class='col account-tier'>
+                    <div class='col account-tier {{#if (eq User.user.tier "beta")}}beta{{/if}}'>
                         {{#if (eq User.user.tier "student")}}
                             <label class='row'>
                                 <div class='col-4 align-center'>
@@ -85,6 +90,20 @@
                                         <li>API access</li>
                                         <li>Documentation</li>
                                         <li>Business Support</li>
+                                    </ul>
+                                </div>
+                            </label>
+                        {{/if}}
+
+                        {{#if (eq User.user.tier "beta")}}
+                            <label class='row'>
+                                <div class="col-4 align-center vertical-middle">
+                                    <h3 class="tier-title">Beta</h3>
+                                </div>
+                                <div class="col">
+                                    <ul class="tier-details">
+                                        <li>Spelling fixing</li>
+                                        <li>Grammar fixing</li>
                                     </ul>
                                 </div>
                             </label>
