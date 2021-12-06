@@ -78,10 +78,10 @@ pub mod v {
                     if email_matcher.is_match(input) {
                         None
                     } else {
-                        Some("Email is not valid".to_owned())
+                        Some("Den indtastede email er ugyldig.".to_owned())
                     }
                 }
-                _ => Some("Email is not valid utf-8".to_owned()),
+                _ => Some("Den indtastede email gør brug af ikke-understøttede tegn.".to_owned()),
             },
             None => None,
         }
@@ -94,7 +94,7 @@ pub mod v {
                     Ok(_) => None,
                     Err(e) => Some(e.to_string()),
                 },
-                _ => Some("URL is not valid utf-8".to_owned()),
+                _ => Some("Den givne URL indeholder ikke-understøttede tegn.".to_owned()),
             },
             None => None,
         }
@@ -108,7 +108,7 @@ pub mod v {
                         None
                     } else {
                         Some(format!(
-                            "Expected a selection from: {}",
+                            "Her er listen over understøttede tegn: {}",
                             S::VARIANTS
                                 .iter()
                                 .copied()
@@ -117,7 +117,7 @@ pub mod v {
                         ))
                     }
                 }
-                _ => Some("Selection is not valid utf-8".to_owned()),
+                _ => Some("Den indtastede tekst indeholder ikke-understøttede tegn.".to_owned()),
             },
             None => None,
         }
@@ -131,7 +131,7 @@ pub mod v {
                 if MAX == 0 {
                     if length < MIN {
                         Some(format!(
-                            "Input too short, expected at least {} characters",
+                            "Den indtastede tekst skal være på mindst {} tegn.",
                             MIN
                         ))
                     } else {
@@ -140,7 +140,7 @@ pub mod v {
                 } else if MIN == 0 {
                     if length > MAX {
                         Some(format!(
-                            "Input too long, expected at most {} characters",
+                            "Den indtastede tekst skal være på højest {} tegn.",
                             MAX
                         ))
                     } else {
@@ -148,12 +148,12 @@ pub mod v {
                     }
                 } else if length < MIN {
                     Some(format!(
-                        "Input too short, expected between {} and {} characters",
+                        "Den indtastede tekst skal være mellem {} og {} tegn.",
                         MIN, MAX
                     ))
                 } else if length > MAX {
                     Some(format!(
-                        "Input too long, expected between {} and {} characters",
+                        "Den indtastede tekst skal være mellem {} og {} tegn.",
                         MIN, MAX
                     ))
                 } else {
@@ -239,7 +239,7 @@ pub mod v {
                 if MAX == 0 {
                     if size < MIN {
                         Some(format!(
-                            "File too small, expected at least {}{}",
+                            "Filen er for lille. Skal fylde mindst {}{}.",
                             min, minpref
                         ))
                     } else {
@@ -248,7 +248,7 @@ pub mod v {
                 } else if MIN == 0 {
                     if size > MAX {
                         Some(format!(
-                            "File too large, expected at most {}{}",
+                            "Filen er for stor. Må højest fylde {}{}.",
                             max, maxpref
                         ))
                     } else {
@@ -256,12 +256,12 @@ pub mod v {
                     }
                 } else if size < MIN {
                     Some(format!(
-                        "File too small, expected between {}{} and {}{}",
+                        "Filen er for lille. Filen skal fylde mellem {}{} og {}{}.",
                         min, minpref, max, maxpref
                     ))
                 } else if size > MAX {
                     Some(format!(
-                        "File too large, expected between {}{} and {}{}",
+                        "Filen er for stor. Filen skal fylde mellem {}{} og {}{}.",
                         min, minpref, max, maxpref
                     ))
                 } else {
@@ -282,12 +282,12 @@ pub mod v {
 
                 if input < MIN {
                     Some(format!(
-                        "Value too small, expected between {} and {}",
+                        "Indtastede tal er for lavt. Det skal være mellem {} og {}.",
                         MIN, MAX
                     ))
                 } else if input > MAX {
                     Some(format!(
-                        "Value too large, expected between {} and {}",
+                        "Indtastede tal er for højt. Det skal være mellem {} og {}.",
                         MIN, MAX
                     ))
                 } else {
@@ -308,12 +308,12 @@ pub mod v {
 
                 if input < MIN {
                     Some(format!(
-                        "Value too small, expected between {} and {}",
+                        "Indtastede tal er for lavt. Det skal være mellem {} og {}.",
                         MIN, MAX
                     ))
                 } else if input > MAX {
                     Some(format!(
-                        "Value too large, expected between {} and {}",
+                        "Indtastede tal er for højt. Det skal være mellem {} og {}.",
                         MIN, MAX
                     ))
                 } else {
