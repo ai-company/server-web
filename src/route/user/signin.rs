@@ -4,6 +4,7 @@ use actix_web::web;
 use actix_web::{web::Data, HttpResponse, Responder};
 
 use handlebars::Handlebars;
+use serde_json::json;
 use time::Duration;
 
 use serde::Deserialize;
@@ -49,7 +50,11 @@ pub async fn get(template: Data<Handlebars<'_>>, session: middleware::Session) -
     }
 }
 
-pub async fn post(req: web::Form<SignInRequest>, pool: web::Data<SqlPool>) -> impl Responder {
+pub async fn post(
+    req: web::Form<SignInRequest>,
+    pool: web::Data<SqlPool>,
+    template: Data<Handlebars<'_>>,
+) -> impl Responder {
     use EndpointProcessingError::*;
 
     match signin(req.into_inner(), pool.as_ref()).await {
@@ -66,7 +71,18 @@ pub async fn post(req: web::Form<SignInRequest>, pool: web::Data<SqlPool>) -> im
             .finish(),
         Err(Unauthorized) => HttpResponse::Unauthorized()
             .header(header::LOCATION, "/")
-            .finish(),
+            .body(
+                template
+                    .render(
+                        "page/user/signin",
+                        &json!({
+                            "validation": {
+                                "email": ["Email or password is incorrect"]
+                            }
+                        }),
+                    )
+                    .unwrap(),
+            ),
         Err(RequestUnparsable) | Err(RequestNonsensical) => HttpResponse::BadRequest()
             .header(header::LOCATION, "/")
             .finish(),

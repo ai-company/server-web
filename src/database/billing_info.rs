@@ -1,6 +1,6 @@
 use crate::{
     database::user::{User, UserID},
-    route::user::signup::index::UserCreationRequest,
+    route::user::signup::UserCreationRequest,
 };
 
 use super::{DBConnection, SqlPool, SyncTransaction};

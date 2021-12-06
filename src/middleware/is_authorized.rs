@@ -1,21 +1,7 @@
-use crate::tokens::is_invited;
 use crate::{database::SqlPool, helper::get_current_user_id};
-use actix_web::{
-    dev, error::InternalError, web, FromRequest, HttpMessage, HttpRequest, HttpResponse,
-};
+use actix_web::{dev, error::InternalError, web, FromRequest, HttpRequest, HttpResponse};
 use futures::future::{err, ok, Ready};
 use handlebars::Handlebars;
-
-pub fn is_authorized(req: &HttpRequest) -> bool {
-    req.cookies()
-        .map(|jar| {
-            jar.iter()
-                .find(|cookie| cookie.name() == "session")
-                .map(|auth| is_invited(auth.value()))
-                .unwrap_or(false)
-        })
-        .unwrap_or(false)
-}
 
 /// Route Authorization middleware
 ///

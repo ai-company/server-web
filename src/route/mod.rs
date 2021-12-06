@@ -6,9 +6,7 @@ mod not_found;
 pub mod payment;
 pub mod user;
 
-use std::{
-    fmt::{self, Display, Formatter},
-};
+use std::fmt::{self, Display, Formatter};
 
 use actix_files::Files;
 use actix_web::{dev::HttpServiceFactory, web};
@@ -75,8 +73,8 @@ pub fn router() -> impl HttpServiceFactory {
     let user = web::scope("/user/")
         .service(
             web::scope("/signup/")
-                .route("", web::get().to(user::signup::index::get))
-                .route("", web::post().to(user::signup::index::post)),
+                .route("", web::get().to(user::signup::get))
+                .route("", web::post().to(user::signup::post)),
         )
         .service(
             web::resource("/signin/")

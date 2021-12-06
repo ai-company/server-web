@@ -7,7 +7,6 @@ mod keys;
 mod macros;
 mod middleware;
 mod route;
-mod tokens;
 mod util;
 mod validator;
 
@@ -17,9 +16,7 @@ use actix_web::{
     middleware::{Compress, NormalizePath},
     App, HttpServer,
 };
-use handlebars::{
-    Handlebars,
-};
+use handlebars::Handlebars;
 use jemallocator::Jemalloc;
 use r2d2_sqlite::SqliteConnectionManager;
 

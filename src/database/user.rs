@@ -1,9 +1,15 @@
-use crate::{route::user::signup::index::UserCreationRequest};
+use crate::route::user::signup::UserCreationRequest;
 
 use super::{stripe_profile, DBConnection, SqlPool, SyncTransaction};
 use rusqlite::{named_params, params, Row};
 use serde::{Deserialize, Serialize};
-use std::convert::{TryFrom, TryInto};
+use sha2::{Digest, Sha256};
+use std::{
+    convert::{TryFrom, TryInto},
+    fs::File,
+    io::{self, BufRead},
+    path::Path,
+};
 
 // Never negative but row.get in rusqlite does not work for u64 for some reason
 pub type UserID = i64;
@@ -29,6 +35,28 @@ impl TryFrom<&Row<'_>> for User {
             verified: row.get(row.column_index("verified")?)?,
         })
     }
+}
+
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where
+    P: AsRef<Path>,
+{
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
+}
+
+pub fn is_invited(email: &str) -> bool {
+    let email_hash = hex::encode(Sha256::digest(email.as_bytes()));
+
+    if let Ok(lines) = read_lines("db/emails.txt") {
+        for invited_email in lines.flatten() {
+            if invited_email.trim() == email_hash {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 pub fn insert(
