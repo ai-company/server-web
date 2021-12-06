@@ -1,17 +1,17 @@
 {{#> email/base}}
     {{#*inline "title"}}
-        <a href="{{get_url "/"}}">Orto</a> subscription activated
+        <a href="{{get_url "/"}}">Orto</a> abonnement aktiveret
     {{/inline}}
 
     {{#*inline "body"}}
         <p>
-            You have subscribed to the <b>{{tier}}</b> tier.
+            Du har oprettet abonnement på <b>{{tier}}</b>-pakken.
         </p>
         <p>
-            You will be charged <b>{{price}}DKK</b> for every month of use, paid up front.
+            Der vil blive opkrævet <b>{{price}}DKK</b> en gang om måneden, belalt på forhånd.
         </p>
         <p>
-            You can cancel the subscription any time from your <a href="{{get_url "/user/account"}}">account page</a>.
+            Du kan opsige dit abonnement når som helst på <a href="{{get_url "/user/account"}}">konto-siden</a>.
         </p>
     {{/inline}}
 {{/email/base}}

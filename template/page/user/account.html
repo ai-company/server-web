@@ -1,16 +1,16 @@
 {{#> page/base}}
     {{#*inline "head"}}
-        <title>Orto - Account</title>
+        <title>Orto - Konto</title>
 
         {{link "hot" type="stylesheet" src="/static/page/user/signup.css"}}
         {{link "hot" type="script" src="/static/base/util.js"}}
     {{/inline}}
 
     {{#*inline "body"}}
-        <h1 class='mb-0 align-center'>Account</h1>
+        <h1 class='mb-0 align-center'>Konto</h1>
 
         <noscript>
-            <h3 class='align-center error'>Javascript is required for the page to properly display and function</h3>
+            <h3 class='align-center error'>JavaScript skal være slået til i din browser, hvis Orto skal fungere.</h3>
         </noscript>
 
         <div class='row'>
@@ -19,7 +19,7 @@
             <div class='col-12 col-md-9 col-lg-7'>
                 <hr class='separator'>
 
-                <h4>Account details</h4>
+                <h4>Oplysninger</h4>
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 ' for="email">E-mail</label>
@@ -55,8 +55,9 @@
                                 </div>
                                 <div class='col'>
                                     <ul class="tier-details">
-                                        <li>Spelling fixing</li>
-                                        <li>Grammar fixing</li>
+                                        <li>Stavning</li>
+                                        <li>Tegnsætning</li>
+                                        <li>Grammitk</li>
                                     </ul>
                                 </div>
                             </label>
@@ -70,8 +71,10 @@
                                 </div>
                                 <div class="col">
                                     <ul class="tier-details">
-                                        <li>Spelling fixing</li>
-                                        <li>Grammar fixing</li>
+                                        <li>Stavning</li>
+                                        <li>Tegnsætning</li>
+                                        <li>Grammitk</li>
+
                                     </ul>
                                 </div>
                             </label>
@@ -85,11 +88,12 @@
                                 </div>
                                 <div class="col">
                                     <ul class="tier-details">
-                                        <li>Spelling fixing</li>
-                                        <li>Grammar fixing</li>
-                                        <li>API access</li>
-                                        <li>Documentation</li>
-                                        <li>Business Support</li>
+                                        <li>Stavning</li>
+                                        <li>Tegnsætning</li>
+                                        <li>Grammitk</li>
+                                        <li>API-adgang</li>
+                                        <li>Dokumentation</li>
+                                        <li>Support</li>
                                     </ul>
                                 </div>
                             </label>
@@ -102,8 +106,9 @@
                                 </div>
                                 <div class="col">
                                     <ul class="tier-details">
-                                        <li>Spelling fixing</li>
-                                        <li>Grammar fixing</li>
+                                        <li>Stavning</li>
+                                        <li>Tegnsætning</li>
+                                        <li>Grammitk</li>
                                     </ul>
                                 </div>
                             </label>
@@ -127,7 +132,7 @@
                 <h4>Billing details</h4>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 ' for="fullname">Full name</label>
+                    <label class='col-3 col-sm-2 ' for="fullname">Fulde navn</label>
                     <div>{{User.billing.fullname}}</div>
                 </div>
 
@@ -140,39 +145,39 @@
                 {{/if}}
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 ' for="address">Address</label>
+                    <label class='col-3 col-sm-2 ' for="address">Adresse</label>
                     <div>{{User.billing.address}}</div>
                 </div>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 ' for="city">City</label>
+                    <label class='col-3 col-sm-2 ' for="city">By/provins</label>
                     <div>{{User.billing.city}}</div>
                 </div>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 ' for="zip">Zip code</label>
+                    <label class='col-3 col-sm-2 ' for="zip">Postnummer</label>
                     <div>{{User.billing.zip}}</div>
                 </div>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 ' for="country">Country</label>
+                    <label class='col-3 col-sm-2 ' for="country">Land</label>
                     <div>{{User.billing.country}}</div>
                 </div>
 
                 <hr class='separator'>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2'><strong>Sign out</strong></label>
-                    <label class='col'>End your session</label>
-                    <a class='button col-2' href='/user/signout'>Sign-out</a>
+                    <label class='col-3 col-sm-2'><strong>Log ud</strong></label>
+                    <label class='col'>Log ud af den nuværend session</label>
+                    <a class='button col-2' href='/user/signout'>Log ud</a>
                 </div>
 
                 <hr class='separator'>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2'><strong>Delete account</strong></label>
-                    <label class='col'>Cancel subscription and permanently remove account</label>
-                    <button class='red col-2' onclick="modal('account-delete')">Delete</button>
+                    <label class='col-3 col-sm-2'><strong>Slet konto</strong></label>
+                    <label class='col'>Opsig abonnement og slet konto permantent</label>
+                    <button class='red col-2' onclick="modal('account-delete')">Slet</button>
 
                     <div id="account-delete" class="modal">
                         <a class="modal-close" onclick="modal('account-delete')"></a>
@@ -190,23 +195,23 @@
                                 </svg>
                             </div>
 
-                            <h2 style='color: var(--red)'>Are you sure you want to delete your account?</h2>
+                            <h2 style='color: var(--red)'>Er du helt sikker på, at du vil slette din konto?</h2>
 
-                            <h4>Deleting your account will perform the following actions:</h4>
+                            <h4>Sletningen af din konto vil have følgende konsekvenser:</h4>
                             <ol>
-                                <li>Clear your Orto service discounts (if any)</li>
-                                <li>Cancel your Orto subscription</li>
-                                <li>Delete your Orto account information</li>
+                                <li>Fjernelse af dine rabatkoder på Orto (hvis du har nogen)</li>
+                                <li>Opsigelse af dit Orto-abonnement</li>
+                                <li>Fuldstændig sletning af dine bruger-oplysninger</li>
                             </ol>
 
                             <hr class='separator'>
 
                             <div class='row'>
                                 <div class='col-sm col-12 mb-1 mb-sm-0'>
-                                    <button style='width:100%' onclick="modal('account-delete')">Go back</button>
+                                    <button style='width:100%' onclick="modal('account-delete')">Tilbage</button>
                                 </div>
                                 <div class='col-sm-3 col-12'>
-                                    <a class='button red' style='width:100%' href='/user/delete'>Delete account</a>
+                                    <a class='button red' style='width:100%' href='/user/delete'>Slet konto</a>
                                 </div>
                             </div>
                         </div>
