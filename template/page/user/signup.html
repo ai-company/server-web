@@ -10,7 +10,7 @@
         <h1 class='mb-0 align-center'>Opret bruger</h1>
 
         <noscript>
-            <h3 class='align-center error'>Javascript is required for the form to properly display and function</h3>
+            <h3 class='align-center error'>JavaScript er nødvændigt for, at Orto kan fungere ordentligt.</h3>
         </noscript>
         <form class='row' method="POST" enctype="multipart/form-data">
             <div class='col'></div>
@@ -20,15 +20,15 @@
                         <svg class='icon icon-auto'>
                             <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
                         </svg>
-                        You must be invited to the Closed Beta test to be able to sign up at this time.
+                        På nuværende tidspunkt kræver det en invitation til Ortos beta-test, at oprette en bruger!
                     </h4>
                 </div>
 
                 <hr class='separator'>
-                <h4>Account details</h4>
+                <h4>Bruger-oplysninger</h4>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 align-right' for="email">E-mail</label>
+                    <label class='col-3 col-sm-2 align-right' for="email">Email</label>
                     <input class='col' id="email" name="email" type="email" placeholder="email@example.com"
                         value="{{old.email}}">
                 </div>
@@ -49,7 +49,7 @@
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 align-right' for="password">Password</label>
                     <input class='col' id="password" name="password" type="password">
-                    <button type="button" class='input-addon addon-right' aria-label="Show password"
+                    <button type="button" class='input-addon addon-right' aria-label="Vis password"
                         data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
                         <svg class="icon">
                             <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
@@ -74,15 +74,15 @@
                         <svg class='icon'>
                             <use href="/static/icons/teenyicons/outline.svg#outline--info-circle"></use>
                         </svg>
-                        Password should be at least 8 characters long
+                        Dit password skal fylde mindst 8 tegn.
                     </div>
                 </div>
 
                 <hr class='separator'>
-                <h4>Billing details</h4>
+                <h4>Faktureringsoplysninger</h4>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 align-right' for="fullname">Full name</label>
+                    <label class='col-3 col-sm-2 align-right' for="fullname">Fulde navn</label>
                     <input class='col' id="fullname" name="fullname" type="text" placeholder="John Doe"
                         value="{{old.fullname}}">
                 </div>
@@ -121,7 +121,7 @@
                 </div>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 align-right' for="address">Address</label>
+                    <label class='col-3 col-sm-2 align-right' for="address">Adresse</label>
                     <input class='col' id="address" name="address" type="text" placeholder="Example street, 1"
                         value="{{old.address}}">
                 </div>
@@ -140,7 +140,7 @@
                 </div>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 align-right' for="city">City</label>
+                    <label class='col-3 col-sm-2 align-right' for="city">By/provins</label>
                     <input class='col' id="city" name="city" type="text" placeholder="Copenhagen" value="{{old.city}}">
                 </div>
 
@@ -158,7 +158,7 @@
                 </div>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 align-right' for="zip">Zip code</label>
+                    <label class='col-3 col-sm-2 align-right' for="zip">Postnummer</label>
                     <input class='col' id="zip" name="zip" type="text" placeholder="DK-1000" value="{{old.zip}}">
                 </div>
 
@@ -176,7 +176,7 @@
                 </div>
 
                 <div class='input-group row'>
-                    <label class='col-3 col-sm-2 align-right' for="country">Country</label>
+                    <label class='col-3 col-sm-2 align-right' for="country">Land</label>
                     <input class='col' id="country" name="country" type="text" placeholder="Denmark"
                         value="{{old.country}}">
                 </div>
@@ -194,45 +194,6 @@
                     </div>
                 </div>
 
-                <div class='input-group row d-none'>
-                    <label class='col-3 col-sm-2 align-right' for="studentid">Student ID</label>
-                    <input class='col' id="studentid" name="studentid" type="file" value="{{old.studentid}}"
-                        accept="image/*">
-                </div>
-                <div class='row {{#if (not validation.studentid)}}d-none{{/if}}'>
-                    <div class='col-3 col-sm-2'></div>
-                    <div class='col error'>
-                        {{#each validation.studentid}}
-                            <div>
-                                <svg class='icon'>
-                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
-                                </svg> {{this}}
-                            </div>
-                        {{/each}}
-                    </div>
-                </div>
-                <div id='studentid-info' class='row'>
-                    <div class='col-3 col-sm-2'></div>
-                    <div class='col'>
-                        <div class='row'>
-                            <div class='col info'>
-                                <svg class='icon'>
-                                    <use href="/static/icons/teenyicons/outline.svg#outline--info-circle"></use>
-                                </svg>
-                                Upload an image of your student ID. Max file size: 5 MiB
-                            </div>
-                        </div>
-                        <div class='row'>
-                            <div class='col warning'>
-                                <svg class='icon'>
-                                    <use href="/static/icons/teenyicons/outline.svg#outline--info-circle"></use>
-                                </svg>
-                                Your student ID will be verified. If it is invalid, your account <b>will be disabled</b>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <hr class='separator'>
 
                 <div class='input-group row'>
@@ -240,10 +201,10 @@
                     <input class='mr-1' id="terms" name="terms" type="checkbox" value="true"
                         {{#if old.terms}}checked{{/if}}>
                     <label class='col-10 col-sm-8' for="terms">
-                        I accept the
-                        <a href='/legal/privacy' target="_blank">Privacy Policy</a>
-                        and
-                        <a href='/legal/terms-of-service' target="_blank">Terms of Service</a>
+                        Jeg accepterer hermed
+                        <a href='/legal/privacy' target="_blank">Privatlivspolitik</a>
+                        og
+                        <a href='/legal/terms-of-service' target="_blank">Vilkår og Betingelser</a>
                     </label>
                 </div>
 
@@ -262,7 +223,7 @@
 
 
                 <div class='pt-3 align-center'>
-                    <button type='submit'>Sign-up</button>
+                    <button type='submit'>Opret bruger</button>
                 </div>
 
             </div>
