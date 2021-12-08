@@ -44,7 +44,7 @@ impl FromRequest for UserAuthorized {
             err(InternalError::from_response(
                 "internal error",
                 HttpResponse::InternalServerError()
-                    .body("<h1>Internal Server Error, please stand by</h1>"),
+                    .body("<h1>Vi døjer med nogle midlertidige server-problemer.</h1>"),
             ))
         }
     }

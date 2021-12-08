@@ -63,7 +63,7 @@ pub mod v {
             {
                 None
             }
-            _ => Some("Field is required".to_owned()),
+            _ => Some("Dette felt er påkrævet.".to_owned()),
         }
     }
 
@@ -277,7 +277,7 @@ pub mod v {
             Some(input) => {
                 let input = match unsafe { from_utf8_unchecked(input) }.parse::<isize>() {
                     Ok(v) => v,
-                    Err(_) => return Some("Expected an integer".to_string()),
+                    Err(_) => return Some("Indtastede værdi skal være et tal.".to_string()),
                 };
 
                 if input < MIN {
@@ -303,7 +303,7 @@ pub mod v {
             Some(input) => {
                 let input = match unsafe { from_utf8_unchecked(input) }.parse::<usize>() {
                     Ok(v) => v,
-                    Err(_) => return Some("Expected an integer".to_string()),
+                    Err(_) => return Some("Indtastede værdi skal være et tal.".to_string()),
                 };
 
                 if input < MIN {

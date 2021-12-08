@@ -3,12 +3,12 @@ function togglepassword(self, id) {
     console.log(target);
 
     if (target.type == "password") {
-        self.attributes["aria-label"].value = "Hide password";
+        self.attributes["aria-label"].value = "Skjul password";
         self.innerHTML =
             "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye-closed'></use></svg>";
         target.type = "text";
     } else {
-        self.attributes["aria-label"].value = "Show password";
+        self.attributes["aria-label"].value = "Vis password";
         self.innerHTML = "<svg class=icon><use href='/static/icons/teenyicons/outline.svg#outline--eye'></use></svg>";
         target.type = "password";
     }
@@ -18,7 +18,7 @@ function cvrapi(e, errorid) {
     let error = document.getElementById(errorid);
 
     if (!this.checkValidity()) {
-        error.innerHTML = "The VAT number is invalid";
+        error.innerHTML = "Det indtastede CVR-nummer er ugyldigt.";
         error.parentElement.classList.remove("d-none");
         return;
     } else {
@@ -43,11 +43,11 @@ function cvrapi(e, errorid) {
                         document.getElementById("cvr").removeEventListener("blur", cvrapi);
                         break;
                     case "INVALID_VAT":
-                        error.innerHTML = "The VAT number is invalid";
+                        error.innerHTML = "Det indtastede CVR-nummer er ugyldigt.";
                         error.parentElement.classList.remove("d-none");
                         break;
                     case "NOT_FOUND":
-                        error.innerHTML = "No company found associated with this VAT";
+                        error.innerHTML = "Der blev ikke fundet nogen virksomhed med dette CVR-nummer.";
                         error.parentElement.classList.remove("d-none");
                         break;
                     case "INTERNAL_ERROR":
@@ -62,11 +62,11 @@ function cvrapi(e, errorid) {
                         this.removeEventListener("blur", cvrapi);
                         break;
                     case "INVALID_VAT":
-                        error.innerHTML = "The VAT number is invalid";
+                        error.innerHTML = "Det indtastede CVR-nummer er ugyldigt.";
                         error.parentElement.classList.remove("d-none");
                         break;
                     case "NOT_FOUND":
-                        error.innerHTML = "No company found associated with this VAT";
+                        error.innerHTML = "Der blev ikke fundet nogen virksomhed med dette CVR-nummer.";
                         error.parentElement.classList.remove("d-none");
                         break;
                     case "INTERNAL_ERROR":
