@@ -18,6 +18,6 @@ impl Email<'_> for AccountDeletionEmail {
     }
 
     fn subject() -> &'static str {
-        "Orto: account deletion"
+        "Orto - Slettelse af bruger."
     }
 }

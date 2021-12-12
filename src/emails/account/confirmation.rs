@@ -27,6 +27,6 @@ impl Email<'_> for AccountConfirmationEmail {
     }
 
     fn subject() -> &'static str {
-        "Orto: sign-up confirmation"
+        "Orto - Bekræftelse af email."
     }
 }

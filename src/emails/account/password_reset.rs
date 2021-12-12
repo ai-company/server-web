@@ -27,6 +27,6 @@ impl Email<'_> for AccountPasswordResetEmail {
     }
 
     fn subject() -> &'static str {
-        "Orto: password reset"
+        "Orto - Genoprettelse af password."
     }
 }
