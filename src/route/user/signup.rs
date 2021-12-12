@@ -138,7 +138,7 @@ async fn signup(
 
     let mut req = match data.parse::<UserCreationRequest>() {
         Ok(r) => r,
-        Err(e) => return Err(InternalError(format!("Form processing failure: {}", e))),
+        Err(e) => return Err(InternalError(format!("Der skete en fejl: {}", e))),
     };
 
     if let None = req.tier {
@@ -159,7 +159,7 @@ async fn signup(
         let mut errmap = HashMap::new();
         errmap.insert(
             "email".into(),
-            vec!["Unfortunately you are not invited to the closed Beta test".to_owned()],
+            vec!["Den indtastede email er desværre ikke på listen af beta-testere.".to_owned()],
         );
         return Err(FormError(errmap));
     }
@@ -178,7 +178,7 @@ async fn signup(
         .send(&req.email)
     {
         Ok(_) => Ok(session_key),
-        Err(_) => Err(InternalError("Failed to send email".to_string())),
+        Err(_) => Err(InternalError("Kunne ikke sende email.".to_string())),
     }
 }
 
@@ -228,7 +228,7 @@ pub async fn get(
                 Ok(_) => HttpResponse::Ok()
                     .body(template.render("page/user/signup/continue", &()).unwrap()),
                 Err(_) => {
-                    HttpResponse::InternalServerError().body("Failed to send email".to_string())
+                    HttpResponse::InternalServerError().body("Kunne ikke sende email.".to_string())
                 }
             };
         }
@@ -304,7 +304,7 @@ pub async fn post(
             HttpResponse::InternalServerError().body(template.render("page/user/signup", &json!({
                 "tier": tier.into_inner(),
                 "validation": {
-                    "email": ["An unexpected error happened while signing-up. Please try again later"]
+                    "email": ["Der skete en uventet fejl i oprettelses-processen. Venligst prøv igen om lidt."]
                 },
                 "old": req.iter().map(|(k, v)| (k, v.string())).collect::<HashMap<_, _>>()
             })).unwrap())

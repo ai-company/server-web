@@ -1,16 +1,16 @@
 {{#> email/base}}
     {{#*inline "title"}}
-        Welcome to <a href="https://orto.ai/">Orto</a>!
+        Velkommen til <a href="https://orto.ai/">Orto</a>!
     {{/inline}}
 
     {{#*inline "body"}}
         <p>
-            Please click the button below to confirm your email and continue to payment.<br>
-            If it was not you who requested the sign-up, ignore this email.
+            Venligst klik på nedenstående knap, for at bekræfte din email og fortsætte til betaling.<br>
+            Hvis det ikke er dig, der har anmodet om bekræftelsen, kan du blot ignorere denne email.
         </p>
 
         <div>
-            <a class="button" href="{{url}}?token={{token}}">Proceed to payment and finish sign-up</a>
+            <a class="button" href="{{url}}?token={{token}}">Fortsæt til betaling og bekræft din email</a>
         </div>
     {{/inline}}
 {{/email/base}}

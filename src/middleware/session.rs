@@ -2,10 +2,8 @@ use crate::database::billing_info::{self, BillingInfo};
 use crate::database::user::User;
 use crate::helper::get_current_user;
 
-use crate::{database::SqlPool};
-use actix_web::{
-    dev, error::InternalError, web, FromRequest, HttpRequest, HttpResponse,
-};
+use crate::database::SqlPool;
+use actix_web::{dev, error::InternalError, web, FromRequest, HttpRequest, HttpResponse};
 use futures::future::{err, ok, Ready};
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
@@ -82,8 +80,9 @@ impl FromRequest for Session {
             println!("unable to get db");
             err(InternalError::from_response(
                 "internal error",
-                HttpResponse::InternalServerError()
-                    .body("<h1>Internal Server Error, please stand by</h1>"),
+                HttpResponse::InternalServerError().body(
+                    "<h1>Vi døjer med nogle midlertidige server-problemer, prøv igen om lidt!</h1>",
+                ),
             ))
         }
     }
