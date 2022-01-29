@@ -1,6 +1,7 @@
 mod api;
 mod editor;
 mod index;
+mod legal;
 mod mailtest;
 mod not_found;
 pub mod payment;
@@ -47,7 +48,7 @@ impl Into<String> for RootPath {
 }
 
 #[cfg(debug_assertions)]
-pub const BASE_URL: &str = "http://local.host:8000";
+pub const BASE_URL: &str = "http://localhost:8000";
 #[cfg(not(debug_assertions))]
 pub const BASE_URL: &str = "https://orto.ai";
 
@@ -130,6 +131,9 @@ pub fn router() -> impl HttpServiceFactory {
             web::resource("/demo/correct/").route(web::post().to(api::demo::correct::post)),
         );
 
+    let legal = web::scope("/legal/")
+        .service(web::resource("/privacy/").route(web::get().to(legal::privacy::get)));
+
     let routes = web::scope("")
         .wrap_fn(logger)
         .service(assets)
@@ -138,6 +142,7 @@ pub fn router() -> impl HttpServiceFactory {
         .service(user)
         .service(stripe)
         .service(api)
+        .service(legal)
         .default_service(web::to(not_found::get));
 
     #[cfg(debug_assertions)]
