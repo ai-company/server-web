@@ -5,8 +5,8 @@ use lettre_email::{EmailBuilder, Mailbox};
 
 pub fn email_send(to: &str, subject: &str, content: &str) -> SmtpResult {
     let smtp_address = "smtp.gmail.com";
-    let username = "aicompanyautomatic@gmail.com";
-    let password = "krkaciqcsadpgfyh";
+    let username = "dk.aicompany@gmail.com";
+    let password = "YJe9EZ5kR266yHz";
 
     let built_email = EmailBuilder::new()
         .to(to)
