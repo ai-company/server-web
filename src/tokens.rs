@@ -105,8 +105,8 @@ pub fn try_send_token_to(email: &str) -> Result<(), ()> {
         let token = token_id_for_mail();
 
         let smtp_address = "smtp.gmail.com";
-        let username = "aicompanyautomatic@gmail.com";
-        let password = "krkaciqcsadpgfyh";
+        let username = "dk.aicompany@gmail.com";
+        let password = "YJe9EZ5kR266yHz";
         let built_email = EmailBuilder::new()
             .to(email)
             .from(username)
