@@ -10,7 +10,7 @@ pub fn email_send(to: &str, subject: &str, content: &str) -> SmtpResult {
 
     let built_email = EmailBuilder::new()
         .to(to)
-        .from(Mailbox::new_with_name("orto.ai".into(), username.into()))
+        .from(Mailbox::new_with_name("orto.ai".into(), "noreply@orto.ai".into()))
         .subject(subject)
         .html(content)
         .build()
