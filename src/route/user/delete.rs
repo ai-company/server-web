@@ -1,7 +1,9 @@
+use actix_web::cookie::{Cookie, SameSite};
 use actix_web::http::header;
 use actix_web::{web, HttpRequest};
 use actix_web::{web::Data, HttpResponse, Responder};
 use handlebars::Handlebars;
+use time::Duration;
 
 use crate::database::{user, SqlPool, SyncTransaction};
 use crate::emails::{account::deletion::AccountDeletionEmail, Email, Envelope};
@@ -43,7 +45,16 @@ pub async fn get(
     use EndpointProcessingError::*;
 
     match delete(req, pool.as_ref(), &template).await {
-        Ok(()) => HttpResponse::Ok().body(template.render("page/user/thankyou", &()).unwrap()),
+        Ok(()) => HttpResponse::Ok()
+            .cookie(
+                Cookie::build("session", "") // clear session cookie on logout
+                    .path("/")
+                    .http_only(true)
+                    .same_site(SameSite::Lax)
+                    .max_age(Duration::days(0))
+                    .finish(),
+            )
+            .body(template.render("page/user/thankyou", &()).unwrap()),
         Err(Unauthorized) => HttpResponse::Found().header(header::LOCATION, "/").finish(),
         Err(RequestUnparsable) | Err(RequestNonsensical) => HttpResponse::BadRequest().finish(),
         Err(e) => {

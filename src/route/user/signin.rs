@@ -64,7 +64,7 @@ pub async fn post(
                     .path("/")
                     .http_only(true)
                     .same_site(SameSite::Lax)
-                    .max_age(Duration::days(30))
+                    .max_age(Duration::days(7))
                     .finish(),
             )
             .set_header(header::LOCATION, "/user/account")
