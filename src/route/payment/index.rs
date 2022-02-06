@@ -94,6 +94,15 @@ pub async fn get(
 
         HttpResponse::Found()
             .cookie(
+                // clear signup key
+                Cookie::build("signup_session_key", "")
+                    .path("/")
+                    .http_only(true)
+                    .same_site(SameSite::Strict)
+                    .max_age(Duration::days(0))
+                    .finish(),
+            )
+            .cookie(
                 Cookie::build("session", &session_token)
                     .path("/")
                     .http_only(true)

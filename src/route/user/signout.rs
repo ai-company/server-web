@@ -1,8 +1,10 @@
+use actix_web::cookie::{Cookie, SameSite};
 use actix_web::http::header;
 use actix_web::{web, HttpRequest};
 use actix_web::{web::Data, HttpResponse, Responder};
 
 use handlebars::Handlebars;
+use time::Duration;
 
 use crate::database::{sessions, SqlPool};
 use crate::helper::get_current_user_id;
@@ -27,6 +29,14 @@ pub async fn get(
 
     match signout(req, pool.as_ref()).await {
         Ok(()) => HttpResponse::Found()
+            .cookie(
+                Cookie::build("session", "") // clear session cookie on logout
+                    .path("/")
+                    .http_only(true)
+                    .same_site(SameSite::Lax)
+                    .max_age(Duration::days(0))
+                    .finish(),
+            )
             .set_header(header::LOCATION, "/")
             .finish(),
         Err(Unauthorized) => HttpResponse::Found().header(header::LOCATION, "/").finish(),
