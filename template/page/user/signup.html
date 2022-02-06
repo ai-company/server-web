@@ -29,8 +29,7 @@
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 align-right' for="email">Email</label>
-                    <input class='col' id="email" name="email" type="email" placeholder="email@example.com"
-                        value="{{old.email}}">
+                    <input class='col' id="email" name="email" type="email" placeholder="email@example.com" value="{{old.email}}">
                 </div>
 
                 <div class='row {{#if (not validation.email)}}d-none{{/if}}'>
@@ -49,8 +48,7 @@
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 align-right' for="password">Password</label>
                     <input class='col' id="password" name="password" type="password">
-                    <button type="button" class='input-addon addon-right' aria-label="Vis password"
-                        data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
+                    <button type="button" class='input-addon addon-right' aria-label="Vis password" data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
                         <svg class="icon">
                             <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
                         </svg>
@@ -83,8 +81,7 @@
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 align-right' for="fullname">Fulde navn</label>
-                    <input class='col' id="fullname" name="fullname" type="text" placeholder="John Doe"
-                        value="{{old.fullname}}">
+                    <input class='col' id="fullname" name="fullname" type="text" placeholder="John Doe" value="{{old.fullname}}">
                 </div>
 
                 <div class='row {{#if (not validation.fullname)}}d-none{{/if}}'>
@@ -103,8 +100,7 @@
                 <div class='input-group row d-none'>
                     <label class='col-3 col-sm-2 align-right' for="cvr">CVR</label>
                     <label class='input-addon addon-left'>DK</label>
-                    <input class='col' id="cvr" name="cvr" type="text" pattern="^[0-9]{8}$" placeholder="12345678"
-                        value="{{old.cvr}}" onblur="cvrapi(event, 'error-cvr').bind(this)">
+                    <input class='col' id="cvr" name="cvr" type="text" pattern="^[0-9]{8}$" placeholder="12345678" value="{{old.cvr}}" onblur="cvrapi(event, 'error-cvr').bind(this)">
                 </div>
 
                 <div class='row {{#if (not validation.cvr)}}d-none{{/if}}'>
@@ -122,8 +118,7 @@
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 align-right' for="address">Adresse</label>
-                    <input class='col' id="address" name="address" type="text" placeholder="Example street, 1"
-                        value="{{old.address}}">
+                    <input class='col' id="address" name="address" type="text" placeholder="Example street, 1" value="{{old.address}}">
                 </div>
 
                 <div class='row {{#if (not validation.address)}}d-none{{/if}}'>
@@ -177,8 +172,7 @@
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 align-right' for="country">Land</label>
-                    <input class='col' id="country" name="country" type="text" placeholder="Denmark"
-                        value="{{old.country}}">
+                    <input class='col' id="country" name="country" type="text" placeholder="Denmark" value="{{old.country}}">
                 </div>
 
                 <div class='row {{#if (not validation.country)}}d-none{{/if}}'>
@@ -219,7 +213,6 @@
                         {{/each}}
                     </div>
                 </div>
-
 
                 <div class='pt-3 align-center'>
                     <button type='submit'>Opret bruger</button>

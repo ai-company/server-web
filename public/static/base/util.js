@@ -79,3 +79,12 @@ function cvrapi(e, errorid) {
 
     xhr.send();
 }
+
+function smoothscroll(e) {
+    if (new URL(e.target.href).pathname == window.location.pathname) {
+        e.preventDefault();
+        window.history.pushState(null, null, e.target.href);
+        document.querySelector(window.location.hash).scrollIntoView({ behavior: "smooth" });
+    }
+}
+document.addEventListener("DOMContentLoaded", e => document.querySelector(window.location.hash).scrollIntoView());
