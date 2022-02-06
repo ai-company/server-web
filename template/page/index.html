@@ -14,8 +14,6 @@
 
     {{link "hot" type="stylesheet" src="/static/base/base.css"}}
 
-
-
     {{link "cold" type="stylesheet" src="/static/lib/microtip/microtip.min.css"}}
 
     {{link "cold" type="stylesheet" src="/static/lib/glider/glider.css"}}
@@ -29,6 +27,8 @@
     {{link "hot" type="stylesheet" src="/static/component/editor/editor.css"}}
     {{link "hot" type="script" src="/static/component/editor/editor.js"}}
 
+    {{link "hot" type="script" src="/static/base/util.js"}}
+
     {{link "cold" type="script" src="/static/component/tablist/tablist.js"}}
     {{link "cold" type="stylesheet" src="/static/component/tablist/tablist.css"}}
 
@@ -38,16 +38,6 @@
 <body>
     {{#> block/header}}
         {{#*inline "addons"}}
-            <script>
-                function smoothscroll(e) {
-                    if (new URL(e.target.href).pathname == window.location.pathname) {
-                        e.preventDefault();
-                        window.history.pushState(null, null, e.target.href);
-                        document.querySelector(window.location.hash).scrollIntoView({ behavior: "smooth" });
-                    }
-                }
-                document.addEventListener("DOMContentLoaded", e => document.querySelector(window.location.hash).scrollIntoView());
-            </script>
             <span class='d-none d-sm-inline'>
                 <a class="nav-item" href="/#Home" onclick="smoothscroll(event)">Home</a>
                 <a class="nav-item" href="/#Features" onclick="smoothscroll(event)">Features</a>
@@ -79,7 +69,8 @@
                 <div class="col vertical-middle py-3">
                     <div id="preview">
                         <noscript>
-                            <div class='error'>JavaScript skal være slået til i din browser, hvis Orto skal fungere.</div>
+                            <div class='error'>JavaScript skal være slået til i din browser, hvis Orto skal fungere.
+                            </div>
                         </noscript>
                         <script>
                             // TODO: ratelimit
@@ -108,18 +99,12 @@
                                     m('#preview-editor.row.demo-label', m(Editor)),
                                     m('.row.dim', [
                                         m(
-
                                             "button#preview-submit",
                                             EditorModel.loading
-                                                ? {
-                                                    disabled: true,
-                                                }
-                                                : EditorModel.editing ? {
-                                                    type: "submit",
-                                                    onclick: editor_submit
-                                                } : {
-                                                    onclick: editor_reset
-                                                },
+                                                ? { disabled: true }
+                                                : EditorModel.editing
+                                                    ? { type: "submit", onclick: editor_submit }
+                                                    : { onclick: editor_reset },
                                             [
                                                 EditorModel.loading
                                                     ? m("span.spinner")
@@ -179,7 +164,6 @@
                         </div>
                     </div>
                 </div>
-
 
             </div>
         </div>
