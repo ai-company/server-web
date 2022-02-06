@@ -54,9 +54,9 @@ impl std::fmt::Display for UserCreationError {
         match self {
             FormError(e) => write!(f, "Form error: {:?}", e),
             EndpointError(e) => write!(f, "{}", e),
-            InternalError(e) => write!(f, "Internal Error: {}", e),
-            UserAlreadyExists => write!(f, "User already exists"),
-            NotInvited => write!(f, "User not invited to the Beta test"),
+            InternalError(e) => write!(f, "Teknisk Fejl: {}", e),
+            UserAlreadyExists => write!(f, "Denne bruger eksisterer allerede"),
+            NotInvited => write!(f, "Denne bruger er ikke inviteret til beta-testen."),
         }
     }
 }
@@ -149,7 +149,7 @@ async fn signup(
         let mut errmap = HashMap::new();
         errmap.insert(
             "email".into(),
-            vec!["This email is already in use".to_owned()],
+            vec!["Denne email er allerede registreret.".to_owned()],
         );
         return Err(FormError(errmap));
         // return Err(UserCreationError::UserAlreadyExists);
