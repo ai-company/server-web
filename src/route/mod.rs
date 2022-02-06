@@ -131,8 +131,11 @@ pub fn router() -> impl HttpServiceFactory {
             web::resource("/demo/correct/").route(web::post().to(api::demo::correct::post)),
         );
 
-    let legal = web::scope("/legal/")
-        .service(web::resource("/privacy/").route(web::get().to(legal::privacy::get)));
+    let legal = web::scope("/legal/").service(
+        web::scope("/privacy/")
+            .service(web::resource("/en/").route(web::get().to(legal::privacy::get_en)))
+            .service(web::resource("/dk/").route(web::get().to(legal::privacy::get_dk))),
+    );
 
     let routes = web::scope("")
         .wrap_fn(logger)

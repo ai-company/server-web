@@ -448,6 +448,10 @@ header {
     top: 0px;
 }
 
+[id] {
+    scroll-margin-top: calc(24px + 2em);
+}
+
 .sticky-pinned {
     border-bottom: 1px solid var(--background-darker);
     box-shadow: 0 8px 10px -12px var(--black-transparent-dark);
