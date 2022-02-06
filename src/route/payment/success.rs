@@ -1,33 +1,19 @@
-
-
-
 use actix_web::{
     http::header,
     web::{self, Data},
     HttpResponse, Responder,
 };
 
-
-
-
-
 use handlebars::Handlebars;
-
-
 
 use crate::{
     database::{
-        self,
-        signup_tokens,
+        self, signup_tokens,
         stripe_profile::{self},
         user, SqlPool, SyncTransaction,
     },
     middleware,
-    route::{
-        payment::stripe::{
-            status::verify_stripe_subscription,
-        },
-    },
+    route::payment::stripe::status::verify_stripe_subscription,
 };
 
 //
