@@ -1,23 +1,8 @@
-
-
-
-use actix_web::{
-    http::header,
-    web::{Data},
-    HttpResponse, Responder,
-};
-
-
-
-
+use actix_web::{http::header, web::Data, HttpResponse, Responder};
 
 use handlebars::Handlebars;
 
-
-
-use crate::{
-    middleware,
-};
+use crate::middleware;
 
 //
 

@@ -6,12 +6,12 @@ use actix_web::{
 use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 
+use crate::route::payment::stripe::get_stripe_error_message;
+use crate::route::EndpointProcessingError;
 use crate::{
     database::{stripe_profile, user::User, SqlPool},
     route::{EndpointProcessingResult, BASE_URL},
 };
-use crate::{route::payment::stripe::get_stripe_error_message};
-use crate::{route::EndpointProcessingError};
 use stripe_profile::StripeProfile;
 
 const SUCCESS: &str = concatcp!(BASE_URL, "/payment/success");

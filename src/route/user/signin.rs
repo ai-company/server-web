@@ -1,19 +1,19 @@
-use actix_web::cookie::{Cookie, SameSite};
-use actix_web::http::header;
 use actix_web::web;
-use actix_web::{web::Data, HttpResponse, Responder};
-
-use handlebars::Handlebars;
 use serde_json::json;
 use time::Duration;
+use user::User;
 
+use crate::middleware;
+use handlebars::Handlebars;
 use serde::Deserialize;
 
-use crate::database::{sessions, user, SqlPool};
-use crate::middleware;
-use crate::route::{EndpointProcessingError, EndpointProcessingResult};
 use sessions::SessionToken;
-use user::User;
+
+use crate::database::{sessions, user, SqlPool};
+use crate::route::{EndpointProcessingError, EndpointProcessingResult};
+use actix_web::cookie::{Cookie, SameSite};
+use actix_web::http::header;
+use actix_web::{web::Data, HttpResponse, Responder};
 
 #[derive(Deserialize)]
 pub struct SignInRequest {

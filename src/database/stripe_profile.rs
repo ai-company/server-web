@@ -6,8 +6,6 @@ use super::{
 };
 use rusqlite::params;
 
-
-
 pub type StripeID = String;
 
 #[derive(Debug)]
@@ -60,7 +58,8 @@ pub fn get<C: DBConnection>(
             user: user_id,
             stripe_id,
             subscription: start
-                .zip(end).map(|(start, end)| StripeSubscription { start, end }),
+                .zip(end)
+                .map(|(start, end)| StripeSubscription { start, end }),
         })),
         Err(e) => match e.downcast_ref::<rusqlite::Error>() {
             Some(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
