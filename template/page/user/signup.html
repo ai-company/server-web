@@ -77,6 +77,83 @@
                 </div>
 
                 <hr class='separator'>
+                <h4>I am a</h4>
+
+                <div class='row justify-center'>
+                    <!-- <div class='col-10 col-sm tier'>
+                        <input id="tier-student" name="tier" type="radio" value="student"
+                            {{#if (or (eq old.tier "student") (eq tier.tier "student"))}}checked{{/if}}>
+                        <label for="tier-student">
+                            <h3 class='tier-title align-center mb-0'>Studerende</h3>
+                            <div class='warning mt-1'>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg>
+                                Requires your student ID
+                            </div>
+                            <ul class="tier-details">
+                                <li>Spelling fixing</li>
+                                <li>Grammar fixing</li>
+                            </ul>
+                            <h2 class="tier-price align-center mt-auto mb-0">
+                                29kr
+                            </h2>
+                            <strong class='align-center pb-1'>
+                                pr. måned
+                            </strong>
+                        </label>
+                    </div> -->
+                    <div class='col-10 col-sm tier'>
+                        <input id="tier-private" name="tier" type="radio" value="private" {{#if (or (eq old.tier "private") (eq tier.tier "private"))}}checked{{/if}}>
+                        <label for="tier-private">
+                            <h3 class='tier-title align-center'>Privat</h3>
+                            <!-- <ul class="tier-details">
+                                <li>Spelling fixing</li>
+                                <li>Grammar fixing</li>
+                            </ul>
+
+                            <h2 class="tier-price align-center mt-auto mb-0">
+                                39kr
+                            </h2>
+                            <strong class='align-center pb-1'>
+                                pr. måned
+                            </strong> -->
+                        </label>
+                    </div>
+                    <div class='col-10 col-sm tier'>
+                        <input id="tier-business" name="tier" type="radio" value="business" {{#if (or (eq old.tier "business") (eq tier.tier "business"))}}checked{{/if}}>
+                        <label for="tier-business">
+                            <h3 class='tier-title align-center'>Virksomhed</h3>
+                            <!-- <ul class="tier-details">
+                                <li>Spelling fixing</li>
+                                <li>Grammar fixing</li>
+                                <li>API access</li>
+                                <li>Documentation</li>
+                                <li>Business Support</li>
+                            </ul>
+                            <h2 class="tier-price align-center mt-auto mb-0">
+                                10kr
+                            </h2>
+                            <strong class='align-center pb-1'>
+                                pr. 800 ord
+                            </strong> -->
+                        </label>
+                    </div>
+                </div>
+
+                <div class='row {{#if (not validation.tier)}}d-none{{/if}}'>
+                    <div class='col error'>
+                        {{#each validation.tier}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle"></use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <hr class='separator'>
                 <h4>Faktureringsoplysninger</h4>
 
                 <div class='input-group row'>
@@ -223,24 +300,29 @@
         </form>
 
         <script>
+            const name = document.querySelector('label[for=fullname]');
+            const cvr = document.querySelector('#cvr');
+            const studentid = document.querySelector('#studentid');
+            const studentinfo = document.querySelector('#studentid-info');
+
             const fieldHandlers = {
                 business: function () {
-                    document.querySelector('label[for=fullname]').innerHTML = "Company name";
-                    document.querySelector('#cvr').parentElement.classList.remove('d-none');
-                    document.querySelector('#studentid').parentElement.classList.add('d-none');
-                    document.querySelector('#studentid-info').classList.add('d-none');
+                    name.innerHTML = "Company name";
+                    if (cvr) cvr.parentElement.classList.remove('d-none');
+                    if (studentid) studentid.parentElement.classList.add('d-none');
+                    if (studentinfo) studentinfo.classList.add('d-none');
                 },
                 private: function () {
-                    document.querySelector('label[for=fullname]').innerHTML = "Full name";
-                    document.querySelector('#cvr').parentElement.classList.add('d-none');
-                    document.querySelector('#studentid').parentElement.classList.add('d-none');
-                    document.querySelector('#studentid-info').classList.add('d-none');
+                    name.innerHTML = "Full name";
+                    if (cvr) cvr.parentElement.classList.add('d-none');
+                    if (studentid) studentid.parentElement.classList.add('d-none');
+                    if (studentinfo) studentinfo.classList.add('d-none');
                 },
                 student: function () {
-                    document.querySelector('label[for=fullname]').innerHTML = "Full name";
-                    document.querySelector('#cvr').parentElement.classList.add('d-none');
-                    document.querySelector('#studentid').parentElement.classList.remove('d-none');
-                    document.querySelector('#studentid-info').classList.remove('d-none');
+                    name.innerHTML = "Full name";
+                    if (cvr) cvr.parentElement.classList.add('d-none');
+                    if (studentid) studentid.parentElement.classList.remove('d-none');
+                    if (studentinfo) studentinfo.classList.remove('d-none');
                 }
             }
 

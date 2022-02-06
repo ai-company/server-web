@@ -90,7 +90,7 @@ fn signup_validate_form(req: &FormData) -> ValidatorResult {
     validator
         .field("email", &[v::required, v::email])
         .field("password", &[v::required, v::length::<8, 0>])
-        // .field("tier", &[v::required, v::one_of::<Tier>])
+        .field("tier", &[v::required, v::one_of::<Tier>])
         .field("fullname", &[v::required])
         .field("address", &[v::required])
         .field("city", &[v::required])
@@ -98,14 +98,14 @@ fn signup_validate_form(req: &FormData) -> ValidatorResult {
         .field("country", &[v::required])
         .field("terms", &[v::required]);
 
-    // match req.get("tier").and_then(|t| t.string()) {
-    //     Some("student") => validator.field(
-    //         "studentid",
-    //         &[v::required, v::file_size::<0, { v::MiB(5) }>],
-    //     ),
-    //     Some("business") => validator.field("cvr", &[v::required]),
-    //     _ => &validator,
-    // };
+    match req.get("tier").and_then(|t| t.string()) {
+        // Some("student") => validator.field(
+        //     "studentid",
+        //     &[v::required, v::file_size::<0, { v::MiB(5) }>],
+        // ),
+        Some("business") => validator.field("cvr", &[v::required]),
+        _ => &validator,
+    };
 
     validator.check(&req.into())
 }
@@ -141,9 +141,9 @@ async fn signup(
         Err(e) => return Err(InternalError(format!("Der skete en fejl: {}", e))),
     };
 
-    if let None = req.tier {
-        req.tier = Some("beta".into());
-    }
+    // if let None = req.tier {
+    req.tier = Some("beta".into());
+    // }
 
     if user::get(&req.email, pool)?.is_some() {
         // let mut errmap = HashMap::new();
@@ -292,7 +292,7 @@ pub async fn post(
                 .render(
                     "page/user/signup",
                     &json!({
-                        // "tier": tier.into_inner(),
+                        "tier": tier.into_inner(),
                         "validation": e,
                         "old": req.iter().map(|(k, v)| (k, v.string())).collect::<HashMap<_, _>>(),
                     }),
