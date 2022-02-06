@@ -155,14 +155,14 @@ async fn signup(
         return Err(UserCreationError::UserAlreadyExists);
     }
 
-    if !user::is_invited(&req.email) {
-        let mut errmap = HashMap::new();
-        errmap.insert(
-            "email".into(),
-            vec!["Den indtastede email er desværre ikke på listen af beta-testere.".to_owned()],
-        );
-        return Err(FormError(errmap));
-    }
+    // if !user::is_invited(&req.email) {
+    //     let mut errmap = HashMap::new();
+    //     errmap.insert(
+    //         "email".into(),
+    //         vec!["Den indtastede email er desværre ikke på listen af beta-testere.".to_owned()],
+    //     );
+    //     return Err(FormError(errmap));
+    // }
 
     req.password = bcrypt::hash(&req.password, bcrypt::DEFAULT_COST).unwrap();
 
