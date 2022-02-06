@@ -146,13 +146,13 @@ async fn signup(
     // }
 
     if user::get(&req.email, pool)?.is_some() {
-        // let mut errmap = HashMap::new();
-        // errmap.insert(
-        //     "email".into(),
-        //     vec!["an account with this e-mail already exists".to_owned()],
-        // );
-        // return Err(FormError(errmap));
-        return Err(UserCreationError::UserAlreadyExists);
+        let mut errmap = HashMap::new();
+        errmap.insert(
+            "email".into(),
+            vec!["This email is already in use".to_owned()],
+        );
+        return Err(FormError(errmap));
+        // return Err(UserCreationError::UserAlreadyExists);
     }
 
     // if !user::is_invited(&req.email) {
