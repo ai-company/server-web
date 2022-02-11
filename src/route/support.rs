@@ -12,13 +12,14 @@ use crate::emails::Email;
 use crate::helper::get_current_user_id;
 use crate::middleware;
 use crate::route::{EndpointProcessingError, EndpointProcessingResult};
+use crate::util::FormData;
 
 async fn support(
     req: HttpRequest,
     pool: &SqlPool,
     session: middleware::Session,
     renderer: &Handlebars<'_>,
-    comment: &str,
+    form: &FormData,
 ) -> EndpointProcessingResult<()> {
     if let middleware::Session::Guest = session {
         return EndpointProcessingResult::Err(EndpointProcessingError::Unauthorized);
@@ -26,14 +27,21 @@ async fn support(
 
     let user = session.unwrap_user();
 
-    let result = match feedback::insert(pool.clone(), &user.email, comment) {
+    let result = match feedback::insert(
+        pool.clone(),
+        &user.email,
+        form.get("comment").and_then(|f| f.string()).unwrap_or(""),
+    ) {
         Ok(_) => Ok(()),
         Err(e) => EndpointProcessingResult::Err(EndpointProcessingError::Processing(e)),
     };
 
-    SupportEmail::new(&user.email, comment)
-        .render(&renderer)
-        .send("support@orto.ai");
+    SupportEmail::new(
+        &user.email,
+        form.get("comment").and_then(|f| f.string()).unwrap_or(""),
+    )
+    .render(&renderer)
+    .send("support@orto.ai");
 
     result
 }
@@ -45,12 +53,12 @@ pub async fn post(
     _template: Data<Handlebars<'_>>,
     pool: web::Data<SqlPool>,
     session: middleware::Session,
-    comment: String,
+    form: FormData,
     _: middleware::UserAuthorized,
 ) -> impl Responder {
     use EndpointProcessingError::*;
 
-    match support(req, pool.as_ref(), session, &_template, &comment).await {
+    match support(req, pool.as_ref(), session, &_template, &form).await {
         Ok(()) => HttpResponse::Ok().finish(),
         Err(Unauthorized) => HttpResponse::Found().header(header::LOCATION, "/").finish(),
         Err(RequestUnparsable) | Err(RequestNonsensical) => HttpResponse::BadRequest().finish(),
