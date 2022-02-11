@@ -169,7 +169,9 @@
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2'><strong>Log ud</strong></label>
                     <label class='col'>Log ud af den nuværende session</label>
-                    <a class='button col-2' href='/user/signout'>Log ud</a>
+                    <form class='col-2 p-0' action="/user/signout" method="post">
+                        <button href='/user/signout' style="width:100%">Log ud</button>
+                    </form>
                 </div>
 
                 <hr class='separator'>
@@ -211,7 +213,9 @@
                                     <button style='width:100%' onclick="modal('account-delete')">Tilbage</button>
                                 </div>
                                 <div class='col-sm-3 col-12'>
-                                    <a class='button red' style='width:100%' href='/user/delete'>Slet konto</a>
+                                    <form action="/user/delete" method="post">
+                                        <button class='red' style='width:100%' href='/user/delete'>Slet konto</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

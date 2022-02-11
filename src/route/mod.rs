@@ -83,8 +83,8 @@ pub fn router() -> impl HttpServiceFactory {
                 .route(web::get().to(user::signin::get))
                 .route(web::post().to(user::signin::post)),
         )
-        .service(web::resource("/signout/").route(web::get().to(user::signout::get)))
-        .service(web::resource("/delete/").route(web::get().to(user::delete::get)))
+        .service(web::resource("/signout/").route(web::post().to(user::signout::post)))
+        .service(web::resource("/delete/").route(web::post().to(user::delete::post)))
         .service(
             web::resource("/account/")
                 .route(web::get().to(user::account::get))

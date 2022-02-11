@@ -36,7 +36,7 @@ async fn delete(
 
 // Wrapper
 
-pub async fn get(
+pub async fn post(
     req: HttpRequest,
     template: Data<Handlebars<'_>>,
     pool: web::Data<SqlPool>,
