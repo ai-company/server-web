@@ -1,6 +1,40 @@
-use actix_web::{client::Client, http::header, web::Data, HttpResponse, Responder};
+use actix_web::cookie::{Cookie, SameSite};
+use actix_web::http::header;
+use actix_web::{web, HttpRequest};
+use actix_web::{web::Data, HttpResponse, Responder};
 
-use crate::{middleware, route::AiModels};
+use handlebars::Handlebars;
+use time::Duration;
+
+use crate::database::{correction_reports, DBConnection, SqlPool};
+use crate::emails::support::SupportEmail;
+use crate::emails::Email;
+use crate::helper::get_current_user_id;
+use crate::middleware;
+use crate::route::{EndpointProcessingError, EndpointProcessingResult};
+use crate::util::FormData;
+
+async fn report(
+    req: HttpRequest,
+    pool: &SqlPool,
+    session: middleware::Session,
+    data: &str,
+) -> EndpointProcessingResult<()> {
+    if let middleware::Session::Guest = session {
+        return EndpointProcessingResult::Err(EndpointProcessingError::Unauthorized);
+    }
+
+    let user = session.unwrap_user();
+
+    let result = match correction_reports::insert(pool.clone(), &user.email, data) {
+        Ok(_) => Ok(()),
+        Err(e) => EndpointProcessingResult::Err(EndpointProcessingError::Processing(e)),
+    };
+
+    result
+}
+
+// Wrapper
 
 /// Correction error reporting route
 ///
@@ -37,17 +71,24 @@ use crate::{middleware, route::AiModels};
 /// ```
 ///
 pub async fn post(
-    body_string: String,
-    _context: Data<AiModels>,
+    req: HttpRequest,
+    pool: web::Data<SqlPool>,
+    session: middleware::Session,
+    data: String,
     _: middleware::UserAuthorized,
 ) -> impl Responder {
-    let client = Client::new();
+    use EndpointProcessingError::*;
 
-    client
-        .post("http://127.0.0.1:6969/api/report")
-        .header(header::CONTENT_TYPE, "application/x-www-form-urlencoded")
-        .send_body(body_string)
-        .await;
-
-    HttpResponse::Ok().body("Give me back my feet.")
+    match report(req, pool.as_ref(), session, &data).await {
+        Ok(()) => HttpResponse::Ok().finish(),
+        Err(Unauthorized) => HttpResponse::Found().header(header::LOCATION, "/").finish(),
+        Err(RequestUnparsable) | Err(RequestNonsensical) => HttpResponse::BadRequest().finish(),
+        Err(e) => {
+            println!(
+                "Failed to submit support/feedback comment with error: {}",
+                e
+            );
+            HttpResponse::InternalServerError().finish()
+        }
+    }
 }

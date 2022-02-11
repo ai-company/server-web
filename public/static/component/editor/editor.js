@@ -97,12 +97,15 @@ const EditorModel = {
         }
     },
     doReport: function (id) {
-        const data = `diff=${encodeURIComponent(JSON.stringify(EditorModel.corrections))}&ident=${id}`;
+        const data = {
+            diff: EditorModel.corrections,
+            id: id,
+        };
 
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "/api/v1/report");
         xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-        xhr.send(data);
+        xhr.send(JSON.stringify(data));
 
         this.doIgnore(id);
     },
@@ -413,7 +416,7 @@ const CorrectionCard = {
             : "";
 
         const explanation = [
-            ...self.attrs.item.explain,
+            ...(self.attrs.item.explain || []),
             ...(Array.isArray(self.attrs.item.change) ? self.attrs.item.change.map(i => i.explain || null) : []),
         ].filter(i => i);
 
