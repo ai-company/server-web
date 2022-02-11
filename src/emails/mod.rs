@@ -37,6 +37,7 @@
 
 pub mod account;
 pub mod subscription;
+pub mod support;
 
 use css_inline::CSSInliner;
 use handlebars::to_json;

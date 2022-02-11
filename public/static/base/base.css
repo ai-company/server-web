@@ -1093,3 +1093,11 @@ label[for] {
     background-color: var(--color-white);
     border-color: var(--progress-color-dot);
 }
+
+/*! SUPPORT */
+
+.support-wrapper {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+}

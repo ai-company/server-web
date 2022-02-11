@@ -5,6 +5,7 @@ mod legal;
 mod mailtest;
 mod not_found;
 pub mod payment;
+mod support;
 pub mod user;
 
 use std::fmt::{self, Display, Formatter};
@@ -137,6 +138,8 @@ pub fn router() -> impl HttpServiceFactory {
             .service(web::resource("/dk/").route(web::get().to(legal::privacy::get_dk))),
     );
 
+    let support = web::resource("/support/").route(web::post().to(support::post));
+
     let routes = web::scope("")
         .wrap_fn(logger)
         .service(assets)
@@ -146,6 +149,7 @@ pub fn router() -> impl HttpServiceFactory {
         .service(stripe)
         .service(api)
         .service(legal)
+        .service(support)
         .default_service(web::to(not_found::get));
 
     #[cfg(debug_assertions)]

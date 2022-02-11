@@ -87,4 +87,7 @@ function smoothscroll(e) {
         document.querySelector(window.location.hash).scrollIntoView({ behavior: "smooth" });
     }
 }
-document.addEventListener("DOMContentLoaded", e => document.querySelector(window.location.hash).scrollIntoView());
+
+if (window.location.hash) {
+    document.addEventListener("DOMContentLoaded", e => document.querySelector(window.location.hash).scrollIntoView());
+}

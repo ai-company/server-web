@@ -1,0 +1,12 @@
+{{#> email/base}}
+    {{#*inline "title"}}
+        <a href="{{get_url "/"}}">Orto</a> support/feedback
+    {{/inline}}
+
+    {{#*inline "body"}}
+        <p>Comment from: {{email}}</p>
+        <p>
+            {{comment}}
+        </p>
+    {{/inline}}
+{{/email/base}}
