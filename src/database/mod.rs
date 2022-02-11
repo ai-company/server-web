@@ -13,6 +13,7 @@ mod db_connection;
 pub use db_connection::DBConnection;
 
 pub mod billing_info;
+pub mod feedback;
 pub mod migration;
 pub mod reset_tokens;
 pub mod sessions;

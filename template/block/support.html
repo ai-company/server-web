@@ -1,0 +1,60 @@
+<div class="support-wrapper">
+    <button class="support-button" onclick="modal('modal-support')" type="submit">Support/Feedback</button>
+</div>
+
+<div id="modal-support" class="support-modal modal">
+    <div class="modal-close" onclick="modal('modal-support')"></div>
+    <div class="modal-content">
+        <a class="modal-x" onclick="modal('modal-support')">
+            <svg class="icon">
+                <use href="/static/icons/teenyicons/outline.svg#outline--x"></use>
+            </svg>
+        </a>
+
+        <h2>Support / Feedback</h2>
+
+        <form id="support" action="/support" method="post" onsubmit="feedback(event)">
+            <div class="mt-1">
+                <label for="comment">Comment:</label>
+            </div>
+            <div class="mt-1">
+                <textarea name="comment" id="comment" cols="60" rows="10"></textarea>
+            </div>
+            <div class="mt-1">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-result" class="support-modal modal">
+    <div class="modal-close" onclick="modal('modal-result')"></div>
+    <div class="modal-content">
+        <a class="modal-x" onclick="modal('modal-result')">
+            <svg class="icon">
+                <use href="/static/icons/teenyicons/outline.svg#outline--x"></use>
+            </svg>
+        </a>
+
+        <h2>Thank you for your feedback!</h2>
+    </div>
+</div>
+
+<script>
+    function feedback(e) {
+        e.preventDefault();
+
+        const form = document.forms["support"];
+        const data = [
+            `comment=${encodeURIComponent(form.comment.value)}`,
+        ].join("&");
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", form.action);
+        xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+        xhr.send(data);
+
+        modal("modal-support");
+        modal("modal-result");
+    }
+</script>

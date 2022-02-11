@@ -20,3 +20,4 @@
 //! ```
 
 pub mod v001;
+pub mod v002;
