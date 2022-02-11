@@ -19,7 +19,7 @@ async fn signout(req: HttpRequest, pool: &SqlPool) -> EndpointProcessingResult<(
 
 // Wrapper
 
-pub async fn get(
+pub async fn post(
     req: HttpRequest,
     _template: Data<Handlebars<'_>>,
     pool: web::Data<SqlPool>,
