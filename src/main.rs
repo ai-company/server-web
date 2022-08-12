@@ -106,7 +106,7 @@ async fn main() -> std::io::Result<()> {
         templater.register_helper("get_url", Box::new(url_helper));
 
         App::new()
-            .wrap(Compress::default())
+            // .wrap(Compress::default())
             .wrap(NormalizePath::default())
             .data(shared_context)
             .data(pool.clone())
