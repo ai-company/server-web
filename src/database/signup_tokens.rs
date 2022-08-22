@@ -23,6 +23,9 @@ pub fn insert<C: DBConnection>(
             ":user_id": user_id
         },
     )?;
+
+    println!("[ DB ] signup_token: insert {}", user_id);
+
     Ok(())
 }
 
@@ -51,6 +54,8 @@ pub fn destroy(pool: &SqlPool, user_id: UserID) -> Result<(), Box<dyn std::error
 
     tran.commit()?;
 
+    println!("[ DB ] signup_token: destroy {}", user_id);
+
     Ok(())
 }
 
@@ -58,7 +63,7 @@ pub fn get_by_signup_key(
     pool: &SqlPool,
     signup_key: &SignupKey,
 ) -> Result<Option<Token>, Box<dyn std::error::Error>> {
-    match pool.get()?.query_row(
+    let token = match pool.get()?.query_row(
         "SELECT token
         FROM signup_tokens
         WHERE session_key = ?1 AND expires_at > datetime('now')",
@@ -67,15 +72,19 @@ pub fn get_by_signup_key(
     ) {
         Ok(v) => Ok(v),
         Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
-        Err(e) => Err(Box::new(e)),
-    }
+        Err(e) => return Err(Box::new(e)),
+    };
+
+    println!("[ DB ] signup_token: get by signup key");
+
+    token
 }
 
 pub fn get_owner(
     pool: &SqlPool,
     token: &Token,
 ) -> Result<Option<UserID>, Box<dyn std::error::Error>> {
-    match pool.get()?.query_row(
+    let owner = match pool.get()?.query_row(
         "SELECT user_id
         FROM signup_tokens
         WHERE token = ?1 AND expires_at > datetime('now')",
@@ -84,8 +93,12 @@ pub fn get_owner(
     ) {
         Ok(v) => Ok(v),
         Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
-        Err(e) => Err(Box::new(e)),
-    }
+        Err(e) => return Err(Box::new(e)),
+    };
+
+    println!("[ DB ] signup_token: get owner");
+
+    owner
 }
 
 pub fn delete(owner: UserID, trans: &SyncTransaction) -> Result<(), Box<dyn std::error::Error>> {
@@ -93,5 +106,8 @@ pub fn delete(owner: UserID, trans: &SyncTransaction) -> Result<(), Box<dyn std:
         "DELETE FROM signup_tokens WHERE user_id = ?1",
         params![owner],
     )?;
+
+    println!("[ DB ] signup_token: delete");
+
     Ok(())
 }

@@ -40,6 +40,8 @@ pub async fn create(
         params![customer.stripe_id, user_id],
     )?;
 
+    println!("[ DB ] stripe_profile: insert {}", user.id);
+
     Ok(customer)
 }
 
@@ -53,7 +55,7 @@ pub fn get<C: DBConnection>(
         |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
     );
 
-    match result {
+    let profile = match result {
         Ok((stripe_id, end, start)) => Ok(Some(StripeProfile {
             user: user_id,
             stripe_id,
@@ -65,7 +67,11 @@ pub fn get<C: DBConnection>(
             Some(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
             _ => Err(e),
         },
-    }
+    };
+
+    println!("[ DB ] stripe_profile: get {}", user_id);
+
+    profile
 }
 
 pub async fn get_or_create(
@@ -128,6 +134,9 @@ pub fn set_subscription(
     )?;
 
     tran.commit()?;
+
+    println!("[ DB ] stripe_profile: set subscription {}", _user_id);
+
     Ok(())
 }
 
@@ -160,6 +169,9 @@ pub fn remove_subscription(
     )?;
 
     tran.commit()?;
+
+    println!("[ DB ] stripe_profile: remove subscription {}", _user_id);
+
     Ok(())
 }
 
@@ -183,6 +195,8 @@ pub async fn delete_user(
 
     // Then we try to remove them from stripe (Note if this fails, the transaction is dropped, and the stripe profile remains in the DB)
     crate::route::payment::stripe::customer::delete_customer(&stripe_user.stripe_id).await?;
+
+    println!("[ DB ] stripe_profile: delete {}", user.id);
 
     Ok(true)
 }
