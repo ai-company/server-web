@@ -10,7 +10,7 @@ mod route;
 mod util;
 mod validator;
 
-use std::{env, net::ToSocketAddrs};
+use std::{env, io::Write, net::ToSocketAddrs};
 
 use actix_web::{
     middleware::{Compress, NormalizePath},
@@ -76,41 +76,66 @@ async fn main() -> std::io::Result<()> {
         panic!("Failed initialize database with error: {}", e);
     }
 
-    HttpServer::new(move || {
-        let shared_context = route::AiModels {
-            model_danish: model_danish.clone(),
-            model_english: model_english.clone(),
-        };
+    let matches = clap::App::new("server")
+        .global_settings(&[
+            clap::AppSettings::DisableHelpSubcommand,
+            clap::AppSettings::VersionlessSubcommands,
+        ])
+        .subcommands(vec![clap::SubCommand::with_name("admin")
+            .subcommands(vec![clap::SubCommand::with_name("create")])])
+        .get_matches();
 
-        let mut templater = Handlebars::new();
-        templater
-            .register_templates_directory(".html", "template/")
-            .unwrap();
+    if let Some(matches) = matches.subcommand_matches("admin") {
+        if let Some(_) = matches.subcommand_matches("create") {
+            let mut username = String::new();
+            print!("user: ");
+            std::io::stdout().flush()?;
+            std::io::stdin().read_line(&mut username)?;
+            let password = rpassword::prompt_password("pass: ")?;
 
-        let asset_helper = util::AssetHelper {
-            v_major: env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap(),
-            v_minor: env!("CARGO_PKG_VERSION_MINOR").parse().unwrap(),
-            v_patch: env!("CARGO_PKG_VERSION_PATCH").parse().unwrap(),
-        };
+            database::admin::insert(username.trim(), &password, &pool).unwrap();
 
-        let url_helper = util::UrlHelper;
+            Ok(())
+        } else {
+            Ok(())
+        }
+    } else {
+        HttpServer::new(move || {
+            let shared_context = route::AiModels {
+                model_danish: model_danish.clone(),
+                model_english: model_english.clone(),
+            };
 
-        let embed_helper = util::EmbedHelper;
+            let mut templater = Handlebars::new();
+            templater
+                .register_templates_directory(".html", "template/")
+                .unwrap();
 
-        templater.register_helper("link", Box::new(asset_helper));
-        templater.register_helper("embed", Box::new(embed_helper));
-        templater.register_helper("get_url", Box::new(url_helper));
+            let asset_helper = util::AssetHelper {
+                v_major: env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap(),
+                v_minor: env!("CARGO_PKG_VERSION_MINOR").parse().unwrap(),
+                v_patch: env!("CARGO_PKG_VERSION_PATCH").parse().unwrap(),
+            };
 
-        App::new()
-            // .wrap(Compress::default())
-            .wrap(NormalizePath::default())
-            .data(shared_context)
-            .data(pool.clone())
-            .data(templater)
-            .data(root_path.clone())
-            .service(route::router())
-    })
-    .bind(addr_server)?
-    .run()
-    .await
+            let url_helper = util::UrlHelper;
+
+            let embed_helper = util::EmbedHelper;
+
+            templater.register_helper("link", Box::new(asset_helper));
+            templater.register_helper("embed", Box::new(embed_helper));
+            templater.register_helper("get_url", Box::new(url_helper));
+
+            App::new()
+                // .wrap(Compress::default())
+                .wrap(NormalizePath::default())
+                .data(shared_context)
+                .data(pool.clone())
+                .data(templater)
+                .data(root_path.clone())
+                .service(route::router())
+        })
+        .bind(addr_server)?
+        .run()
+        .await
+    }
 }
