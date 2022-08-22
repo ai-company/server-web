@@ -15,7 +15,9 @@ use serde_json::json;
 use time::Duration;
 
 use crate::{
-    database::{billing_info, sessions::SessionToken, signup_tokens, user, SqlPool},
+    database::{
+        billing_info, sessions::SessionToken, signup_tokens, user, SqlPool, SyncTransaction,
+    },
     emails::{account::confirmation::AccountConfirmationEmail, Email},
     middleware,
     route::EndpointProcessingError,
@@ -178,7 +180,10 @@ async fn signup(
         .send(&req.email)
     {
         Ok(_) => Ok(session_key),
-        Err(_) => Err(InternalError("Kunne ikke sende email.".to_string())),
+        Err(_) => {
+            user::delete(user, &SyncTransaction::new(pool)?).await?;
+            Err(InternalError("Kunne ikke sende email.".to_string()))
+        }
     }
 }
 

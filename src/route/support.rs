@@ -41,7 +41,8 @@ async fn support(
         form.get("comment").and_then(|f| f.string()).unwrap_or(""),
     )
     .render(&renderer)
-    .send("support@orto.ai");
+    .send("support@orto.ai")
+    .map_err(|e| EndpointProcessingError::Processing(Box::new(e)))?;
 
     result
 }
