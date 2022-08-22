@@ -1,0 +1,53 @@
+<div>
+    <h2>Send newsletter to every customer:</h2>
+    <form id="newsletter" onsubmit="newsletter(event)">
+        <div id="newsletter-status"></div>
+        <div class="pb-2">
+            <textarea style="width: 100%;max-width: 100%;" id="message" name="message" required></textarea>
+        </div>
+        <div>
+            <button class="primary" type="button" onclick="modal('newsletter-confirm')">Send</button>
+            <div id="newsletter-confirm" class="modal">
+                <a class="modal-close" onclick="modal('newsletter-confirm')"></a>
+                <div class="modal-content panel">
+                    <a class="modal-x" onclick="modal('newsletter-confirm')">
+                        <svg class="icon">
+                            <use href="/static/icons/teenyicons/outline.svg#outline--x"></use>
+                        </svg>
+                    </a>
+                    <div>
+                        <h2>Confirm newsletter dispatch</h2>
+
+                        <div class="align-right d-flex">
+                            <button style="width: 100%;" class="mr-1" type="button" onclick="modal('newsletter-confirm')">Cancel</button>
+                            <button class="primary" type="submit" onclick="modal('newsletter-confirm')">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script>
+        function newsletter(e) {
+            e.preventDefault();
+
+            let fd = new FormData(e.target);
+            let xhr = new XMLHttpRequest();
+
+            xhr.open('POST', '/admin/newsletter', true);
+            xhr.onreadystatechange = function (e) {
+                if (xhr.status == 200) {
+                    document.getElementById("newsletter-status").innerHTML = `
+                    <div class="success">Successfully sent newsletter</div>
+                    `;
+                } else if (xhr.status == 500) {
+                    let error = JSON.parse(xhr.responseText)["error"];
+                    document.getElementById("newsletter-status").innerHTML = `
+                    <div class="error">Failed to send newsletter: ${error}</div>
+                    `;
+                }
+            };
+            xhr.send(fd);
+        }
+    </script>
+</div>

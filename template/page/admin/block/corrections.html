@@ -1,0 +1,65 @@
+<script>
+    const repwith = {
+        '&amp;': '&',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&quot;': '"',
+        '&#x27;': "'",
+        '&#x60;': '`',
+        '&#x3D;': '=',
+    };
+    const rep = new RegExp('(&amp;)|(&lt;)|(&gt;)|(&quot;)|(&#x27;)|(&#x60;)|(&#x3D;)', 'g');
+
+    function renderReport(corrections, id) {
+        let el = document.getElementById(id);
+        corrections = corrections.replace(rep, r => repwith[r]);
+        corrections = JSON.parse(corrections);
+        m.render(el, corrections["diff"].map(i =>
+            i.type == "none" || i.type == "space"
+                ? i.origin
+                : m(
+                    "span.change",
+                    {
+                        id: `diff-${i.index}`,
+                        class: i.index == corrections["id"] ? "active" : "",
+                    },
+                    m(DiffTypeMap[i.type], { key: i.index, item: i })
+                )
+        ));
+    }
+</script>
+<table width="100%">
+    <thead align="left">
+        <tr>
+            <th>ID</th>
+            <th>Reported at</th>
+            <th>Email</th>
+            <th>Report</th>
+        </tr>
+    </thead>
+
+    {{#each correction_reports}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{created_at}}</td>
+            <td>{{email}}</td>
+            <td>
+                <a href="javascript:modal('report-modal-{{@index}}')">Open</a>
+                <div id="report-modal-{{@index}}" class="modal">
+                    <a class="modal-close" onclick="modal('report-modal-{{@index}}')"></a>
+                    <div class="modal-content panel">
+                        <a class="modal-x" onclick="modal('report-modal-{{@index}}')">
+                            <svg class="icon">
+                                <use href="/static/icons/teenyicons/outline.svg#outline--x"></use>
+                            </svg>
+                        </a>
+                        <div id="report-{{@index}}" class="py-3">
+                            <script>renderReport("{{report}}", "report-{{@index}}")</script>
+                        </div>
+
+                    </div>
+                </div>
+            </td>
+        </tr>
+    {{/each}}
+</table>

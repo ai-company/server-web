@@ -21,18 +21,20 @@ pub struct User {
     pub password: String,
     pub tier: Option<String>,
     pub verified: bool,
+    pub created_at: String,
 }
 
 impl TryFrom<&Row<'_>> for User {
     type Error = rusqlite::Error;
 
     fn try_from(row: &Row) -> Result<Self, Self::Error> {
-        Ok(User {
+        Ok(Self {
             id: row.get(row.column_index("id")?)?,
             email: row.get(row.column_index("email")?)?,
             password: row.get(row.column_index("password")?)?,
             tier: row.column_index("tier").and_then(|i| row.get(i)).ok(),
             verified: row.get(row.column_index("verified")?)?,
+            created_at: row.get(row.column_index("created_at")?)?,
         })
     }
 }
@@ -137,6 +139,21 @@ pub fn get(email: &str, pool: &SqlPool) -> Result<Option<User>, Box<dyn std::err
     println!("[ DB ] user: get by email");
 
     Ok(Some(user))
+}
+
+pub fn get_all(pool: &SqlPool) -> Result<Vec<User>, Box<dyn std::error::Error>> {
+    let connection = pool.get()?;
+    let mut statement = connection.prepare("SELECT * FROM users")?;
+    let rows = statement.query_map(params![], |row| row.try_into())?;
+
+    let mut users = Vec::new();
+    for row in rows {
+        users.push(row?);
+    }
+
+    println!("[ DB ] user: get all");
+
+    Ok(users)
 }
 
 pub fn get_with_id(id: UserID, pool: &SqlPool) -> Result<Option<User>, Box<dyn std::error::Error>> {
