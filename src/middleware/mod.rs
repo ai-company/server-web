@@ -1,4 +1,5 @@
 mod admin_session;
+pub mod context;
 mod is_authorized;
 mod logger;
 mod session;

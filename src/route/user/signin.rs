@@ -40,9 +40,12 @@ async fn signin(req: SignInRequest, pool: &SqlPool) -> EndpointProcessingResult<
 
 // Wrapper
 
-pub async fn get(template: Data<Handlebars<'_>>, session: middleware::Session) -> impl Responder {
-    if let middleware::Session::Guest = session {
-        HttpResponse::Ok().body(template.render("page/user/signin", &()).unwrap())
+pub async fn get(
+    template: Data<Handlebars<'_>>,
+    session: middleware::context::SessionContext,
+) -> impl Responder {
+    if let middleware::Session::Guest = session.user {
+        HttpResponse::Ok().body(template.render("page/user/signin", &session).unwrap())
     } else {
         HttpResponse::Found()
             .header(header::LOCATION, "/user/account")

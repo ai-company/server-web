@@ -20,14 +20,14 @@ use crate::{
 
 pub async fn get(
     template: Data<Handlebars<'_>>,
-    session: middleware::Session,
+    session: middleware::context::SessionContext,
     pool: web::Data<SqlPool>,
     _: middleware::UserAuthorized,
 ) -> impl Responder {
-    if let middleware::Session::Guest = session {
+    if let middleware::Session::Guest = session.user {
         HttpResponse::Found().header(header::LOCATION, "/").finish()
     } else {
-        let user = session.unwrap_user();
+        let user = session.user.unwrap_user();
 
         let subscription = verify_stripe_subscription(user.id, &pool)
             .await

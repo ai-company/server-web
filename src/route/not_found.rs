@@ -6,7 +6,7 @@ use crate::middleware;
 
 pub async fn get(
     template: web::Data<Handlebars<'_>>,
-    session: middleware::Session,
+    session: middleware::context::SessionContext,
 ) -> impl Responder {
     HttpResponse::NotFound().body(template.render("page/404", &session).unwrap())
 }

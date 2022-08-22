@@ -17,15 +17,15 @@ use crate::util::FormData;
 async fn support(
     req: HttpRequest,
     pool: &SqlPool,
-    session: middleware::Session,
+    session: middleware::context::SessionContext,
     renderer: &Handlebars<'_>,
     form: &FormData,
 ) -> EndpointProcessingResult<()> {
-    if let middleware::Session::Guest = session {
+    if let middleware::Session::Guest = session.user {
         return EndpointProcessingResult::Err(EndpointProcessingError::Unauthorized);
     }
 
-    let user = session.unwrap_user();
+    let user = session.user.unwrap_user();
 
     let result = match feedback::insert(
         pool.clone(),
@@ -52,7 +52,7 @@ pub async fn post(
     req: HttpRequest,
     _template: Data<Handlebars<'_>>,
     pool: web::Data<SqlPool>,
-    session: middleware::Session,
+    session: middleware::context::SessionContext,
     form: FormData,
     _: middleware::UserAuthorized,
 ) -> impl Responder {
