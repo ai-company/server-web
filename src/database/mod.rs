@@ -12,6 +12,8 @@ pub use sync_transaction::SyncTransaction;
 mod db_connection;
 pub use db_connection::DBConnection;
 
+pub mod admin;
+pub mod admin_sessions;
 pub mod billing_info;
 pub mod correction_reports;
 pub mod feedback;

@@ -6,10 +6,11 @@ use super::migration;
 pub type MigrationResult = Result<(), String>;
 pub type Migration = fn(&Transaction) -> MigrationResult;
 
-const SCHEME_MIGRATIONS: [Migration; 2] = [
+const SCHEME_MIGRATIONS: [Migration; 3] = [
     //
     migration::v001::first_setup,
     migration::v002::add_feedback,
+    migration::v003::add_admins,
 ];
 
 const SCHEME_VERSION: usize = SCHEME_MIGRATIONS.len();
