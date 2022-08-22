@@ -17,14 +17,14 @@ use crate::util::FormData;
 async fn report(
     req: HttpRequest,
     pool: &SqlPool,
-    session: middleware::Session,
+    session: middleware::context::SessionContext,
     data: &str,
 ) -> EndpointProcessingResult<()> {
-    if let middleware::Session::Guest = session {
+    if let middleware::Session::Guest = session.user {
         return EndpointProcessingResult::Err(EndpointProcessingError::Unauthorized);
     }
 
-    let user = session.unwrap_user();
+    let user = session.user.unwrap_user();
 
     let result = match correction_reports::insert(pool.clone(), &user.email, data) {
         Ok(_) => Ok(()),
@@ -73,7 +73,7 @@ async fn report(
 pub async fn post(
     req: HttpRequest,
     pool: web::Data<SqlPool>,
-    session: middleware::Session,
+    session: middleware::context::SessionContext,
     data: String,
     _: middleware::UserAuthorized,
 ) -> impl Responder {

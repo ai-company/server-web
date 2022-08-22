@@ -4,6 +4,9 @@ use handlebars::Handlebars;
 
 use crate::middleware;
 
-pub async fn get(template: Data<Handlebars<'_>>, session: middleware::Session) -> impl Responder {
+pub async fn get(
+    template: Data<Handlebars<'_>>,
+    session: middleware::context::SessionContext,
+) -> impl Responder {
     HttpResponse::Ok().body(template.render("page/index", &session).unwrap())
 }

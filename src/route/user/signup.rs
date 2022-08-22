@@ -208,7 +208,7 @@ pub fn get_signup_key(req: &HttpRequest) -> Option<String> {
 pub async fn get(
     req: HttpRequest,
     template: Data<Handlebars<'_>>,
-    session: middleware::Session,
+    session: middleware::context::SessionContext,
     tier: web::Query<SignupTierQuery>,
     resend: web::Query<ResendQuery>,
     pool: web::Data<SqlPool>,
@@ -234,10 +234,13 @@ pub async fn get(
         }
     }
 
-    if let middleware::Session::Guest = session {
+    if let middleware::Session::Guest = session.user {
         HttpResponse::Ok().body(
             template
-                .render("page/user/signup", &json!({"tier": tier.into_inner()}))
+                .render(
+                    "page/user/signup",
+                    &json!({"tier": tier.into_inner(), "admin": session.admin}),
+                )
                 .unwrap(),
         )
     } else {

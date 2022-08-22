@@ -23,7 +23,7 @@
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 ' for="email">E-mail</label>
-                    <div>{{User.user.email}}</div>
+                    <div>{{user.User.user.email}}</div>
                 </div>
 
                 <hr class='separator'>
@@ -46,8 +46,8 @@
                         }
 
                     </style>
-                    <div class='col account-tier {{#if (eq User.user.tier "beta")}}beta{{/if}}'>
-                        {{#if (eq User.user.tier "student")}}
+                    <div class='col account-tier {{#if (eq user.User.user.tier "beta")}}beta{{/if}}'>
+                        {{#if (eq user.User.user.tier "student")}}
                             <label class='row'>
                                 <div class='col-4 align-center'>
                                     <h3 class="tier-title mb-0">Studerende</h3>
@@ -63,7 +63,7 @@
                             </label>
                         {{/if}}
 
-                        {{#if (eq User.user.tier "private")}}
+                        {{#if (eq user.User.user.tier "private")}}
                             <label class="row">
                                 <div class="col-4 align-center">
                                     <h3 class="tier-title mb-0">Privat</h3>
@@ -80,7 +80,7 @@
                             </label>
                         {{/if}}
 
-                        {{#if (eq User.user.tier "business")}}
+                        {{#if (eq user.User.user.tier "business")}}
                             <label class='row'>
                                 <div class="col-4 align-center">
                                     <h3 class="tier-title mb-0">Virksomhed</h3>
@@ -99,7 +99,7 @@
                             </label>
                         {{/if}}
 
-                        {{#if (eq User.user.tier "beta")}}
+                        {{#if (eq user.User.user.tier "beta")}}
                             <label class='row'>
                                 <div class="col-4 align-center vertical-middle">
                                     <h3 class="tier-title">Beta</h3>
@@ -133,35 +133,35 @@
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 ' for="fullname">Fulde navn</label>
-                    <div>{{User.billing.fullname}}</div>
+                    <div>{{user.User.billing.fullname}}</div>
                 </div>
 
-                {{#if User.billing.cvr}}
+                {{#if user.User.billing.cvr}}
                     <div class='input-group row'>
                         <label class='col-3 col-sm-2 ' for="cvr">CVR</label>
                         <label class='input-addon addon-left'>DK</label>
-                        <div>{{User.billing.cvr}}</div>
+                        <div>{{user.User.billing.cvr}}</div>
                     </div>
                 {{/if}}
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 ' for="address">Adresse</label>
-                    <div>{{User.billing.address}}</div>
+                    <div>{{user.User.billing.address}}</div>
                 </div>
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 ' for="city">By/provins</label>
-                    <div>{{User.billing.city}}</div>
+                    <div>{{user.User.billing.city}}</div>
                 </div>
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 ' for="zip">Postnummer</label>
-                    <div>{{User.billing.zip}}</div>
+                    <div>{{user.User.billing.zip}}</div>
                 </div>
 
                 <div class='input-group row'>
                     <label class='col-3 col-sm-2 ' for="country">Land</label>
-                    <div>{{User.billing.country}}</div>
+                    <div>{{user.User.billing.country}}</div>
                 </div>
 
                 <hr class='separator'>

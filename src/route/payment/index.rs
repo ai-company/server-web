@@ -34,12 +34,12 @@ pub struct RegistrationQuery {
 pub async fn get(
     template: Data<Handlebars<'_>>,
     token: web::Query<RegistrationQuery>,
-    session: middleware::Session,
+    session: middleware::context::SessionContext,
     pool: web::Data<SqlPool>,
 ) -> impl Responder {
     let pool = pool.into_inner();
 
-    if let middleware::Session::Guest = session {
+    if let middleware::Session::Guest = session.user {
         let user_id = match signup_tokens::get_owner(&pool, token.token.as_ref().unwrap()) {
             Ok(Some(user_id)) => user_id,
             Ok(_) => {
@@ -114,7 +114,7 @@ pub async fn get(
             .header(header::LOCATION, "/user/account")
             .finish()
     } else {
-        let user = session.unwrap_user();
+        let user = session.user.unwrap_user();
 
         // let stripe_response = match create_checkout(
         //     user,
