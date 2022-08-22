@@ -1,6 +1,7 @@
 [role="tablist"] .tabs-head {
     display: flex;
     border-bottom: 1px solid var(--background-darker);
+    flex-wrap: wrap-reverse;
 }
 
 [role="tablist"] [role="tab"] {
