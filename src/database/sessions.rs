@@ -14,6 +14,9 @@ pub fn insert<C: DBConnection>(
         "INSERT INTO sessions (token, user_id, expires_at) VALUES (?1, ?2, datetime('now', '30 day'))",
         params![&token[..], user_id],
     )?;
+
+    println!("[ DB ] sessions: insert {}", user_id);
+
     Ok(())
 }
 
@@ -37,6 +40,8 @@ pub fn destroy(pool: &SqlPool, user_id: UserID) -> Result<(), Box<dyn std::error
 
     tran.commit()?;
 
+    println!("[ DB ] sessions: destroy {}", user_id);
+
     Ok(())
 }
 
@@ -44,7 +49,7 @@ pub fn get_owner(
     pool: &SqlPool,
     token: SessionToken,
 ) -> Result<Option<UserID>, Box<dyn std::error::Error>> {
-    match pool.get()?.query_row(
+    let owner = match pool.get()?.query_row(
         "SELECT user_id
         FROM sessions
         WHERE token = ?1 AND expires_at > datetime('now')",
@@ -53,11 +58,18 @@ pub fn get_owner(
     ) {
         Ok(v) => Ok(v),
         Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
-        Err(e) => Err(Box::new(e)),
-    }
+        Err(e) => return Err(Box::new(e)),
+    };
+
+    println!("[ DB ] sessions: get owner");
+
+    owner
 }
 
 pub fn delete(owner: UserID, trans: &SyncTransaction) -> Result<(), Box<dyn std::error::Error>> {
     trans.execute("DELETE FROM sessions WHERE user_id = ?1", params![owner])?;
+
+    println!("[ DB ] sessions: delete {}", owner);
+
     Ok(())
 }

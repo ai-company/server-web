@@ -61,6 +61,8 @@ pub fn insert(
         },
     )?;
 
+    println!("[ DB ] billing_info: inserted new {}", user.id);
+
     Ok(())
 }
 
@@ -90,6 +92,8 @@ pub fn save<C: DBConnection>(
         },
     )?;
 
+    println!("[ DB ] billing_info: save");
+
     Ok(())
 }
 
@@ -111,6 +115,8 @@ pub fn get_with_id(
         Err(e) => return Err(Box::new(e)),
     };
 
+    println!("[ DB ] billing_info: get {}", id);
+
     Ok(Some(user))
 }
 
@@ -126,7 +132,7 @@ pub async fn delete(
         params![user_id],
     ) {
         Ok(_) => {
-            println!("[ DB ] deleted user billing info: {}", user_id);
+            println!("[ DB ] billing_info: delete {}", user_id);
             Ok(())
         }
         Err(e) => Err(e),

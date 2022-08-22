@@ -13,5 +13,8 @@ pub fn insert<C: DBConnection>(
         "INSERT INTO feedback (email, comment) VALUES (?1, ?2)",
         params![email, comment],
     )?;
+
+    println!("[ DB ] feedback: insert");
+
     Ok(())
 }

@@ -13,5 +13,8 @@ pub fn insert<C: DBConnection>(
         "INSERT INTO correction_reports (email, report) VALUES (?1, ?2)",
         params![email, report],
     )?;
+
+    println!("[ DB ] correction_reports: insert");
+
     Ok(())
 }
