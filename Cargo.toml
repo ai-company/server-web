@@ -1,13 +1,13 @@
 [package]
 name = "server"
 edition = "2021"
-version = "0.12.0"
+version = "0.13.0"
 authors = [
     "nilq <i.am.niels.nielsen@gmail.com>",
     "s185023 <s185023@student.dtu.dk>",
     "evolbug <evolhive@gmail.com>",
 ]
-
+rust-version = "1.62"
 
 [profile.release]
 lto = "fat"
@@ -21,9 +21,6 @@ opt-level = 3
 # tokio = { version = "=1.5.0", features = ["macros", "rt-multi-thread", "signal"] }
 futures = "=0.3.15"
 lazy_static = "=1.4.0"
-
-# allocator
-jemallocator = "=0.3.2"
 
 # serialization
 serde = { version = "=1.0.130", features = ["derive"] }
@@ -63,6 +60,10 @@ handlebars = { version = "=3.5.5", features = ["dir_source"] }
 chrono = "=0.4.19"
 
 # database
-rusqlite = { version = "=0.25.3", features = ["bundled"] }
+rusqlite = { version = "=0.25.4", features = ["bundled"] }
 r2d2 = "=0.8.9"
 r2d2_sqlite = "=0.18.0"
+
+# cli
+clap = "=2.34.0"
+rpassword = "=7.0.0"
