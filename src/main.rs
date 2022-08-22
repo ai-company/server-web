@@ -17,15 +17,11 @@ use actix_web::{
     App, HttpServer,
 };
 use handlebars::Handlebars;
-use jemallocator::Jemalloc;
 use r2d2_sqlite::SqliteConnectionManager;
 
 use ai_client::AIClient;
 
 use crate::route::RootPath;
-
-#[global_allocator]
-static ALLOCATOR: Jemalloc = Jemalloc;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
