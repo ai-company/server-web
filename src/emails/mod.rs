@@ -36,6 +36,7 @@
 //!
 
 pub mod account;
+pub mod newsletter;
 pub mod subscription;
 pub mod support;
 
@@ -75,5 +76,9 @@ pub struct Envelope(String, String);
 impl Envelope {
     pub fn send(self, to: &str) -> SmtpResult {
         email::email_send(to, &self.0, &self.1)
+    }
+
+    pub fn send_all(self, to: &[&str]) -> SmtpResult {
+        email::email_send_all(to, &self.0, &self.1)
     }
 }

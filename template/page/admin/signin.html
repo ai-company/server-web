@@ -1,0 +1,54 @@
+{{#> page/base}}
+    {{#*inline "head"}}
+        <title>Orto - Log ind</title>
+
+        {{link "hot" type="script" src="/static/base/util.js"}}
+    {{/inline}}
+
+    {{#*inline "body"}}
+        <h1 class='mb-0 align-center'>Log ind</h1>
+
+        <form class="row" method="POST">
+            <div class='col'></div>
+
+            <div class='col-12 col-md-9 col-lg-7'>
+
+                <hr class='separator'>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="username">Username</label>
+                    <input class='col' id="username" name="username" type="text" placeholder="" required autocomplete="username">
+                </div>
+                <div class='row {{#if (not validation.username)}}d-none{{/if}}'>
+                    <div class='col-3 col-sm-2'></div>
+                    <div class='col error'>
+                        {{#each validation.email}}
+                            <div>
+                                <svg class='icon'>
+                                    <use href="/static/icons/teenyicons/outline.svg#outline--exclamation-circle">
+                                    </use>
+                                </svg> {{this}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class='input-group row'>
+                    <label class='col-3 col-sm-2 align-right' for="password">Password</label>
+                    <input class='col' id="password" name="password" type="password" required autocomplete="current-password">
+                    <button type="button" class='input-addon addon-right' aria-label="Show password" data-microtip-position="left" role="tooltip" onclick="togglepassword(this, 'password')">
+                        <svg class="icon">
+                            <use href='/static/icons/teenyicons/outline.svg#outline--eye'></use>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class='pt-3 align-center'>
+                    <button type='submit'>Log ind</button>
+                </div>
+            </div>
+
+            <div class='col'></div>
+        </form>
+    {{/inline}}
+{{/page/base}}

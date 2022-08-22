@@ -1,0 +1,77 @@
+{{#> page/base}}
+    {{#*inline "head"}}
+        <title>Orto - Konto</title>
+
+        {{link "hot" type="stylesheet" src="/static/page/user/signup.css"}}
+        {{link "hot" type="script" src="/static/base/util.js"}}
+
+        {{link "hot" type="stylesheet" src="/static/component/editor/editor.css" }}
+        {{link "hot" type="script" src="/static/component/editor/editor.js" }}
+    {{/inline}}
+
+    {{#*inline "body"}}
+        <h1 class='mb-0 align-center'>Admin</h1>
+
+        <noscript>
+            <h3 class='align-center error'>JavaScript skal være slået til i din browser, hvis Orto skal fungere.</h3>
+        </noscript>
+
+        <div class='row'>
+            <div class='col'></div>
+
+            <div class='col-12 col-md-9 col-lg-7'>
+                <hr class='separator'>
+
+                <div class="row">
+                    <div class="col">
+                        <div id='admin-panel'>
+                            <div>
+                                <div role="tab">Admin actions</div>
+                                <div role="tabpanel">
+                                    <div class='input-group row'>
+                                        <label class='col-3 col-sm-2'><strong>Log ud</strong></label>
+                                        <label class='col'>Log ud af den nuværende session</label>
+                                        <form class='col-2 p-0' action="/admin/signout" method="post">
+                                            <button href='/admin/signout' style="width:100%">Log ud</button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div>
+                                <div role="tab">Users</div>
+                                <div role="tabpanel">
+                                    {{> page/admin/block/users}}
+                                </div>
+                            </div>
+                            <div>
+                                <div role="tab">Correction reports</div>
+                                <div role="tabpanel">
+                                    {{> page/admin/block/corrections}}
+                                </div>
+                            </div>
+                            <div>
+                                <div role="tab">Feedback</div>
+                                <div role="tabpanel">
+                                    {{> page/admin/block/feedback}}
+                                </div>
+                            </div>
+                            <div>
+                                <div role="tab">Newsletter</div>
+                                <div role="tabpanel">
+                                    {{> page/admin/block/newsletter}}
+                                </div>
+                            </div>
+                        </div>
+                        <script>Tabs("#admin-panel")</script>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class='col'></div>
+        </div>
+
+        {{> block/support}}
+    {{/inline}}
+{{/page/base}}

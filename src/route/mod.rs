@@ -1,3 +1,4 @@
+pub mod admin;
 mod api;
 mod editor;
 mod index;
@@ -8,7 +9,10 @@ pub mod payment;
 mod support;
 pub mod user;
 
-use std::fmt::{self, Display, Formatter};
+use std::{
+    env,
+    fmt::{self, Display, Formatter},
+};
 
 use actix_files::Files;
 use actix_web::{dev::HttpServiceFactory, web};
@@ -140,6 +144,17 @@ pub fn router() -> impl HttpServiceFactory {
 
     let support = web::resource("/support/").route(web::post().to(support::post));
 
+    let admin_path = env::var("ADMIN_PATH").unwrap_or("/admin/".into());
+    let admin = web::scope(&admin_path)
+        .service(
+            web::resource("/signin/")
+                .route(web::get().to(admin::signin::get))
+                .route(web::post().to(admin::signin::post)),
+        )
+        .service(web::resource("/signout/").route(web::post().to(admin::signout::post)))
+        .service(web::resource("/account/").route(web::get().to(admin::account::get)))
+        .service(web::resource("/newsletter/").route(web::post().to(admin::newsletter::post)));
+
     let routes = web::scope("")
         .wrap_fn(logger)
         .service(assets)
@@ -150,6 +165,7 @@ pub fn router() -> impl HttpServiceFactory {
         .service(api)
         .service(legal)
         .service(support)
+        .service(admin)
         .default_service(web::to(not_found::get));
 
     #[cfg(debug_assertions)]
