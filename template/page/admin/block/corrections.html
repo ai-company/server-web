@@ -12,8 +12,6 @@
 
     function renderReport(corrections, id) {
         let el = document.getElementById(id);
-        corrections = corrections.replace(rep, r => repwith[r]);
-        corrections = JSON.parse(corrections);
         m.render(el, corrections["diff"].map(i =>
             i.type == "none" || i.type == "space"
                 ? i.origin
@@ -54,7 +52,7 @@
                             </svg>
                         </a>
                         <div id="report-{{@index}}" class="py-3">
-                            <script>renderReport("{{report}}", "report-{{@index}}")</script>
+                            <script>renderReport({{{ report }}}, "report-{{@index}}")</script>
                         </div>
 
                     </div>
