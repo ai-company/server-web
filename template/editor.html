@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="dk">
+    <head>
+        <title>Orto</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <script src="/lib/text-diff/diff.min.js"></script>
+        <script src="/lib/editor.js"></script>
+
+        <link rel="stylesheet" href="/static/style.css" />
+        <link rel="stylesheet" href="/static/font/Roboto/Roboto.css" />
+    </head>
+    <body>
+        <header>
+            <a class="title" href="/"> Orto </a>
+            <nav>
+                <button class="submit" onclick="qmodal('modal-feedback')">Feedback</button>
+
+                <div id="modal-feedback" class="modal">
+                    <a class="modal-close" onclick="qmodal('modal-feedback')"></a>
+                    <div class="modal-content panel">
+                        <a class="modal-x" onclick="qmodal('modal-feedback')">
+                            <svg
+                                class="icon"
+                                viewBox="0 0 15 15"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="21"
+                                height="21"
+                            >
+                                <path d="M1.5 1.5l12 12m-12 0l12-12" stroke="currentColor"></path>
+                            </svg>
+                        </a>
+                        <form id="feedback-form" onsubmit="submit_feedback(event)">
+                            <h1>Feedback</h1>
+
+                            <div class="feedback-note">Tusind tak, fordi du hjælper med at forbedre Orto!</div>
+
+                            <label for="comma_quality">Hvordan vurderer du dine kommaforslag i dag?</label>
+                            <select id="comma_quality" name="comma_quality">
+                                <option value="B">Dårlige</option>
+                                <option value="O">Okay</option>
+                                <option value="G">Rigtig god</option>
+                            </select>
+
+                            <label for="wait_time">Hvordan er ventetiden, når du beder om rettelser?</label>
+                            <select id="wait_time" name="wait_time">
+                                <option value="T">Alt for lang</option>
+                                <option value="L">Lidt lang</option>
+                                <option value="O">Okay</option>
+                                <option value="G">Ret god</option>
+                                <option value="R">Rigtig godt</option>
+                            </select>
+
+                            <label for="problems">Hvilke problemer er du stødt på?</label>
+                            <textarea id="problems" name="problems"></textarea>
+
+                            <label for="thoughts"> Du er meget velkommen til at skrive dine overvejelser: </label>
+                            <textarea id="thoughts" name="thoughts"></textarea>
+
+                            <button class="submit" type="submit">Submit</button>
+                        </form>
+                    </div>
+                </div>
+                <div id="modal-result" class="modal">
+                    <a class="modal-close" onclick="qmodal('modal-result')"></a>
+                    <div class="modal-content panel">
+                        <a class="modal-x" onclick="qmodal('modal-result')">
+                            <svg
+                                class="icon"
+                                viewBox="0 0 15 15"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="21"
+                                height="21"
+                            >
+                                <path d="M1.5 1.5l12 12m-12 0l12-12" stroke="currentColor"></path>
+                            </svg>
+                        </a>
+                        <div class="feedback-result">
+                            <h1>Tak for din feedback! Vi kigger på den det vons.</h1>
+                            <h2>Send endelig feedback, så ofte du vil.</h2>
+                            <img
+                                src="https://media1.tenor.com/images/c1573b4b45dc7dd0faf89eb5064f53f9/tenor.gif?itemid=17045602"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="main-wrapper">
+            <main class="editor">
+                <p id="data" data-placeholder="Skriv eller indsæt din tekst her…" contenteditable></p>
+            </main>
+            <aside class="corrections">
+                <div class="header">
+                    <span class="corrections-title">Alle rettelser</span>
+                </div>
+                <div class="header">
+                    <button id="corrections-submit" class="submit" onclick="get_and_show_corrections()">
+                        <span class="load-label">Ret min tekst</span>
+                        <span class="load-spinner"></span>
+                    </button>
+                </div>
+                <div class="corrections-massactions">
+                    <div class="header-actions">
+                        <button onclick="accept_all_corrections()" class="accept-all accept">
+                            <svg
+                                class="icon"
+                                viewBox="0 0 15 15"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="30"
+                                height="30"
+                            >
+                                <path
+                                    d="M4 7.5L7 10l4-5m-3.5 9.5a7 7 0 110-14 7 7 0 010 14z"
+                                    stroke="currentColor"
+                                ></path>
+                            </svg>
+                            <span>Accepter alt</span>
+                        </button>
+                        <button onclick="ignore_all_corrections()" class="ignore-all ignore">
+                            <svg
+                                class="icon"
+                                viewBox="0 0 15 15"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="21"
+                                height="21"
+                            >
+                                <path
+                                    d="M4.5 3V1.5a1 1 0 011-1h4a1 1 0 011 1V3M0 3.5h15m-13.5 0v10a1 1 0 001 1h10a1 1 0 001-1v-10M7.5 7v5m-3-3v3m6-3v3"
+                                    stroke="currentColor"
+                                ></path>
+                            </svg>
+                            <span>Ignorer alt</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="correction-list">
+                    <div class="note">
+                        <strong>Der er intet at tjekke endnu.</strong>
+                        <div>
+                            <small>Start med at skrive eller indsæt din tekst for at få forslag.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>BEMÆRK</strong>
+                    <div>
+                        <small>
+                            Orto er stadig under udvikling, så der kan forventes upræcise rettelser. For at forbedre
+                            AI'en, kan du hjælpe den lære ved at rapportere fejl. Støder du på i et åbenlyst forkert
+                            forslag, må du gerne rapportere det.
+                        </small>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <footer>© 2021, ai-company. All rights reserved.</footer>
+    </body>
+</html>

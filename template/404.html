@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en-gb">
+    <head>
+        <title>Orto</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <script src="/lib/particles/particles.min.js"></script>
+        <script defer="true">
+            particlesJS.load("particles", "/lib/particles/config.json");
+        </script>
+        <style>
+            body {
+                margin: 0;
+            }
+            #particles {
+                position: fixed;
+                z-index: -1;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+            .center {
+                display: grid;
+                height: 100vh;
+                width: 100vw;
+                align-content: center;
+                justify-content: center;
+            }
+        </style>
+        <link rel="stylesheet" href="/static/font/Roboto/Roboto.css" />
+    </head>
+    <body>
+        <div id="particles"></div>
+        <div class="center">
+            <h1>Page not found...</h1>
+            <a href="/"><h2>Go home</h2></a>
+        </div>
+    </body>
+</html>
