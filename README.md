@@ -1,4 +1,5 @@
 # server-web
+
 Web front server
 
 ## Getting started
@@ -44,3 +45,35 @@ Accounts can be created and signed into using `/user/signup` and `/user/signin` 
 - check accept-language header for preferred language
 - implement job scheduler for token cleanup and subscription verification
 - wrap reviews when last review is reached
+
+# Landing
+
+<img src="/.screenshots/sc-landing.png">
+
+# Login
+
+<img src="/.screenshots/sc-login.png">
+
+# Signup
+
+<img src="/.screenshots/sc-signup.png">
+<img src="/.screenshots/sc-signupemail.png">
+<img src="/.screenshots/sc-email.png">
+
+# Privacy
+
+<img src="/.screenshots/sc-privacy.png">
+
+# Account
+
+<img src="/.screenshots/sc-account.png">
+
+# Admin
+
+<img src="/.screenshots/sc-admin.png">
+
+# Editor
+
+<img src="/.screenshots/sc-editor.png">
+<img src="/.screenshots/sc-grammar.png">
+<img src="/.screenshots/sc-spelling.png">
