@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en-gb">
+    <head>
+        <title>Orto</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <script src="/lib/particles/particles.min.js"></script>
+        <script defer="true">
+            particlesJS.load("particles", "/lib/particles/config.json");
+
+            function onboarding(e) {
+                e.preventDefault();
+                const email = document.forms["onboarding-form"].email.value;
+                const submit = document.getElementById("onboarding-submit");
+
+                submit.classList.add("loading");
+
+                const xhr = new XMLHttpRequest();
+                let error = document.getElementById("error");
+                if (error) {
+                    error.remove();
+                }
+
+                xhr.onreadystatechange = function () {
+                    let form = document.getElementById("onboarding-form");
+
+                    if (this.readyState == 4 && this.status == 200) {
+                        submit.classList.remove("loading");
+                        let msg = document.createElement("div");
+                        msg.id = "success";
+                        msg.innerText = "Vi har sendt dig en email med et invitationslink!";
+
+                        form.classList.add("fade");
+                        setTimeout(() => form.replaceWith(msg), 250);
+                    } else if (this.readyState == 4) {
+                        submit.classList.remove("loading");
+                        let msg = document.createElement("div");
+                        msg.id = "error";
+                        msg.innerText = "Der gik noget galt, da vi skulle sende din invitation. Prøv igen.";
+
+                        document.getElementById("onboarding-form").appendChild(msg);
+                    }
+                };
+
+                xhr.open("POST", "/");
+                xhr.send("email=" + encodeURIComponent(email));
+            }
+        </script>
+
+        <link rel="stylesheet" href="/static/landing-style.css" />
+        <link rel="stylesheet" href="/static/font/Roboto/Roboto.css" />
+    </head>
+    <body>
+        <div id="particles"></div>
+        <main>
+            <div id="onboarding">
+                <div class="welcome">
+                    <div class="title">
+                        <h2>Orto</h2>
+                    </div>
+                    <p><strong>Velkommen til Orto, et nyt, AI-baseret værktøj til kommatering og grammatik!</strong></p>
+                    <p>
+                        Hvis du er blevet inviteret til den lukkede alfa, kan du indtaste din e-mail nedenfor. Så får du
+                        en mail med et adgangslink til værktøjet.
+                    </p>
+                </div>
+                <form id="onboarding-form" onsubmit="onboarding(event)">
+                    <input id="email" name="email" type="email" placeholder="john.doe@example.com" />
+                    <button id="onboarding-submit" class="submit" type="submit">
+                        <span class="load-label">Send email</span>
+                        <span class="load-spinner"></span>
+                    </button>
+                </form>
+            </div>
+            <div id="preview">
+                <figure>
+                    <img class="preview-desktop" src="/static/img/preview.png" />
+                    <img class="preview-mobile" src="/static/img/preview-mobile.png" />
+                    <figcaption>Orto preview</figcaption>
+                </figure>
+            </div>
+        </main>
+        <footer>© 2021, ai-company. All rights reserved.</footer>
+    </body>
+</html>
